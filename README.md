@@ -22,7 +22,7 @@ CITS5505_SEM-1_2026 Agile Web Development SEM-1 2026
 
 
 
-# cits5504-practice
+# cits5505-practice
 
 1. Create a repository and initialized config
 git init : creates a new git repository in the current folder
@@ -61,11 +61,30 @@ git push origin [branch_name] : Pushes local commits to the remote GitHub reposi
 git pull origin [branch_name] : Fetches the latest code from GitHub and merges it into the local branch.
 
 5. project management tool
-Issues:
+Issues:go to GitHub repository → Issues
+       click New issue
+       write a title describing the problem
+       write a description explaining the bug / task / suggestion
+       optionally add labels, assignees, or milestones
+       click Submit new issue
 
-Pull Requests(pr):
+Pull Requests(pr): go to GitHub → Compare & pull request
+                   add title and description
+                   click Create pull request
+                   after approval → Merge pull request
 
-Code Review:
+Code Review: open the Pull Request on GitHub
+             check the changed files
+             add comments if necessary
+             choose review action:
+             Comment/Approve/Request changes
 
-Branch Protection Rules:
+Branch Protection Rules: go to GitHub repository → Settings
+                         click Branches
+                         click Add branch protection rule
+                         set branch name (e.g., main)
+                         enable rules:
+                             require pull request before merging
+                             require approval before merging
+                         click Save changes
 
