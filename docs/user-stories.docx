@@ -1,0 +1,7 @@
+1. User Registration and Login
+As a user I want to create a account to access the game.
+As a user I want to login without entering my credentials everytime.
+
+2. Current Balance
+As a user in my initial login I want to recieve initial virtual amount to start the trading.
+As a user I want to view my current balance to track my performance.
