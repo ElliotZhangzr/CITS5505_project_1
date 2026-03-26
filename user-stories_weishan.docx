@@ -1,0 +1,9 @@
+1. Market Data
+As a user, I want to view real-time or simulated stock prices so that I can make informed trading decisions.
+As a user, I want to view anonymized profit and loss data of other users so that I can compare performance without exposing personal details.
+
+2. Risk Assessment
+As a user, I want the system to provide a risk assessment for each stock so that I can understand potential volatility before trading.
+
+3. Watchlist
+As a user, I want to add stocks to a watchlist so that I can monitor their price changes without investing.
