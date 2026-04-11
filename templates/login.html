@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<div class="container">
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <p style="color: green;">{{ messages[0] }}</p>
+        {% endif %}
+    {% endwith %}
+
+    <p class="subtitle">Group Project</p>
+    <h1>Login</h1>
+
+    <form method="POST">
+        <input name="username" type="text" placeholder="username or email" required>
+        <input name="password" type="password" placeholder="password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <p>No account? <a href="/register">Register here</a></p>
+
+</div>
