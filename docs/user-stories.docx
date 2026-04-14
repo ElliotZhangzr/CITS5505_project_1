@@ -1,0 +1,21 @@
+1. User Registration and Login
+As a user I want to create a account to access the game.
+As a user I want to login without entering my credentials everytime.
+
+2. Current Balance
+As a user in my initial login I want to recieve initial virtual amount to start the trading.
+As a user I want to view my current balance to track my performance.
+________________________________________
+3. Buying and Selling Assets
+As a user, I want to buy assets so that I can invest my virtual money.
+As a user, I want to sell assets so that I can make profit or reduce my losses.
+________________________________________
+4. Portfolio Tracking
+As a user, I want to view my portfolio so that I can see what assets I own and their value.
+As a user, I want to track my profit or loss so that I understand how well I am performing.
+________________________________________
+5. Leaderboard
+As a user, I want to see a leaderboard so that I can compare my performance with other users.
+As a user, I want to improve my ranking by making better trading decisions.
+________________________________________
+
