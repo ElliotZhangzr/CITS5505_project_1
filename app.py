@@ -15,7 +15,7 @@ def login():
         for user, data in users.items():
             if (username == user or username == data["email"]) and password == data["password"]:
                 session["user"] = user
-                return redirect("/")
+                return redirect("/dashboard")
 
         return render_template("fail.html")
 
@@ -45,16 +45,22 @@ def register():
 @app.route("/")
 def home():
     if "user" in session:
-        return f'''
-            <h2>Welcome {session["user"]}</h2>
-            <a href="/logout"><button>Logout</button></a>
-        '''
+        return redirect("/dashboard")
     return redirect("/login")
 
 
 @app.route("/dashboard")
 def dashboard():
+    if "user" not in session:
+        return redirect("/login")
     return render_template("dashboard.html")
+
+
+@app.route("/leaderboard")
+def leaderboard():
+    if "user" not in session:
+        return redirect("/login")
+    return render_template("leaderboard.html")
 
 
 # logout
