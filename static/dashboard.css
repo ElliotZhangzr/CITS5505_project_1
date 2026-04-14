@@ -55,6 +55,60 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.welcome-text {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.user-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.action-link.secondary {
+    background: rgba(20, 53, 67, 0.1);
+    color: var(--ink);
+}
+
+.action-link:hover {
+    opacity: 0.92;
 }
 
 .kicker {
@@ -238,6 +292,36 @@ td {
     border-radius: 10px;
     background: #fff;
     padding: 10px 12px;
+}
+
+@media (max-width: 900px) {
+    .chart-area,
+    .trade-area,
+    .holding-area,
+    .market-area {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard {
+        padding: 14px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .user-panel {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .user-links {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
 
 .delta.up {
