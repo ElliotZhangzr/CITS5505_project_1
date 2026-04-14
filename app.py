@@ -52,6 +52,11 @@ def home():
     return redirect("/login")
 
 
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
 # logout
 @app.route("/logout")
 def logout():
