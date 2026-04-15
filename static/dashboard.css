@@ -316,6 +316,7 @@ td {
     .user-panel {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     .user-links {
