@@ -1,7 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, flash
+from db import init_db
 
 app = Flask(__name__)
 app.secret_key = "secret123"
+
+# Initialize database
+init_db(app)
 
 users = {}
 
