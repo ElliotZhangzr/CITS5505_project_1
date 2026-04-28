@@ -72,8 +72,15 @@ def leaderboard():
     else:
         title = "Cash Ranking"
         value_label = "Cash"
-        
-    return render_template("leaderboard.html")
+
+    return render_template(
+        "leaderboard.html",
+        users=users,
+        title=title,
+        ranking_type=ranking_type,
+        value_label=value_label,
+        current_user=session["user"]
+    )
 
 
 # logout
