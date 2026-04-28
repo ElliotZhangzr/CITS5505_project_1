@@ -25,13 +25,16 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
+        username = request.form.get("username").strip()
+        email = request.form.get("email").strip()
         password = request.form.get("password")
 
+        if username in users:
+            return "User already exists!"
+        
         users[username] = {
-            "email": email,
-            "password": password
+         "email": email,
+         "password": password
         }
 
         flash("Register success!")
@@ -39,7 +42,23 @@ def register():
 
     return render_template("register.html")
 
+# users
+@app.route("/users")
+def users_page():
+    if "user" not in session:
+        return redirect("/login")
 
+    user_list = []
+
+    for index, (username, data) in enumerate(users.items(), start=1):
+        user_list.append({
+            "id": index,
+            "username": username,
+            "email": data["email"],
+            "joinTime": "Just now"
+        })
+
+    return render_template("users.html", users=user_list)
 
 # Home page
 @app.route("/")
