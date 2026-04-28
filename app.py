@@ -66,6 +66,13 @@ def leaderboard():
     # Since user model only has cash attribute, both cash and total assets use cash temporarily
     users = User.query.order_by(User.cash.desc()).all()
 
+    if ranking_type == "assets":
+        title = "Total Assets Ranking"
+        value_label = "Total Assets"
+    else:
+        title = "Cash Ranking"
+        value_label = "Cash"
+        
     return render_template("leaderboard.html")
 
 
