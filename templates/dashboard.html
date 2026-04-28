@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-bg"></div>
+
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Trading Workspace</p>
+                <h1>Stock Trading Dashboard</h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-panel">
+                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
+                    <div class="user-links">
+                        <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
+                        <a class="action-link" href="/logout">Logout</a>
+                    </div>
+                </div>
+                <div class="market-pill" id="marketStatus">Market Open</div>
+            </div>
+        </header>
+
+        <section class="panel chart-area" aria-labelledby="chart-title">
+            <div class="section-head">
+                <h2 id="chart-title">Stock Chart Area</h2>
+                <div class="stock-tabs" role="tablist" aria-label="Stock Selection">
+                    <button class="stock-tab active" data-symbol="AAPL">AAPL</button>
+                    <button class="stock-tab" data-symbol="TSLA">TSLA</button>
+                    <button class="stock-tab" data-symbol="NVDA">NVDA</button>
+                </div>
+            </div>
+            <canvas id="stockChart" width="900" height="280" aria-label="Stock Price Trend"></canvas>
+            <div class="chart-meta">
+                <span id="currentPrice">$0.00</span>
+                <span id="priceChange" class="down">0.00%</span>
+            </div>
+        </section>
+
+        <section class="panel trade-area" aria-labelledby="trade-title">
+            <h2 id="trade-title">Buy/Sell Interaction Area</h2>
+            <form id="tradeForm" class="trade-form">
+                <label>
+                    Stock Symbol
+                    <select id="tradeSymbol" required>
+                        <option value="AAPL">AAPL</option>
+                        <option value="TSLA">TSLA</option>
+                        <option value="NVDA">NVDA</option>
+                    </select>
+                </label>
+
+                <label>
+                    Quantity
+                    <input id="tradeQty" type="number" min="1" step="1" value="1" required>
+                </label>
+
+                <div class="trade-actions">
+                    <button type="button" id="buyBtn" class="btn buy">Buy</button>
+                    <button type="button" id="sellBtn" class="btn sell">Sell</button>
+                </div>
+            </form>
+            <p id="tradeMessage" class="trade-message">Please select a stock and enter quantity.</p>
+        </section>
+
+        <section class="panel holding-area" aria-labelledby="holding-title">
+            <h2 id="holding-title">Portfolio Holdings Area</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Qty</th>
+                        <th>Avg Price</th>
+                        <th>Market Value</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingBody"></tbody>
+            </table>
+            <div class="holding-summary">
+                Total Portfolio Value: <strong id="totalValue">$0.00</strong>
+            </div>
+        </section>
+
+        <section class="panel market-area" aria-labelledby="market-title">
+            <h2 id="market-title">Market Overview Area</h2>
+            <ul id="marketList" class="market-list"></ul>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
