@@ -20,10 +20,11 @@ def login():
         ).filter_by(password_hash=password_hash).first()
 
         if user:
+            session["user"] = user.username
             session["user_id"] = user.id
             session["username"] = user.username
             session["email"] = user.email
-            session["cash"] = user.cash
+            session["cash"] = str(user.cash)
             session["logged_in"] = True
             return redirect("/dashboard")
 
@@ -58,10 +59,11 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
+        session["user"] = new_user.username
         session["user_id"] = new_user.id
         session["username"] = new_user.username
         session["email"] = new_user.email
-        session["cash"] = new_user.cash
+        session["cash"] = str(new_user.cash)
         session["logged_in"] = True
 
         return redirect("/dashboard")
