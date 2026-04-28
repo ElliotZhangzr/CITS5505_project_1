@@ -11,7 +11,8 @@ def init_db(app: Flask):
 
     with app.app_context():
         # Check if database file exists, create tables if not
-        if not os.path.exists('app.db'):
+        db_path = os.path.join(app.instance_path, 'app.db')
+        if not os.path.exists(db_path):
             db.create_all()
             print("Database and tables created.")
         else:

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from decimal import Decimal
 
 db = SQLAlchemy()
 
@@ -9,7 +10,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
-    cash = db.Column(db.Float, nullable=False, default=10000.0)
+    cash = db.Column(db.Numeric(12, 2), nullable=False, default=Decimal("10000.00"))
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
