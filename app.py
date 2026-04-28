@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, session, flash
-<<<<<<< HEAD
 from db import init_db
 from models import db, User
 import hashlib
@@ -7,13 +6,6 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = "secret123"
 init_db(app)
-=======
-
-app = Flask(__name__)
-app.secret_key = "secret123"
-
-users = {}
->>>>>>> main
 
 # login
 @app.route("/login", methods=["GET", "POST"])
