@@ -60,6 +60,12 @@ def dashboard():
 def leaderboard():
     if "user" not in session:
         return redirect("/login")
+    
+    ranking_type = request.args.get("type", "cash")
+
+    # Since user model only has cash attribute, both cash and total assets use cash temporarily
+    users = User.query.order_by(User.cash.desc()).all()
+
     return render_template("leaderboard.html")
 
 
