@@ -95,7 +95,14 @@ def dashboard():
 def leaderboard():
     if "user" not in session:
         return redirect("/login")
-    return render_template("leaderboard.html")
+    
+    ranking_type = request.args.get("type", "cash")
+    context = get_leaderboard_context(ranking_type, session["user"])
+
+    return render_template(
+        "leaderboard.html",
+        **context
+    )
 
 
 @app.route("/users")
