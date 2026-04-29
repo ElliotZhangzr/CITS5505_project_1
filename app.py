@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, flash
-#from model import User
+from db import init_db
+from models import db, User
+import hashlib
+
 app = Flask(__name__)
 app.secret_key = "secret123"
-
-users = {}
+init_db(app)
 
 # login
 @app.route("/login", methods=["GET", "POST"])
@@ -11,13 +13,23 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-        for user, data in users.items():
-            if (username == user or username == data["email"]) and password == data["password"]:
-                session["user"] = user
-                return redirect("/dashboard")
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).filter_by(password_hash=password_hash).first()
 
-        return render_template("fail.html")
+        if user:
+            session["user"] = user.username
+            session["user_id"] = user.id
+            session["username"] = user.username
+            session["email"] = user.email
+            session["cash"] = str(user.cash)
+            session["logged_in"] = True
+            return redirect("/dashboard")
+
+        flash("Username or password incorrect.")
+        return render_template("login.html")
 
     return render_template("login.html")
 
@@ -28,14 +40,33 @@ def register():
         username = request.form.get("username")
         email = request.form.get("email")
         password = request.form.get("password")
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-        users[username] = {
-            "email": email,
-            "password": password
-        }
+        existing = User.query.filter(
+            (User.username == username) | (User.email == email)
+        ).first()
 
-        flash("Register success!")
-        return redirect("/login")
+        if existing:
+            flash("Username or email already exists.")
+            return render_template("register.html")
+
+        new_user = User(
+            username=username,
+            email=email,
+            password_hash=password_hash,
+            cash=10000.0
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        session["user"] = new_user.username
+        session["user_id"] = new_user.id
+        session["username"] = new_user.username
+        session["email"] = new_user.email
+        session["cash"] = str(new_user.cash)
+        session["logged_in"] = True
+
+        return redirect("/dashboard")
 
     return render_template("register.html")
 
