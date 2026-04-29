@@ -196,3 +196,28 @@ tr:hover {
     font-size: 0.85rem;
 }
 
+@media (max-width: 640px) {
+    .leaderboard-page {
+        padding: 14px;
+    }
+
+    .user-panel {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .user-links {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .ranking-tabs {
+        width: 100%;
+    }
+
+    .ranking-tab {
+        flex: 1;
+        text-align: center;
+    }
+}
