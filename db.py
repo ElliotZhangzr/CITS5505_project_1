@@ -5,7 +5,10 @@ import os
 
 def init_db(app: Flask):
     """Initialize the database, create tables if they do not exist"""
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+    os.makedirs(app.instance_path, exist_ok=True)
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        'sqlite:///' + os.path.join(app.instance_path, 'app.db')
+    )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 

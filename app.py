@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify
 from db import init_db
 from models import db, User
+from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data, get_stocks
 from stock_simulator import update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
