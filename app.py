@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
 from leaderboard import get_leaderboard_context
+from user_service import get_all_users
 import hashlib
 
 app = Flask(__name__)
@@ -59,7 +60,7 @@ def register():
         )
         db.session.add(new_user)
         db.session.commit()
-
+        
         session["user"] = new_user.username
         session["user_id"] = new_user.id
         session["username"] = new_user.username
@@ -100,6 +101,15 @@ def leaderboard():
         "leaderboard.html",
         **context
     )
+
+
+@app.route("/users")
+def users():
+    if "user" not in session:
+        return redirect("/login")
+
+    user_list = get_all_users()
+    return render_template("users.html", users=user_list)
 
 
 # logout
