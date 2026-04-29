@@ -3,6 +3,7 @@ from db import init_db
 from models import db, User
 from stock_data import get_stock_data, get_stocks
 from stock_simulator import update_prices_if_due
+from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
 from user_service import get_all_users
 import hashlib
 
@@ -122,6 +123,40 @@ def api_stock_prices():
 
     latest_prices = update_prices_if_due(get_stocks())
     return jsonify({"latestPrices": latest_prices})
+
+
+@app.route("/api/portfolio")
+def api_portfolio():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    portfolio = build_portfolio(session["user_id"])
+    session["cash"] = f"{portfolio['cash']:.2f}"
+    return jsonify(portfolio)
+
+
+@app.route("/api/trades", methods=["POST"])
+def api_trades():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    portfolio, error = execute_stock_trade_from_payload(session["user_id"], data)
+
+    if error:
+        return jsonify({"error": error}), 400
+
+    session["cash"] = f"{portfolio['cash']:.2f}"
+    return jsonify(portfolio)
+
+
+@app.route("/api/trades")
+def api_trade_history():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    limit = request.args.get("limit", 50, type=int)
+    return jsonify({"transactions": get_transaction_history(session["user_id"], limit=limit)})
 
 
 # logout

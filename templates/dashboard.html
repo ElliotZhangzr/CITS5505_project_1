@@ -18,7 +18,7 @@
             <div class="header-actions">
                 <div class="user-panel">
                     <p class="welcome-text">Welcome {{ session["user"] }}</p>
-                    <p class="welcome-text">Cash ${{ session["cash"] }}</p>
+                    <p class="welcome-text">Cash <span id="accountCash">${{ session["cash"] }}</span></p>
                     <div class="user-links">
                         <a class="action-link secondary" href="/users">Users</a>
                         <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
@@ -70,13 +70,19 @@
                         <th>Symbol</th>
                         <th>Qty</th>
                         <th>Avg Price</th>
+                        <th>Current Price</th>
                         <th>Market Value</th>
+                        <th>P/L</th>
                     </tr>
                 </thead>
                 <tbody id="holdingBody"></tbody>
             </table>
             <div class="holding-summary">
-                Total Portfolio Value: <strong id="totalValue">$0.00</strong>
+                Stock Value: <strong id="totalValue">$0.00</strong>
+                <span>Total Assets: <strong id="totalAssets">$0.00</strong></span>
+                <span>Realized P/L: <strong id="realizedProfit">$0.00</strong></span>
+                <span>Unrealized P/L: <strong id="unrealizedProfit">$0.00</strong></span>
+                <span>Total P/L: <strong id="totalProfit">$0.00</strong></span>
             </div>
         </section>
 

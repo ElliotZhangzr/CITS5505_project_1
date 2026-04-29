@@ -196,6 +196,14 @@ h2 {
     color: var(--down);
 }
 
+.up {
+    color: var(--up);
+}
+
+.down {
+    color: var(--down);
+}
+
 .trade-area {
     grid-column: span 4;
 }
@@ -270,6 +278,10 @@ td {
 .holding-summary {
     margin-top: 12px;
     text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .market-area {

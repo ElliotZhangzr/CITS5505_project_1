@@ -1,11 +1,14 @@
-const holdings = {};
-
 const chart = document.getElementById("stockChart");
 const ctx = chart.getContext("2d");
 const currentPriceEl = document.getElementById("currentPrice");
 const priceChangeEl = document.getElementById("priceChange");
 const holdingBody = document.getElementById("holdingBody");
 const totalValueEl = document.getElementById("totalValue");
+const totalAssetsEl = document.getElementById("totalAssets");
+const realizedProfitEl = document.getElementById("realizedProfit");
+const unrealizedProfitEl = document.getElementById("unrealizedProfit");
+const totalProfitEl = document.getElementById("totalProfit");
+const accountCashEl = document.getElementById("accountCash");
 const marketList = document.getElementById("marketList");
 const tradeMessage = document.getElementById("tradeMessage");
 const tradeSymbol = document.getElementById("tradeSymbol");
@@ -14,6 +17,16 @@ const tradeQty = document.getElementById("tradeQty");
 const stockState = {
     stocks: [],
     marketData: {}
+};
+
+const portfolioState = {
+    cash: 0,
+    stockValue: 0,
+    totalAssets: 0,
+    realizedProfit: 0,
+    unrealizedProfit: 0,
+    totalProfit: 0,
+    holdings: []
 };
 
 let activeSymbol = "AAPL";
@@ -46,6 +59,52 @@ function getChangePercent(symbol) {
     const first = series[0];
     const last = series[series.length - 1];
     return ((last - first) / first) * 100;
+}
+
+function getStockId(symbol) {
+    const stock = stockState.stocks.find((item) => item.symbol === symbol);
+    if (stock) {
+        return stock.id;
+    }
+
+    const selectedOption = tradeSymbol.options[tradeSymbol.selectedIndex];
+    return selectedOption ? selectedOption.dataset.stockId : null;
+}
+
+function setPortfolio(data) {
+    portfolioState.cash = data.cash;
+    portfolioState.stockValue = data.stockValue;
+    portfolioState.totalAssets = data.totalAssets;
+    portfolioState.realizedProfit = data.realizedProfit;
+    portfolioState.unrealizedProfit = data.unrealizedProfit;
+    portfolioState.totalProfit = data.totalProfit;
+    portfolioState.holdings = data.holdings;
+}
+
+function recalculatePortfolioFromPrices() {
+    let stockValue = 0;
+    let unrealizedProfit = 0;
+
+    portfolioState.holdings = portfolioState.holdings.map((position) => {
+        const currentPrice = getLastPrice(position.symbol) ?? position.currentPrice;
+        const marketValue = currentPrice * position.quantity;
+        const holdingProfit = (currentPrice - position.averageCost) * position.quantity;
+
+        stockValue += marketValue;
+        unrealizedProfit += holdingProfit;
+
+        return {
+            ...position,
+            currentPrice,
+            marketValue,
+            unrealizedProfit: holdingProfit
+        };
+    });
+
+    portfolioState.stockValue = stockValue;
+    portfolioState.unrealizedProfit = unrealizedProfit;
+    portfolioState.totalAssets = portfolioState.cash + stockValue;
+    portfolioState.totalProfit = portfolioState.realizedProfit + unrealizedProfit;
 }
 
 function appendLatestPrices(latestPrices, maxPoints = 400) {
@@ -132,29 +191,27 @@ function drawChart(symbol) {
 
 function renderHoldings() {
     holdingBody.innerHTML = "";
-    let total = 0;
 
-    Object.keys(holdings).forEach((symbol) => {
-        const position = holdings[symbol];
-        const market = getLastPrice(symbol);
-        if (market === null) {
-            return;
-        }
-
-        const value = market * position.qty;
-        total += value;
-
+    portfolioState.holdings.forEach((position) => {
         const row = document.createElement("tr");
+        const profitClass = position.unrealizedProfit >= 0 ? "up" : "down";
         row.innerHTML = `
-            <td>${symbol}</td>
-            <td>${position.qty}</td>
-            <td>${formatUsd(position.avg)}</td>
-            <td>${formatUsd(value)}</td>
+            <td>${position.symbol}</td>
+            <td>${position.quantity}</td>
+            <td>${formatUsd(position.averageCost)}</td>
+            <td>${formatUsd(position.currentPrice)}</td>
+            <td>${formatUsd(position.marketValue)}</td>
+            <td class="${profitClass}">${formatUsd(position.unrealizedProfit)}</td>
         `;
         holdingBody.appendChild(row);
     });
 
-    totalValueEl.textContent = formatUsd(total);
+    totalValueEl.textContent = formatUsd(portfolioState.stockValue);
+    totalAssetsEl.textContent = formatUsd(portfolioState.totalAssets);
+    realizedProfitEl.textContent = formatUsd(portfolioState.realizedProfit);
+    unrealizedProfitEl.textContent = formatUsd(portfolioState.unrealizedProfit);
+    totalProfitEl.textContent = formatUsd(portfolioState.totalProfit);
+    accountCashEl.textContent = formatUsd(portfolioState.cash);
 }
 
 function renderMarketOverview() {
@@ -190,51 +247,41 @@ function renderStockControls() {
         const option = document.createElement("option");
         option.value = symbol;
         option.textContent = symbol;
+        option.dataset.stockId = stockState.stocks.find((stock) => stock.symbol === symbol)?.id || "";
         tradeSymbol.appendChild(option);
     });
 
     activeSymbol = symbols[0] || activeSymbol;
 }
 
-function executeTrade(type) {
+async function executeTrade(type) {
     const symbol = tradeSymbol.value;
     const qty = Number(tradeQty.value);
-    const price = getLastPrice(symbol);
-
-    if (price === null) {
-        tradeMessage.textContent = "No stock data available.";
-        return;
-    }
+    const stockId = getStockId(symbol);
 
     if (!Number.isInteger(qty) || qty <= 0) {
         tradeMessage.textContent = "Quantity must be an integer greater than 0.";
         return;
     }
 
-    const position = holdings[symbol] || { qty: 0, avg: price };
-
-    if (type === "buy") {
-        const totalCost = position.avg * position.qty + price * qty;
-        const totalQty = position.qty + qty;
-        position.qty = totalQty;
-        position.avg = totalCost / totalQty;
-        holdings[symbol] = position;
-        tradeMessage.textContent = `Bought ${qty} shares of ${symbol} at ${formatUsd(price)}.`;
-    } else {
-        if (qty > position.qty) {
-            tradeMessage.textContent = `Sell failed: insufficient ${symbol} holdings.`;
-            return;
-        }
-        position.qty -= qty;
-        if (position.qty === 0) {
-            delete holdings[symbol];
-        } else {
-            holdings[symbol] = position;
-        }
-        tradeMessage.textContent = `Sold ${qty} shares of ${symbol} at ${formatUsd(price)}.`;
+    if (stockId === null) {
+        tradeMessage.textContent = "No stock data available.";
+        return;
     }
 
-    renderHoldings();
+    try {
+        const portfolio = await StockDataClient.executeTrade(stockId, type.toUpperCase(), qty);
+        const latestData = await StockDataClient.loadLatestPrices();
+        appendLatestPrices(latestData.latestPrices);
+        setPortfolio(portfolio);
+        recalculatePortfolioFromPrices();
+        drawChart(activeSymbol);
+        renderHoldings();
+        renderMarketOverview();
+        tradeMessage.textContent = `${type === "buy" ? "Bought" : "Sold"} ${qty} shares of ${symbol}.`;
+    } catch (error) {
+        tradeMessage.textContent = error.message;
+    }
 }
 
 function initTabs() {
@@ -256,8 +303,11 @@ document.getElementById("sellBtn").addEventListener("click", () => executeTrade(
 async function initDashboard() {
     try {
         const data = await StockDataClient.loadStockData();
+        const portfolio = await StockDataClient.loadPortfolio();
         stockState.stocks = data.stocks;
         stockState.marketData = data.marketData;
+        setPortfolio(portfolio);
+        recalculatePortfolioFromPrices();
         renderStockControls();
 
         if (getSymbols().length === 0) {
@@ -277,6 +327,7 @@ async function initDashboard() {
             try {
                 const latestData = await StockDataClient.loadLatestPrices();
                 appendLatestPrices(latestData.latestPrices);
+                recalculatePortfolioFromPrices();
             } catch (error) {
                 tradeMessage.textContent = error.message;
                 return;
