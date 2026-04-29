@@ -1,8 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import DDL, event
 from datetime import datetime
 from decimal import Decimal
 
 db = SQLAlchemy()
+MAX_STOCK_PRICE_RECORDS = 6000
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -84,3 +86,21 @@ class StockTransaction(db.Model):
 
     def __repr__(self):
         return f'<StockTransaction {self.user_id} {self.side} {self.stock_id} {self.quantity}>'
+
+
+limit_stock_price_records = DDL(f"""
+CREATE TRIGGER IF NOT EXISTS limit_stock_price_records
+AFTER INSERT ON stock_price
+WHEN (SELECT COUNT(*) FROM stock_price) > {MAX_STOCK_PRICE_RECORDS}
+BEGIN
+    DELETE FROM stock_price
+    WHERE id IN (
+        SELECT id
+        FROM stock_price
+        ORDER BY recorded_at ASC, id ASC
+        LIMIT (SELECT COUNT(*) - {MAX_STOCK_PRICE_RECORDS} FROM stock_price)
+    );
+END;
+""")
+
+event.listen(StockPrice.__table__, "after_create", limit_stock_price_records)
