@@ -1,60 +1,233 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f7fa;
-    margin: 0;
+:root {
+    --bg-1: #f6fbff;
+    --bg-2: #e8f5f0;
+    --ink: #143543;
+    --muted: #5f7b86;
+    --panel: rgba(255, 255, 255, 0.82);
+    --line: rgba(20, 53, 67, 0.14);
+    --buy: #0c9e6c;
+    --sell: #d94a4a;
+    --up: #0b9c67;
+    --down: #cc3d57;
 }
 
-.container {
-    width: 60%;
-    margin: 50px auto;
-    text-align: center;
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: radial-gradient(circle at 10% 10%, #ffffff 0%, var(--bg-1) 40%, var(--bg-2) 100%);
+}
+
+.dashboard-bg {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(120deg, rgba(12, 158, 108, 0.08) 0%, rgba(19, 73, 125, 0.07) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.leaderboard-page {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 24px rgba(21, 45, 64, 0.08);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 4px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.user-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.welcome-text {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.user-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.action-link.secondary {
+    background: rgba(20, 53, 67, 0.1);
+    color: var(--ink);
 }
 
 h1 {
-    margin-bottom: 20px;
+    margin: 0;
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
 }
 
-.buttons {
-    margin-bottom: 20px;
+h2 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
 }
 
-button {
-    padding: 10px 20px;
-    border: none;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #ddd;
+.leaderboard-panel {
+    overflow: hidden;
 }
 
-button.active {
-    background-color: #4CAF50;
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.muted-text {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.ranking-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.ranking-tab {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 14px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ranking-tab.active {
+    background: var(--ink);
     color: white;
+}
+
+.table-wrap {
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 12px;
     overflow: hidden;
 }
 
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
+th,
+td {
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--line);
 }
 
 th {
-    background-color: #4CAF50;
-    color: white;
+    color: var(--ink);
+    font-weight: 700;
 }
 
 tr:hover {
-    background-color: #f1f1f1;
+    background: rgba(20, 53, 67, 0.04);
 }
 
 .current-user {
-    background-color: #ffeeba;
-    font-weight: bold;
+    background: rgba(12, 158, 108, 0.1) !important;
+    font-weight: 700;
+}
+
+.asset-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(12, 158, 108, 0.12);
+    color: var(--buy);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+    .leaderboard-page {
+        padding: 14px;
+    }
+
+    .user-panel {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .user-links {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .ranking-tabs {
+        width: 100%;
+    }
+
+    .ranking-tab {
+        flex: 1;
+        text-align: center;
+    }
 }
