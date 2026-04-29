@@ -19,9 +19,16 @@
     
     <h2 class="text-center mb-3">{{ title }}</h2>
 
-    <div class="buttons">
-        <button class="active">Total Assets</button>
-        <button>Cash</button>
+    <div class="text-center mb-4">
+        <a href="{{ url_for('leaderboard', type='assets') }}"
+           class="btn {% if ranking_type == 'assets' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Total Assets
+        </a>
+
+        <a href="{{ url_for('leaderboard', type='cash') }}"
+           class="btn {% if ranking_type == 'cash' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            Cash
+        </a>
     </div>
 
     <table>
