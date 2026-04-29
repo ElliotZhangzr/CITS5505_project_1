@@ -1,15 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
-import hashlib
 from user_service import get_all_users
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 init_db(app)
 
-
-# LOGIN
+# login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -35,17 +34,15 @@ def login():
 
     return render_template("login.html")
 
-
-# REGISTER
+# register
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form.get("username").strip()
-        email = request.form.get("email").strip()
+        username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-        # Check existing user in DB
         existing = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
@@ -54,18 +51,15 @@ def register():
             flash("Username or email already exists.")
             return render_template("register.html")
 
-        # Create new user
         new_user = User(
             username=username,
             email=email,
             password_hash=password_hash,
             cash=10000.0
         )
-
         db.session.add(new_user)
         db.session.commit()
-
-        # Store session
+        
         session["user"] = new_user.username
         session["user_id"] = new_user.id
         session["username"] = new_user.username
@@ -78,18 +72,8 @@ def register():
     return render_template("register.html")
 
 
-# USERS PAGE (UPDATED TO DATABASE)
-@app.route("/users")
-def users_page():
-    if "user" not in session:
-        return redirect("/login")
 
-    user_list = get_all_users()
-
-    return render_template("users.html", users=user_list)
-
-
-# HOME
+# Home page
 @app.route("/")
 def home():
     if "user" in session:
@@ -97,7 +81,6 @@ def home():
     return redirect("/login")
 
 
-# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -105,7 +88,6 @@ def dashboard():
     return render_template("dashboard.html")
 
 
-# LEADERBOARD
 @app.route("/leaderboard")
 def leaderboard():
     if "user" not in session:
@@ -113,10 +95,19 @@ def leaderboard():
     return render_template("leaderboard.html")
 
 
-# LOGOUT
+@app.route("/users")
+def users():
+    if "user" not in session:
+        return redirect("/login")
+
+    user_list = get_all_users()
+    return render_template("users.html", users=user_list)
+
+
+# logout
 @app.route("/logout")
 def logout():
-    session.clear()
+    session.pop("user", None)
     return redirect("/login")
 
 
