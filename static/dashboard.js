@@ -1,14 +1,4 @@
-const marketData = {
-    AAPL: [174, 176, 175, 179, 183, 181, 185, 188, 186, 191],
-    TSLA: [198, 204, 201, 208, 214, 210, 216, 221, 219, 225],
-    NVDA: [785, 792, 788, 801, 814, 809, 822, 834, 828, 841]
-};
-
-const holdings = {
-    AAPL: { qty: 5, avg: 175 },
-    TSLA: { qty: 2, avg: 203 },
-    NVDA: { qty: 1, avg: 790 }
-};
+const holdings = {};
 
 const chart = document.getElementById("stockChart");
 const ctx = chart.getContext("2d");
@@ -21,6 +11,11 @@ const tradeMessage = document.getElementById("tradeMessage");
 const tradeSymbol = document.getElementById("tradeSymbol");
 const tradeQty = document.getElementById("tradeQty");
 
+const stockState = {
+    stocks: [],
+    marketData: {}
+};
+
 let activeSymbol = "AAPL";
 
 function formatUsd(value) {
@@ -28,12 +23,61 @@ function formatUsd(value) {
 }
 
 function getLastPrice(symbol) {
-    const series = marketData[symbol];
+    const series = stockState.marketData[symbol];
+    if (!series || series.length === 0) {
+        return null;
+    }
     return series[series.length - 1];
 }
 
+function getSymbols() {
+    return Object.keys(stockState.marketData).filter((symbol) => {
+        const series = stockState.marketData[symbol];
+        return series && series.length > 0;
+    });
+}
+
+function getChangePercent(symbol) {
+    const series = stockState.marketData[symbol];
+    if (!series || series.length < 2) {
+        return 0;
+    }
+
+    const first = series[0];
+    const last = series[series.length - 1];
+    return ((last - first) / first) * 100;
+}
+
+function appendLatestPrices(latestPrices, maxPoints = 400) {
+    Object.entries(latestPrices).forEach(([symbol, price]) => {
+        if (!stockState.marketData[symbol]) {
+            stockState.marketData[symbol] = [];
+        }
+
+        const currentPrice = getLastPrice(symbol);
+
+        if (currentPrice === price) {
+            return;
+        }
+
+        stockState.marketData[symbol].push(price);
+
+        if (stockState.marketData[symbol].length > maxPoints) {
+            stockState.marketData[symbol].shift();
+        }
+    });
+}
+
 function drawChart(symbol) {
-    const series = marketData[symbol];
+    const series = stockState.marketData[symbol];
+    if (!series || series.length === 0) {
+        ctx.clearRect(0, 0, chart.width, chart.height);
+        currentPriceEl.textContent = "$0.00";
+        priceChangeEl.textContent = "0.00%";
+        priceChangeEl.className = "down";
+        return;
+    }
+
     const w = chart.width;
     const h = chart.height;
     const pad = 24;
@@ -53,27 +97,33 @@ function drawChart(symbol) {
     }
 
     const points = series.map((price, idx) => {
-        const x = pad + (idx / (series.length - 1)) * (w - pad * 2);
+        const x = series.length === 1
+            ? w / 2
+            : pad + (idx / (series.length - 1)) * (w - pad * 2);
         const y = h - pad - ((price - min) / (max - min)) * (h - pad * 2);
         return { x, y };
     });
 
+    const last = series[series.length - 1];
+    const change = getChangePercent(symbol);
+
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     points.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
-    ctx.strokeStyle = "#0f658e";
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
     ctx.lineTo(points[points.length - 1].x, h - pad);
     ctx.lineTo(points[0].x, h - pad);
     ctx.closePath();
-    ctx.fillStyle = "rgba(15,101,142,0.14)";
+    ctx.fillStyle = "rgba(20, 53, 67, 0.06)";
     ctx.fill();
 
-    const first = series[0];
-    const last = series[series.length - 1];
-    const change = ((last - first) / first) * 100;
+    for (let i = 1; i < points.length; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(points[i - 1].x, points[i - 1].y);
+        ctx.lineTo(points[i].x, points[i].y);
+        ctx.strokeStyle = series[i] >= series[i - 1] ? "#16a34a" : "#dc2626";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+    }
 
     currentPriceEl.textContent = `${symbol} ${formatUsd(last)}`;
     priceChangeEl.textContent = `${change >= 0 ? "+" : ""}${change.toFixed(2)}%`;
@@ -87,6 +137,10 @@ function renderHoldings() {
     Object.keys(holdings).forEach((symbol) => {
         const position = holdings[symbol];
         const market = getLastPrice(symbol);
+        if (market === null) {
+            return;
+        }
+
         const value = market * position.qty;
         total += value;
 
@@ -105,10 +159,9 @@ function renderHoldings() {
 
 function renderMarketOverview() {
     marketList.innerHTML = "";
-    Object.entries(marketData).forEach(([symbol, series]) => {
-        const first = series[0];
-        const last = series[series.length - 1];
-        const delta = ((last - first) / first) * 100;
+    getSymbols().forEach((symbol) => {
+        const last = getLastPrice(symbol);
+        const delta = getChangePercent(symbol);
 
         const item = document.createElement("li");
         item.innerHTML = `
@@ -120,16 +173,44 @@ function renderMarketOverview() {
     });
 }
 
+function renderStockControls() {
+    const stockTabs = document.querySelector(".stock-tabs");
+    const symbols = getSymbols();
+
+    stockTabs.innerHTML = "";
+    tradeSymbol.innerHTML = "";
+
+    symbols.forEach((symbol, index) => {
+        const tab = document.createElement("button");
+        tab.className = index === 0 ? "stock-tab active" : "stock-tab";
+        tab.dataset.symbol = symbol;
+        tab.textContent = symbol;
+        stockTabs.appendChild(tab);
+
+        const option = document.createElement("option");
+        option.value = symbol;
+        option.textContent = symbol;
+        tradeSymbol.appendChild(option);
+    });
+
+    activeSymbol = symbols[0] || activeSymbol;
+}
+
 function executeTrade(type) {
     const symbol = tradeSymbol.value;
     const qty = Number(tradeQty.value);
+    const price = getLastPrice(symbol);
+
+    if (price === null) {
+        tradeMessage.textContent = "No stock data available.";
+        return;
+    }
 
     if (!Number.isInteger(qty) || qty <= 0) {
         tradeMessage.textContent = "Quantity must be an integer greater than 0.";
         return;
     }
 
-    const price = getLastPrice(symbol);
     const position = holdings[symbol] || { qty: 0, avg: price };
 
     if (type === "buy") {
@@ -172,7 +253,42 @@ function initTabs() {
 document.getElementById("buyBtn").addEventListener("click", () => executeTrade("buy"));
 document.getElementById("sellBtn").addEventListener("click", () => executeTrade("sell"));
 
-drawChart(activeSymbol);
-renderHoldings();
-renderMarketOverview();
-initTabs();
+async function initDashboard() {
+    try {
+        const data = await StockDataClient.loadStockData();
+        stockState.stocks = data.stocks;
+        stockState.marketData = data.marketData;
+        renderStockControls();
+
+        if (getSymbols().length === 0) {
+            drawChart(activeSymbol);
+            renderHoldings();
+            renderMarketOverview();
+            tradeMessage.textContent = "No stock data available.";
+            return;
+        }
+
+        drawChart(activeSymbol);
+        renderHoldings();
+        renderMarketOverview();
+        initTabs();
+
+        setInterval(async () => {
+            try {
+                const latestData = await StockDataClient.loadLatestPrices();
+                appendLatestPrices(latestData.latestPrices);
+            } catch (error) {
+                tradeMessage.textContent = error.message;
+                return;
+            }
+
+            drawChart(activeSymbol);
+            renderHoldings();
+            renderMarketOverview();
+        }, 2000);
+    } catch (error) {
+        tradeMessage.textContent = error.message;
+    }
+}
+
+initDashboard();

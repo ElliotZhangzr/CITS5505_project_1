@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, jsonify
 from db import init_db
 from models import db, User
+from stock_data import get_stock_data, get_stocks
+from stock_simulator import update_prices_if_due
 from user_service import get_all_users
 import hashlib
 
@@ -55,11 +57,11 @@ def register():
             username=username,
             email=email,
             password_hash=password_hash,
-            cash=10000.0
+            cash="10000.00"
         )
         db.session.add(new_user)
         db.session.commit()
-        
+
         session["user"] = new_user.username
         session["user_id"] = new_user.id
         session["username"] = new_user.username
@@ -102,6 +104,24 @@ def users():
 
     user_list = get_all_users()
     return render_template("users.html", users=user_list)
+
+
+@app.route("/api/stocks")
+def api_stocks():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    limit = request.args.get("limit", 400, type=int)
+    return jsonify(get_stock_data(limit=limit))
+
+
+@app.route("/api/stocks/latest")
+def api_stock_prices():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+
+    latest_prices = update_prices_if_due(get_stocks())
+    return jsonify({"latestPrices": latest_prices})
 
 
 # logout

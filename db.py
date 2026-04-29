@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User
+from models import db
 import os
 
 def init_db(app: Flask):
@@ -16,4 +16,5 @@ def init_db(app: Flask):
             db.create_all()
             print("Database and tables created.")
         else:
+            db.create_all()
             print("Database already exists.")

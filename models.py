@@ -15,3 +15,27 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+class Stock(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(10), unique=True, nullable=False)
+    name = db.Column(db.String(120), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    prices = db.relationship("StockPrice", back_populates="stock", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f'<Stock {self.symbol}>'
+
+
+class StockPrice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    stock_id = db.Column(db.Integer, db.ForeignKey("stock.id"), nullable=False)
+    price = db.Column(db.Numeric(12, 2), nullable=False)
+    recorded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    stock = db.relationship("Stock", back_populates="prices")
+
+    def __repr__(self):
+        return f'<StockPrice {self.stock_id} {self.price}>'

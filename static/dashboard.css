@@ -5,10 +5,10 @@
     --muted: #5f7b86;
     --panel: rgba(255, 255, 255, 0.82);
     --line: rgba(20, 53, 67, 0.14);
-    --buy: #0c9e6c;
-    --sell: #d94a4a;
-    --up: #0b9c67;
-    --down: #cc3d57;
+    --buy: #16a34a;
+    --sell: #dc2626;
+    --up: #16a34a;
+    --down: #dc2626;
 }
 
 * {
