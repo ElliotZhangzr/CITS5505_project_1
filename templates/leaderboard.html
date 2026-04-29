@@ -37,12 +37,12 @@
 
                 <div class="ranking-tabs">
                     <a href="{{ url_for('leaderboard', type='assets') }}"
-                        class="btn {% if ranking_type == 'assets' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        class="ranking-tab {% if ranking_type == 'assets' %}active{% else %}inactive{% endif %}">
                         Total Assets
                     </a>
 
                     <a href="{{ url_for('leaderboard', type='cash') }}"
-                        class="btn {% if ranking_type == 'cash' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        class="ranking-tab {% if ranking_type == 'cash' %}btn-primary{% else %}btn-outline-primary{% endif %}">
                         Cash
                     </a>
                 </div>
