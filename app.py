@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, flash
-
+#from model import User
 app = Flask(__name__)
 app.secret_key = "secret123"
 
@@ -64,7 +64,15 @@ def leaderboard():
     ranking_type = request.args.get("type", "cash")
 
     # Since user model only has cash attribute, both cash and total assets use cash temporarily
-    users = User.query.order_by(User.cash.desc()).all()
+    # users = User.query.order_by(User.cash.desc()).all()
+
+    # Mock data for demonstration
+    users = [
+    {"username": "Alice", "cash": 12500},
+    {"username": "Bob", "cash": 11800},
+    {"username": session["user"], "cash": 10950},
+    {"username": "Charlie", "cash": 9500}
+    ]
 
     if ranking_type == "assets":
         title = "Total Assets Ranking"
