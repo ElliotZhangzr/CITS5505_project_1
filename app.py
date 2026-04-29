@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
+from leaderboard import get_leaderboard_context
 import hashlib
 
 app = Flask(__name__)
@@ -93,32 +94,11 @@ def leaderboard():
         return redirect("/login")
     
     ranking_type = request.args.get("type", "cash")
-
-    # Since user model only has cash attribute, both cash and total assets use cash temporarily
-    # users = User.query.order_by(User.cash.desc()).all()
-
-    # Mock data for demonstration
-    users = [
-    {"username": "Alice", "cash": 12500},
-    {"username": "Bob", "cash": 11800},
-    {"username": session["user"], "cash": 10950},
-    {"username": "Charlie", "cash": 9500}
-    ]
-
-    if ranking_type == "assets":
-        title = "Total Assets Ranking"
-        value_label = "Total Assets"
-    else:
-        title = "Cash Ranking"
-        value_label = "Cash"
+    context = get_leaderboard_context(ranking_type, session["user"])
 
     return render_template(
         "leaderboard.html",
-        users=users,
-        title=title,
-        ranking_type=ranking_type,
-        value_label=value_label,
-        current_user=session["user"]
+        **context
     )
 
 
