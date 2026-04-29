@@ -1,121 +1,128 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
 </head>
+
 <body>
 
-<div class="dashboard-bg"></div>
+    <div class="dashboard-bg"></div>
 
-<main class="dashboard">
+    <main class="dashboard">
 
-    <!-- HEADER -->
-    <header class="page-header panel">
-        <div>
-            <p class="kicker">Trading Workspace</p>
-            <h1>Stock Trading Dashboard</h1>
-        </div>
+        <!-- HEADER -->
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Trading Workspace</p>
+                <h1>Stock Trading Dashboard</h1>
+            </div>
 
-        <div class="header-actions">
+            <div class="header-actions">
+                <div class="user-panel">
+                    <p class="welcome-text">
+                        Welcome {{ session["username"] }}
+                    </p>
 
-            <div class="user-panel">
-                <p class="welcome-text">Welcome {{ session["username"] }}</p>
+                    <!-- NAVIGATION -->
+                    <div class="user-links">
+                        <a class="action-link secondary" href="/users">Users</a>
+                        <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
+                        <a class="action-link" href="/logout">Logout</a>
+                    </div>
+                </div>
 
-                <!-- FIXED NAVIGATION -->
-                <div class="user-links">
-                    <a class="action-link secondary" href="/users">Users</a>
-                    <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
-                    <a class="action-link" href="/logout">Logout</a>
+                <div class="market-pill" id="marketStatus">
+                    Market Open
+                </div>
+            </div>
+        </header>
+
+        <!-- CHART -->
+        <section class="panel chart-area" aria-labelledby="chart-title">
+            <div class="section-head">
+                <h2 id="chart-title">Stock Chart Area</h2>
+
+                <div class="stock-tabs">
+                    <button class="stock-tab active" data-symbol="AAPL">AAPL</button>
+                    <button class="stock-tab" data-symbol="TSLA">TSLA</button>
+                    <button class="stock-tab" data-symbol="NVDA">NVDA</button>
                 </div>
             </div>
 
-            <div class="market-pill" id="marketStatus">Market Open</div>
-        </div>
-    </header>
+            <canvas id="stockChart" width="900" height="280"></canvas>
 
-    <!-- CHART -->
-    <section class="panel chart-area" aria-labelledby="chart-title">
-        <div class="section-head">
-            <h2 id="chart-title">Stock Chart Area</h2>
-
-            <div class="stock-tabs">
-                <button class="stock-tab active" data-symbol="AAPL">AAPL</button>
-                <button class="stock-tab" data-symbol="TSLA">TSLA</button>
-                <button class="stock-tab" data-symbol="NVDA">NVDA</button>
+            <div class="chart-meta">
+                <span id="currentPrice">$0.00</span>
+                <span id="priceChange" class="down">0.00%</span>
             </div>
-        </div>
+        </section>
 
-        <canvas id="stockChart" width="900" height="280"></canvas>
+        <!-- TRADE -->
+        <section class="panel trade-area">
+            <h2>Buy/Sell Interaction Area</h2>
 
-        <div class="chart-meta">
-            <span id="currentPrice">$0.00</span>
-            <span id="priceChange" class="down">0.00%</span>
-        </div>
-    </section>
+            <form id="tradeForm" class="trade-form">
+                <label>
+                    Stock Symbol
+                    <select id="tradeSymbol">
+                        <option value="AAPL">AAPL</option>
+                        <option value="TSLA">TSLA</option>
+                        <option value="NVDA">NVDA</option>
+                    </select>
+                </label>
 
-    <!-- TRADE -->
-    <section class="panel trade-area">
-        <h2>Buy/Sell Interaction Area</h2>
+                <label>
+                    Quantity
+                    <input id="tradeQty" type="number" min="1" value="1">
+                </label>
 
-        <form id="tradeForm" class="trade-form">
-            <label>
-                Stock Symbol
-                <select id="tradeSymbol">
-                    <option value="AAPL">AAPL</option>
-                    <option value="TSLA">TSLA</option>
-                    <option value="NVDA">NVDA</option>
-                </select>
-            </label>
+                <div class="trade-actions">
+                    <button type="button" id="buyBtn" class="btn buy">Buy</button>
+                    <button type="button" id="sellBtn" class="btn sell">Sell</button>
+                </div>
+            </form>
 
-            <label>
-                Quantity
-                <input id="tradeQty" type="number" min="1" value="1">
-            </label>
+            <p id="tradeMessage" class="trade-message">
+                Please select a stock and enter quantity.
+            </p>
+        </section>
 
-            <div class="trade-actions">
-                <button type="button" id="buyBtn" class="btn buy">Buy</button>
-                <button type="button" id="sellBtn" class="btn sell">Sell</button>
+        <!-- HOLDINGS -->
+        <section class="panel holding-area">
+            <h2>Portfolio Holdings Area</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Qty</th>
+                        <th>Avg Price</th>
+                        <th>Market Value</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingBody"></tbody>
+            </table>
+
+            <div class="holding-summary">
+                Total Portfolio Value:
+                <strong id="totalValue">$0.00</strong>
             </div>
-        </form>
+        </section>
 
-        <p id="tradeMessage" class="trade-message">
-            Please select a stock and enter quantity.
-        </p>
-    </section>
+        <!-- MARKET -->
+        <section class="panel market-area">
+            <h2>Market Overview Area</h2>
+            <ul id="marketList" class="market-list"></ul>
+        </section>
 
-    <!-- HOLDINGS -->
-    <section class="panel holding-area">
-        <h2>Portfolio Holdings Area</h2>
+    </main>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Qty</th>
-                    <th>Avg Price</th>
-                    <th>Market Value</th>
-                </tr>
-            </thead>
-            <tbody id="holdingBody"></tbody>
-        </table>
-
-        <div class="holding-summary">
-            Total Portfolio Value: <strong id="totalValue">$0.00</strong>
-        </div>
-    </section>
-
-    <!-- MARKET -->
-    <section class="panel market-area">
-        <h2>Market Overview Area</h2>
-        <ul id="marketList" class="market-list"></ul>
-    </section>
-
-</main>
-
-<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 
 </body>
+
 </html>
