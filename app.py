@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
 import hashlib
+from user_service import get_all_users
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -83,16 +84,7 @@ def users_page():
     if "user" not in session:
         return redirect("/login")
 
-    users = User.query.all()
-
-    user_list = []
-    for u in users:
-        user_list.append({
-            "id": u.id,
-            "username": u.username,
-            "email": u.email,
-            "joinTime": u.created_at.strftime("%Y-%m-%d %H:%M")
-        })
+    user_list = get_all_users()
 
     return render_template("users.html", users=user_list)
 
