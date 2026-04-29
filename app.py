@@ -1,66 +1,103 @@
 from flask import Flask, render_template, request, redirect, session, flash
+from db import init_db
+from models import db, User
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = "secret123"
+init_db(app)
 
-users = {}
 
-# login
+# LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-        for user, data in users.items():
-            if (username == user or username == data["email"]) and password == data["password"]:
-                session["user"] = user
-                return redirect("/dashboard")
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).filter_by(password_hash=password_hash).first()
 
-        return render_template("fail.html")
+        if user:
+            session["user"] = user.username
+            session["user_id"] = user.id
+            session["username"] = user.username
+            session["email"] = user.email
+            session["cash"] = str(user.cash)
+            session["logged_in"] = True
+            return redirect("/dashboard")
+
+        flash("Username or password incorrect.")
+        return render_template("login.html")
 
     return render_template("login.html")
 
-# register
+
+# REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username").strip()
         email = request.form.get("email").strip()
         password = request.form.get("password")
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
 
-        if username in users:
-            return "User already exists!"
-        
-        users[username] = {
-         "email": email,
-         "password": password
-        }
+        # Check existing user in DB
+        existing = User.query.filter(
+            (User.username == username) | (User.email == email)
+        ).first()
 
-        flash("Register success!")
-        return redirect("/login")
+        if existing:
+            flash("Username or email already exists.")
+            return render_template("register.html")
+
+        # Create new user
+        new_user = User(
+            username=username,
+            email=email,
+            password_hash=password_hash,
+            cash=10000.0
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Store session
+        session["user"] = new_user.username
+        session["user_id"] = new_user.id
+        session["username"] = new_user.username
+        session["email"] = new_user.email
+        session["cash"] = str(new_user.cash)
+        session["logged_in"] = True
+
+        return redirect("/dashboard")
 
     return render_template("register.html")
 
-# users
+
+# USERS PAGE (UPDATED TO DATABASE)
 @app.route("/users")
 def users_page():
     if "user" not in session:
         return redirect("/login")
 
-    user_list = []
+    users = User.query.all()
 
-    for index, (username, data) in enumerate(users.items(), start=1):
+    user_list = []
+    for u in users:
         user_list.append({
-            "id": index,
-            "username": username,
-            "email": data["email"],
-            "joinTime": "Just now"
+            "id": u.id,
+            "username": u.username,
+            "email": u.email,
+            "joinTime": u.created_at.strftime("%Y-%m-%d %H:%M")
         })
 
     return render_template("users.html", users=user_list)
 
-# Home page
+
+# HOME
 @app.route("/")
 def home():
     if "user" in session:
@@ -68,6 +105,7 @@ def home():
     return redirect("/login")
 
 
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -75,6 +113,7 @@ def dashboard():
     return render_template("dashboard.html")
 
 
+# LEADERBOARD
 @app.route("/leaderboard")
 def leaderboard():
     if "user" not in session:
@@ -82,10 +121,10 @@ def leaderboard():
     return render_template("leaderboard.html")
 
 
-# logout
+# LOGOUT
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    session.clear()
     return redirect("/login")
 
 
