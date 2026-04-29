@@ -11,7 +11,12 @@
 <body>
 
 <div class="container mt-5">
-    <h1 class="mb-4">All Users</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="/dashboard" class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+        <h1 class="mb-4">All Users</h1>
+    </div>
 
     <!-- Search Bar -->
     <input
@@ -19,6 +24,7 @@
         class="form-control mb-3"
         placeholder="Search users..."
         id="searchInput"
+        onkeyup="filterUsers()"
     >
 
     <!-- Users Table -->
@@ -32,85 +38,25 @@
             </tr>
         </thead>
         <tbody id="userTableBody">
-            <!-- Users will be inserted dynamically -->
+            {% if users|length == 0 %}
+            <tr>
+                <td colspan="4" class="text-center">No users found</td>
+            </tr>
+            {% else %}
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.joinTime }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
         </tbody>
     </table>
 </div>
 
-<script>
-    // Dummy user data (replace with backend data later)
-    const users = [
-        {
-            id: 101,
-            name: "Aman",
-            email: "aman@email.com",
-            joinTime: "14 Apr 2026, 10:30 AM"
-        },
-        {
-            id: 102,
-            name: "John",
-            email: "john@email.com",
-            joinTime: "14 Apr 2026, 11:00 AM"
-        },
-        {
-            id: 103,
-            name: "Sarah",
-            email: "sarah@email.com",
-            joinTime: "14 Apr 2026, 11:30 AM"
-        },
-        {
-            id: 104,
-            name: "Michael",
-            email: "michael@email.com",
-            joinTime: "14 Apr 2026, 12:00 PM"
-        }
-    ];
-
-    const tableBody = document.getElementById("userTableBody");
-    const searchInput = document.getElementById("searchInput");
-
-    // Function to render users in table
-    function renderUsers(userList) {
-        tableBody.innerHTML = "";
-
-        if (userList.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center">No users found</td>
-                </tr>
-            `;
-            return;
-        }
-
-        userList.forEach(user => {
-            const row = `
-                <tr>
-                    <td>${user.id}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.joinTime}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    }
-
-    // Initial render
-    renderUsers(users);
-
-    // Search functionality
-    searchInput.addEventListener("keyup", function () {
-        const searchValue = this.value.toLowerCase();
-
-        const filteredUsers = users.filter(user =>
-            user.name.toLowerCase().includes(searchValue) ||
-            user.email.toLowerCase().includes(searchValue) ||
-            user.id.toString().includes(searchValue)
-        );
-
-        renderUsers(filteredUsers);
-    });
-</script>
+<script src="/static/js/users.js"></script>
 
 </body>
 </html>
