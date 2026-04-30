@@ -22,7 +22,7 @@ def get_leaderboard_context(ranking_type, current_user):
         "ranking_value": ranking_value
     })
 
-    leaderboard_users.sort(key=lambda x: x["ranking_value"], reverse=True)
+    leaderboard_users.sort(key=lambda user: user["ranking_value"], reverse=True)
 
     if ranking_type == "assets":
         title = "Total Assets Ranking"
