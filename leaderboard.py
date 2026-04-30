@@ -15,7 +15,7 @@ def get_leaderboard_context(ranking_type, current_user):
             ranking_value = float(user.cash)
 
     
-    leaderboard_users.append({
+        leaderboard_users.append({
         "username": user.username,
         "email": user.email,
         "cash": float(user.cash),
