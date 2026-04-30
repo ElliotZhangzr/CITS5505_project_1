@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
 from user_service import get_users_paginated
+from leaderboard import get_leaderboard_context
 import hashlib
 
 app = Flask(__name__)
@@ -95,7 +96,14 @@ def dashboard():
 def leaderboard():
     if "user" not in session:
         return redirect("/login")
-    return render_template("leaderboard.html")
+    
+    ranking_type = request.args.get("type", "cash")
+    context = get_leaderboard_context(ranking_type, session["user"])
+
+    return render_template(
+        "leaderboard.html",
+        **context
+    )
 
 
 # USERS WITH PAGINATION
