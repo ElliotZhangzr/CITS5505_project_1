@@ -1,15 +1,16 @@
 from flask import Flask, render_template, request, redirect, session, flash
 from db import init_db
 from models import db, User
+from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
-from user_service import get_all_users
 import hashlib
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 init_db(app)
 
-# login
+
+# LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -35,7 +36,8 @@ def login():
 
     return render_template("login.html")
 
-# register
+
+# REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -60,7 +62,7 @@ def register():
         )
         db.session.add(new_user)
         db.session.commit()
-        
+
         session["user"] = new_user.username
         session["user_id"] = new_user.id
         session["username"] = new_user.username
@@ -73,8 +75,7 @@ def register():
     return render_template("register.html")
 
 
-
-# Home page
+# HOME
 @app.route("/")
 def home():
     if "user" in session:
@@ -82,6 +83,7 @@ def home():
     return redirect("/login")
 
 
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -89,6 +91,7 @@ def dashboard():
     return render_template("dashboard.html")
 
 
+# LEADERBOARD
 @app.route("/leaderboard")
 def leaderboard():
     if "user" not in session:
@@ -103,16 +106,26 @@ def leaderboard():
     )
 
 
+# USERS WITH PAGINATION
 @app.route("/users")
 def users():
     if "user" not in session:
         return redirect("/login")
 
-    user_list = get_all_users()
-    return render_template("users.html", users=user_list)
+    page = request.args.get("page", 1, type=int)
+
+    data = get_users_paginated(page=page)
+
+    return render_template(
+        "users.html",
+        users=data["users"],
+        has_next=data["has_next"],
+        has_prev=data["has_prev"],
+        page=data["page"]
+    )
 
 
-# logout
+# LOGOUT
 @app.route("/logout")
 def logout():
     session.pop("user", None)
