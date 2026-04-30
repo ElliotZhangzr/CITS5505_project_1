@@ -10,7 +10,7 @@ def get_leaderboard_context(ranking_type, current_user):
     for user in users:
         if ranking_type == "assets":
             portfolio = build_portfolio(user.id)
-            ranking_value = portfolio["total_assets"]
+            ranking_value = portfolio.get("totalAssets", 0.0)
         else:
             ranking_value = float(user.cash)
 
