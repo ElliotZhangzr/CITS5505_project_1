@@ -1,11 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User
+from models import db
 import os
 
 def init_db(app: Flask):
     """Initialize the database, create tables if they do not exist"""
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+    os.makedirs(app.instance_path, exist_ok=True)
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        'sqlite:///' + os.path.join(app.instance_path, 'app.db')
+    )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
@@ -16,4 +19,5 @@ def init_db(app: Flask):
             db.create_all()
             print("Database and tables created.")
         else:
+            db.create_all()
             print("Database already exists.")
