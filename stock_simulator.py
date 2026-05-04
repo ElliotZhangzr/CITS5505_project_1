@@ -10,7 +10,6 @@ from models import db, Stock, StockPrice
 UPDATE_INTERVAL_SECONDS = 2
 PRESSURE_DECAY = Decimal("0.78")
 PRESSURE_RELEASE_RATE = Decimal("0.45")
-MOMENTUM_DECAY = Decimal("0.85")
 MAX_PRICE_RETURN = Decimal("0.15")
 MAX_TRADE_IMPACT = Decimal("0.10")
 MIN_PRICE_IMPACT_DAMPENER = Decimal("0.25")
@@ -31,6 +30,16 @@ def decimal_value(value):
     return Decimal(str(value))
 
 
+def positive_price(value, fallback):
+    price = decimal_value(value)
+
+    if price > 0:
+        return price
+
+    fallback_price = decimal_value(fallback)
+    return fallback_price if fallback_price > 0 else Decimal("1.00")
+
+
 def load_stock_configs():
     global STOCK_CONFIGS
 
@@ -42,7 +51,6 @@ def load_stock_configs():
             "base_price": decimal_value(stock.base_price),
             "volatility": decimal_value(stock.volatility),
             "drift": decimal_value(stock.drift),
-            "momentum_factor": decimal_value(stock.momentum_factor),
             "mean_reversion_factor": decimal_value(stock.mean_reversion_factor),
             "liquidity": decimal_value(stock.liquidity),
             "trade_impact_factor": decimal_value(stock.trade_impact_factor),
@@ -58,7 +66,6 @@ def load_stock_configs():
 def get_simulation_state(stock_id):
     if stock_id not in SIMULATION_STATE:
         SIMULATION_STATE[stock_id] = {
-            "momentum": Decimal("0"),
             "buy_pressure": Decimal("0"),
             "sell_pressure": Decimal("0"),
             "pending_buy_pressure": Decimal("0"),
@@ -71,16 +78,14 @@ def get_simulation_state(stock_id):
 
 
 def generate_next_price(last_price, config, state):
-    current_price = decimal_value(last_price)
+    current_price = positive_price(last_price, config["base_price"])
     release_pending_pressure(state)
     random_noise = decimal_value(random.gauss(0, float(config["volatility"])))
-    momentum_effect = state["momentum"] * config["momentum_factor"]
     distance_from_base = (config["base_price"] - current_price) / current_price
     mean_reversion_effect = distance_from_base * config["mean_reversion_factor"]
     base_return = (
         config["drift"]
         + random_noise
-        + momentum_effect
         + mean_reversion_effect
     )
     pressure_trend = generate_pressure_trend(config, state)
@@ -92,7 +97,6 @@ def generate_next_price(last_price, config, state):
 
     state["buy_pressure"] *= PRESSURE_DECAY
     state["sell_pressure"] *= PRESSURE_DECAY
-    state["momentum"] *= MOMENTUM_DECAY
 
     return money(next_price)
 
@@ -138,12 +142,10 @@ def generate_initial_prices(base_price, count=400):
         "base_price": decimal_value(base_price),
         "volatility": Decimal("0.010000"),
         "drift": Decimal("0.000000"),
-        "momentum_factor": Decimal("0.200000"),
         "mean_reversion_factor": Decimal("0.030000"),
         "min_price": Decimal("1.00"),
     }
     state = {
-        "momentum": Decimal("0"),
         "buy_pressure": Decimal("0"),
         "sell_pressure": Decimal("0"),
         "pending_buy_pressure": Decimal("0"),
@@ -169,7 +171,11 @@ def apply_trade_impact(stock_id, side, gross_amount):
     state = get_simulation_state(stock_id)
     trade_size = decimal_value(gross_amount) / config["liquidity"]
     latest_price = get_latest_price(stock_id)
-    current_price = decimal_value(latest_price.price) if latest_price else config["base_price"]
+    current_price = (
+        positive_price(latest_price.price, config["base_price"])
+        if latest_price
+        else positive_price(config["base_price"], Decimal("1.00"))
+    )
     price_dampener = (config["base_price"] / current_price).sqrt()
     price_dampener = max(MIN_PRICE_IMPACT_DAMPENER, min(Decimal("1"), price_dampener))
     impact = config["trade_impact_factor"] * trade_size.sqrt() * price_dampener
