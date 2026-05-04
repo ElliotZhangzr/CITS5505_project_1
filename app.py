@@ -9,6 +9,7 @@ from stock_simulator import load_stock_configs, update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
 from password_reset_service import (
     confirm_password_reset,
+    get_reset_code_resend_seconds_remaining,
     get_reset_code_seconds_remaining,
     request_password_reset,
 )
@@ -91,6 +92,7 @@ def reset_password():
         "reset_password.html",
         email=email,
         code_seconds_remaining=get_reset_code_seconds_remaining(email),
+        resend_seconds_remaining=get_reset_code_resend_seconds_remaining(email),
     )
 
 

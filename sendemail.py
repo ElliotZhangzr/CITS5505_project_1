@@ -2,10 +2,10 @@ import os
 
 
 def load_local_env():
-    if not os.path.exists(".env"):
+    if not os.path.exists("./.env"):
         return
 
-    with open(".env", encoding="utf-8") as env_file:
+    with open("./.env", encoding="utf-8") as env_file:
         for line in env_file:
             line = line.strip()
 

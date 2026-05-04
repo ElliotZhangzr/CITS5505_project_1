@@ -1,21 +1,25 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
 import secrets
 import string
 
 from models import db, User
+from redis_store import get_json, get_redis_client, set_json
 from sendemail import send_password_reset_email
 
 
-PASSWORD_RESET_CODES = {}
 RESET_CODE_LENGTH = 6
-RESET_CODE_TTL_MINUTES = 10
+RESET_CODE_TTL_SECONDS = 10 * 60
 RESET_CODE_RESEND_SECONDS = 60
 RESET_CODE_MAX_ATTEMPTS = 5
 
 
 def normalize_email(email):
     return (email or "").strip().lower()
+
+
+def reset_code_key(email):
+    return f"password_reset:{normalize_email(email)}"
 
 
 def hash_value(value):
@@ -32,37 +36,35 @@ def generate_reset_code():
             return code
 
 
-def clear_expired_reset_codes():
-    now = datetime.utcnow()
-    expired_emails = [
-        email
-        for email, data in PASSWORD_RESET_CODES.items()
-        if data["expires_at"] <= now
-    ]
-
-    for email in expired_emails:
-        PASSWORD_RESET_CODES.pop(email, None)
-
-
 def clear_reset_code(email):
-    PASSWORD_RESET_CODES.pop(normalize_email(email), None)
+    get_redis_client().delete(reset_code_key(email))
+
+
+def get_reset_data(email):
+    return get_json(reset_code_key(email))
+
+
+def save_reset_data(email, reset_data):
+    set_json(reset_code_key(email), reset_data, ex=RESET_CODE_TTL_SECONDS)
 
 
 def get_reset_code_seconds_remaining(email):
-    clear_expired_reset_codes()
+    ttl = get_redis_client().ttl(reset_code_key(email))
+    return max(0, ttl)
 
-    reset_data = PASSWORD_RESET_CODES.get(normalize_email(email))
+
+def get_reset_code_resend_seconds_remaining(email):
+    reset_data = get_reset_data(email)
 
     if not reset_data:
         return 0
 
-    remaining = int((reset_data["expires_at"] - datetime.utcnow()).total_seconds())
-    return max(0, remaining)
+    sent_at = datetime.fromisoformat(reset_data["sent_at"])
+    elapsed = int((datetime.utcnow() - sent_at).total_seconds())
+    return max(0, RESET_CODE_RESEND_SECONDS - elapsed)
 
 
 def request_password_reset(email):
-    clear_expired_reset_codes()
-
     normalized_email = normalize_email(email)
 
     if not normalized_email:
@@ -74,17 +76,18 @@ def request_password_reset(email):
     if not user:
         return True, generic_message
 
-    now = datetime.utcnow()
-    existing_code = PASSWORD_RESET_CODES.get(normalized_email)
+    existing_code = get_reset_data(normalized_email)
 
-    if existing_code and (now - existing_code["sent_at"]).total_seconds() < RESET_CODE_RESEND_SECONDS:
-        return False, "Please wait before requesting another verification code."
+    if existing_code:
+        sent_at = datetime.fromisoformat(existing_code["sent_at"])
+
+        if (datetime.utcnow() - sent_at).total_seconds() < RESET_CODE_RESEND_SECONDS:
+            return False, "Please wait before requesting another verification code."
 
     code = generate_reset_code()
     reset_data = {
         "code_hash": hash_value(code.upper()),
-        "expires_at": now + timedelta(minutes=RESET_CODE_TTL_MINUTES),
-        "sent_at": now,
+        "sent_at": datetime.utcnow().isoformat(),
         "attempts": 0,
     }
 
@@ -94,13 +97,11 @@ def request_password_reset(email):
         clear_reset_code(normalized_email)
         raise
 
-    PASSWORD_RESET_CODES[normalized_email] = reset_data
+    save_reset_data(normalized_email, reset_data)
     return True, generic_message
 
 
 def confirm_password_reset(email, code, new_password, confirm_password):
-    clear_expired_reset_codes()
-
     normalized_email = normalize_email(email)
     normalized_code = (code or "").strip().upper()
 
@@ -113,31 +114,32 @@ def confirm_password_reset(email, code, new_password, confirm_password):
     if len(new_password) < 6:
         return False, "Password must be at least 6 characters."
 
-    reset_data = PASSWORD_RESET_CODES.get(normalized_email)
+    reset_data = get_reset_data(normalized_email)
 
     if not reset_data:
         return False, "Verification code is invalid or expired."
 
-    if reset_data["expires_at"] <= datetime.utcnow():
-        PASSWORD_RESET_CODES.pop(normalized_email, None)
-        return False, "Verification code is invalid or expired."
-
-    if reset_data["attempts"] >= RESET_CODE_MAX_ATTEMPTS:
-        PASSWORD_RESET_CODES.pop(normalized_email, None)
+    if int(reset_data.get("attempts", 0)) >= RESET_CODE_MAX_ATTEMPTS:
+        clear_reset_code(normalized_email)
         return False, "Too many incorrect attempts. Please request a new code."
 
     if hash_value(normalized_code) != reset_data["code_hash"]:
-        reset_data["attempts"] += 1
+        reset_data["attempts"] = int(reset_data.get("attempts", 0)) + 1
+        remaining_ttl = get_reset_code_seconds_remaining(normalized_email)
+
+        if remaining_ttl > 0:
+            set_json(reset_code_key(normalized_email), reset_data, ex=remaining_ttl)
+
         return False, "Verification code is incorrect."
 
     user = User.query.filter_by(email=normalized_email).first()
 
     if not user:
-        PASSWORD_RESET_CODES.pop(normalized_email, None)
+        clear_reset_code(normalized_email)
         return False, "Verification code is invalid or expired."
 
     user.password_hash = hash_value(new_password)
     db.session.commit()
-    PASSWORD_RESET_CODES.pop(normalized_email, None)
+    clear_reset_code(normalized_email)
 
     return True, "Password reset successfully. Please log in."
