@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify
+from dotenv import load_dotenv
 from db import init_db
 from models import db, User
 from user_service import get_users_paginated
@@ -6,7 +7,11 @@ from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
 from stock_simulator import load_stock_configs, update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
+from password_reset_service import confirm_password_reset, request_password_reset
 import hashlib
+import traceback
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -41,6 +46,42 @@ def login():
         return render_template("login.html")
 
     return render_template("login.html")
+
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+
+        try:
+            success, message = request_password_reset(email)
+        except Exception:
+            traceback.print_exc()
+            success = False
+            message = "Failed to send verification code. Please try again later."
+
+        flash(message)
+
+        if success:
+            return redirect("/reset-password")
+
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form.get("email")
+        code = request.form.get("code")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+        success, message = confirm_password_reset(email, code, new_password, confirm_password)
+        flash(message)
+
+        if success:
+            return redirect("/login")
+
+    return render_template("reset_password.html")
 
 
 # REGISTER
