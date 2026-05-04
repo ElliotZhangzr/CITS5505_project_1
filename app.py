@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from dotenv import load_dotenv
 from db import init_db
 from models import db, User
@@ -7,7 +7,11 @@ from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
 from stock_simulator import load_stock_configs, update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
-from password_reset_service import confirm_password_reset, request_password_reset
+from password_reset_service import (
+    confirm_password_reset,
+    get_reset_code_seconds_remaining,
+    request_password_reset,
+)
 import hashlib
 import traceback
 
@@ -63,13 +67,15 @@ def forgot_password():
         flash(message)
 
         if success:
-            return redirect("/reset-password")
+            return redirect(url_for("reset_password", email=(email or "").strip()))
 
-    return render_template("forgot_password.html")
+    return render_template("forgot_password.html", email=request.args.get("email", ""))
 
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
+    email = request.args.get("email", "")
+
     if request.method == "POST":
         email = request.form.get("email")
         code = request.form.get("code")
@@ -81,7 +87,11 @@ def reset_password():
         if success:
             return redirect("/login")
 
-    return render_template("reset_password.html")
+    return render_template(
+        "reset_password.html",
+        email=email,
+        code_seconds_remaining=get_reset_code_seconds_remaining(email),
+    )
 
 
 # REGISTER
