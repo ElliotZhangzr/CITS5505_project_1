@@ -179,6 +179,58 @@ def api_trade_history():
     limit = request.args.get("limit", 50, type=int)
     return jsonify({"transactions": get_transaction_history(session["user_id"], limit=limit)})
 
+# PROFILE
+@app.route("/profile")
+def profile():
+    if "user" not in session:
+        return redirect("/login")
+    user = User.query.get(session["user_id"])
+    return render_template("profile.html", user=user)
+
+
+@app.route("/profile/update_bio", methods=["POST"])
+def update_bio():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+    data = request.get_json()
+    user = User.query.get(session["user_id"])
+    user.bio = data.get("bio", "")
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@app.route("/profile/update_avatar", methods=["POST"])
+def update_avatar():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+    data = request.get_json()
+    user = User.query.get(session["user_id"])
+    user.avatar_url = data.get("avatar_url", "")
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@app.route("/profile/update_hide_holdings", methods=["POST"])
+def update_hide_holdings():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
+    data = request.get_json()
+    user = User.query.get(session["user_id"])
+    user.hide_holdings = data.get("hide_holdings", False)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+# DELETE ACCOUNT
+@app.route("/delete_account", methods=["POST"])
+def delete_account():
+    if "user" not in session:
+        return redirect("/login")
+    user = User.query.get(session["user_id"])
+    db.session.delete(user)
+    db.session.commit()
+    session.clear()
+    return redirect("/register")
 
 # LOGOUT
 @app.route("/logout")
