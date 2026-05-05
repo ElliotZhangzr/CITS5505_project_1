@@ -4,7 +4,7 @@ from decimal import Decimal
 from sqlalchemy import func
 
 from models import db, Stock, StockHolding, StockTransaction, User
-from stock_simulator import get_latest_price
+from stock_simulator import apply_trade_impact, get_latest_price
 
 
 def money(value):
@@ -141,6 +141,7 @@ def execute_stock_trade(user_id, stock_id, side, quantity):
     )
     db.session.add(transaction)
     db.session.commit()
+    apply_trade_impact(stock_id, side, gross_amount)
 
     return build_portfolio(user_id), None
 

@@ -3,14 +3,17 @@ from db import init_db
 from models import db, User
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
-from stock_data import get_stock_data, get_stocks
-from stock_simulator import update_prices_if_due
+from stock_data import get_stock_data
+from stock_simulator import load_stock_configs, update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
 import hashlib
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 init_db(app)
+
+with app.app_context():
+    load_stock_configs()
 
 
 # LOGIN
@@ -142,7 +145,7 @@ def api_stock_prices():
     if "user" not in session:
         return jsonify({"error": "Login required"}), 401
 
-    latest_prices = update_prices_if_due(get_stocks())
+    latest_prices = update_prices_if_due()
     return jsonify({"latestPrices": latest_prices})
 
 
@@ -189,3 +192,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    # app.run(host="0.0.0.0", port=5000, debug=False)
