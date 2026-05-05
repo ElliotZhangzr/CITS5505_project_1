@@ -54,7 +54,7 @@
         <div class="profile-info">
             <h2 class="profile-username">{{ session["username"] }}</h2>
             <p class="profile-email" id="emailToggle">
-                <span class="email-hidden" id="emailText">••••••••••</span>
+                <span class="email-hidden" id="emailText" data-email="{{ session['email'] }}">••••••••••</span>
                 <button class="btn-reveal" id="revealEmailBtn" onclick="toggleEmail()">Show</button>
             </p>
             <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
