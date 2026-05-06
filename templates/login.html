@@ -19,6 +19,7 @@
     <h1>Welcome back</h1>
 
     <form method="POST">
+        {{ form.hidden_tag() }}
         <label>Username or email</label>
         <input name="username" type="text" placeholder="Enter your username or email" required>
         <label>Password</label>
