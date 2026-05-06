@@ -17,12 +17,15 @@ def get_stock_data(limit=400):
 
     return {
         "stocks": [
-            {"id": stock.id, "symbol": stock.symbol, "name": stock.name}
+            {
+                "id": stock.id,
+                "symbol": stock.symbol,
+                "name": stock.name,
+                "volatility": float(stock.volatility),
+                "liquidity": float(stock.liquidity),
+                "tradeImpactFactor": float(stock.trade_impact_factor),
+            }
             for stock in stocks
         ],
         "marketData": market_data,
     }
-
-
-def get_stocks():
-    return Stock.query.order_by(Stock.symbol).all()
