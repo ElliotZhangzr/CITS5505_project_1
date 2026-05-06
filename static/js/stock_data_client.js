@@ -42,10 +42,12 @@ const StockDataClient = {
     },
 
     async executeTrade(stockId, side, quantity) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
         const response = await fetch(this.apiUrl("/api/trades"), {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
             },
             body: JSON.stringify({ stockId, side, quantity })
         });
