@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <div class="container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -33,6 +33,7 @@
         </div>
         <button type="submit">Login</button>
     </form>
+    <p><a href="/forgot-password">Forgot password?</a></p>
     <p>No account? <a href="/register">Register here</a></p>
 </div>
 

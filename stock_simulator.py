@@ -5,6 +5,7 @@ import random
 from sqlalchemy.exc import OperationalError
 
 from models import db, Stock, StockPrice
+from redis_store import get_json, get_redis_client, set_json
 
 
 UPDATE_INTERVAL_SECONDS = 2
@@ -18,8 +19,7 @@ STRONG_PRESSURE_THRESHOLD = Decimal("0.025")
 PRESSURE_TREND_WEIGHT = Decimal("1.20")
 MAX_PRESSURE_SIZE_BOOST = Decimal("2.50")
 
-STOCK_CONFIGS = {}
-SIMULATION_STATE = {}
+STOCK_CONFIG_IDS_KEY = "stock_simulator:config_ids"
 
 
 def money(value):
@@ -40,41 +40,123 @@ def positive_price(value, fallback):
     return fallback_price if fallback_price > 0 else Decimal("1.00")
 
 
-def load_stock_configs():
-    global STOCK_CONFIGS
+def decimal_state_value(state, key):
+    return decimal_value(state.get(key, "0"))
 
-    stocks = Stock.query.order_by(Stock.symbol).all()
-    STOCK_CONFIGS = {
-        stock.id: {
-            "id": stock.id,
-            "symbol": stock.symbol,
-            "base_price": decimal_value(stock.base_price),
-            "volatility": decimal_value(stock.volatility),
-            "drift": decimal_value(stock.drift),
-            "mean_reversion_factor": decimal_value(stock.mean_reversion_factor),
-            "liquidity": decimal_value(stock.liquidity),
-            "trade_impact_factor": decimal_value(stock.trade_impact_factor),
-            "min_price": decimal_value(stock.min_price),
-        }
-        for stock in stocks
+
+def state_to_decimals(state):
+    return {
+        "buy_pressure": decimal_state_value(state, "buy_pressure"),
+        "sell_pressure": decimal_state_value(state, "sell_pressure"),
+        "pending_buy_pressure": decimal_state_value(state, "pending_buy_pressure"),
+        "pending_sell_pressure": decimal_state_value(state, "pending_sell_pressure"),
     }
 
-    for stock_id in STOCK_CONFIGS:
-        get_simulation_state(stock_id)
+
+def state_to_json(state):
+    return {
+        "buy_pressure": str(state["buy_pressure"]),
+        "sell_pressure": str(state["sell_pressure"]),
+        "pending_buy_pressure": str(state["pending_buy_pressure"]),
+        "pending_sell_pressure": str(state["pending_sell_pressure"]),
+    }
+
+
+def stock_config_key(stock_id):
+    return f"stock_simulator:config:{stock_id}"
+
+
+def stock_state_key(stock_id):
+    return f"stock_simulator:state:{stock_id}"
+
+
+def load_stock_configs():
+    stocks = Stock.query.order_by(Stock.symbol).all()
+    redis_client = get_redis_client()
+    config_ids = []
+
+    for stock in stocks:
+        config = {
+            "id": stock.id,
+            "symbol": stock.symbol,
+            "base_price": str(decimal_value(stock.base_price)),
+            "volatility": str(decimal_value(stock.volatility)),
+            "drift": str(decimal_value(stock.drift)),
+            "mean_reversion_factor": str(decimal_value(stock.mean_reversion_factor)),
+            "liquidity": str(decimal_value(stock.liquidity)),
+            "trade_impact_factor": str(decimal_value(stock.trade_impact_factor)),
+            "min_price": str(decimal_value(stock.min_price)),
+        }
+        set_json(stock_config_key(stock.id), config)
+        config_ids.append(str(stock.id))
+        get_simulation_state(stock.id)
+
+    redis_client.delete(STOCK_CONFIG_IDS_KEY)
+
+    if config_ids:
+        redis_client.rpush(STOCK_CONFIG_IDS_KEY, *config_ids)
+
+
+def deserialize_config(config):
+    return {
+        "id": int(config["id"]),
+        "symbol": config["symbol"],
+        "base_price": decimal_value(config["base_price"]),
+        "volatility": decimal_value(config["volatility"]),
+        "drift": decimal_value(config["drift"]),
+        "mean_reversion_factor": decimal_value(config["mean_reversion_factor"]),
+        "liquidity": decimal_value(config["liquidity"]),
+        "trade_impact_factor": decimal_value(config["trade_impact_factor"]),
+        "min_price": decimal_value(config["min_price"]),
+    }
+
+
+def get_stock_configs():
+    redis_client = get_redis_client()
+    config_ids = redis_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
+
+    if not config_ids:
+        load_stock_configs()
+        config_ids = redis_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
+
+    configs = []
+
+    for stock_id in config_ids:
+        config = get_json(stock_config_key(stock_id))
+
+        if config:
+            configs.append(deserialize_config(config))
+
+    return configs
+
+
+def get_stock_config(stock_id):
+    config = get_json(stock_config_key(stock_id))
+
+    if not config:
+        load_stock_configs()
+        config = get_json(stock_config_key(stock_id))
+
+    return deserialize_config(config) if config else None
 
 
 def get_simulation_state(stock_id):
-    if stock_id not in SIMULATION_STATE:
-        SIMULATION_STATE[stock_id] = {
-            "buy_pressure": Decimal("0"),
-            "sell_pressure": Decimal("0"),
-            "pending_buy_pressure": Decimal("0"),
-            "pending_sell_pressure": Decimal("0"),
-        }
+    state = get_json(stock_state_key(stock_id))
 
-    SIMULATION_STATE[stock_id].setdefault("pending_buy_pressure", Decimal("0"))
-    SIMULATION_STATE[stock_id].setdefault("pending_sell_pressure", Decimal("0"))
-    return SIMULATION_STATE[stock_id]
+    if not state:
+        state = {
+            "buy_pressure": "0",
+            "sell_pressure": "0",
+            "pending_buy_pressure": "0",
+            "pending_sell_pressure": "0",
+        }
+        set_json(stock_state_key(stock_id), state)
+
+    return state_to_decimals(state)
+
+
+def save_simulation_state(stock_id, state):
+    set_json(stock_state_key(stock_id), state_to_json(state))
 
 
 def generate_next_price(last_price, config, state):
@@ -160,10 +242,7 @@ def generate_initial_prices(base_price, count=400):
 
 
 def apply_trade_impact(stock_id, side, gross_amount):
-    if not STOCK_CONFIGS:
-        load_stock_configs()
-
-    config = STOCK_CONFIGS.get(stock_id)
+    config = get_stock_config(stock_id)
 
     if not config:
         return Decimal("0")
@@ -186,18 +265,17 @@ def apply_trade_impact(stock_id, side, gross_amount):
     else:
         state["pending_sell_pressure"] += impact
 
+    save_simulation_state(stock_id, state)
     return impact
 
 
 def update_prices_if_due():
-    if not STOCK_CONFIGS:
-        load_stock_configs()
-
     latest_prices = {}
     now = datetime.utcnow()
 
     try:
-        for stock_id, config in STOCK_CONFIGS.items():
+        for config in get_stock_configs():
+            stock_id = config["id"]
             latest_price = get_latest_price(stock_id)
 
             if not latest_price:
@@ -214,6 +292,7 @@ def update_prices_if_due():
 
             state = get_simulation_state(stock_id)
             new_price = generate_next_price(latest_price.price, config, state)
+            save_simulation_state(stock_id, state)
             db.session.add(StockPrice(stock_id=stock_id, price=new_price))
             latest_prices[config["symbol"]] = float(new_price)
 
@@ -237,10 +316,8 @@ def get_latest_price(stock_id):
 def get_current_prices():
     prices = {}
 
-    if not STOCK_CONFIGS:
-        load_stock_configs()
-
-    for stock_id, config in STOCK_CONFIGS.items():
+    for config in get_stock_configs():
+        stock_id = config["id"]
         latest_price = get_latest_price(stock_id)
 
         if latest_price:
