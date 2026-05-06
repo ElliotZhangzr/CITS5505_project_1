@@ -73,9 +73,6 @@ def request_password_reset(email):
     user = User.query.filter_by(email=normalized_email).first()
     generic_message = "If this email exists, a verification code has been sent."
 
-    if not user:
-        return True, generic_message
-
     existing_code = get_reset_data(normalized_email)
 
     if existing_code:
@@ -84,11 +81,21 @@ def request_password_reset(email):
         if (datetime.utcnow() - sent_at).total_seconds() < RESET_CODE_RESEND_SECONDS:
             return False, "Please wait before requesting another verification code."
 
+    if not user:
+        save_reset_data(normalized_email, {
+            "code_hash": "",
+            "sent_at": datetime.utcnow().isoformat(),
+            "attempts": 0,
+            "valid": False,
+        })
+        return True, generic_message
+
     code = generate_reset_code()
     reset_data = {
         "code_hash": hash_value(code.upper()),
         "sent_at": datetime.utcnow().isoformat(),
         "attempts": 0,
+        "valid": True,
     }
 
     try:
@@ -117,6 +124,9 @@ def confirm_password_reset(email, code, new_password, confirm_password):
     reset_data = get_reset_data(normalized_email)
 
     if not reset_data:
+        return False, "Verification code is invalid or expired."
+
+    if not reset_data.get("valid", True):
         return False, "Verification code is invalid or expired."
 
     if int(reset_data.get("attempts", 0)) >= RESET_CODE_MAX_ATTEMPTS:
