@@ -73,9 +73,9 @@
                                         {{ loop.index }}
                                     {% endif %}
                                 </td>
-                                <!-- Use the hardcoded user data -->
+                                
                                 <td>{{ user.username }}</td>
-                                <td>${{ "{:,.2f}".format(user.cash) }}</td>
+                                <td>${{ "{:,.2f}".format(user.ranking_value) }}</td>
                             </tr>
                             {% endfor %}
                         {% else %}
