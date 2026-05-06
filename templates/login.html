@@ -1,4 +1,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<canvas id="trading-canvas"></canvas>
+
 <div class="container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -37,6 +40,7 @@
     <p>No account? <a href="/register">Register here</a></p>
 </div>
 
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
 <script>
 function togglePassword() {
     const input = document.getElementById("password");
