@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
+from flask_wtf.csrf import CSRFError, CSRFProtect
 from dotenv import load_dotenv
 from db import init_db
+from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 from models import db, User
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
@@ -20,6 +22,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = "secret123"
+csrf = CSRFProtect(app)
 init_db(app)
 
 with app.app_context():
@@ -29,9 +32,10 @@ with app.app_context():
 # LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
         password_hash = hashlib.sha256(password.encode()).hexdigest()
 
         user = User.query.filter(
@@ -48,15 +52,19 @@ def login():
             return redirect("/dashboard")
 
         flash("Username or password incorrect.")
-        return render_template("login.html")
+        return render_template("login.html", form=form)
 
-    return render_template("login.html")
+    return render_template("login.html", form=form)
 
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-    if request.method == "POST":
-        email = request.form.get("email")
+    form = ForgotPasswordForm()
+    if request.method == "GET":
+        form.email.data = request.args.get("email", "")
+
+    if form.validate_on_submit():
+        email = form.email.data
 
         try:
             success, message = request_password_reset(email)
@@ -70,18 +78,22 @@ def forgot_password():
         if success:
             return redirect(url_for("reset_password", email=(email or "").strip()))
 
-    return render_template("forgot_password.html", email=request.args.get("email", ""))
+    return render_template("forgot_password.html", form=form, email=form.email.data or "")
 
 
 @app.route("/reset-password", methods=["GET", "POST"])
 def reset_password():
     email = request.args.get("email", "")
+    form = ResetPasswordForm()
 
-    if request.method == "POST":
-        email = request.form.get("email")
-        code = request.form.get("code")
-        new_password = request.form.get("new_password")
-        confirm_password = request.form.get("confirm_password")
+    if request.method == "GET":
+        form.email.data = email
+
+    if form.validate_on_submit():
+        email = form.email.data
+        code = form.code.data
+        new_password = form.new_password.data
+        confirm_password = form.confirm_password.data
         success, message = confirm_password_reset(email, code, new_password, confirm_password)
         flash(message)
 
@@ -90,6 +102,7 @@ def reset_password():
 
     return render_template(
         "reset_password.html",
+        form=form,
         email=email,
         code_seconds_remaining=get_reset_code_seconds_remaining(email),
         resend_seconds_remaining=get_reset_code_resend_seconds_remaining(email),
@@ -99,10 +112,11 @@ def reset_password():
 # REGISTER
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        username = request.form.get("username")
-        email = request.form.get("email")
-        password = request.form.get("password")
+    form = RegisterForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
         password_hash = hashlib.sha256(password.encode()).hexdigest()
 
         existing = User.query.filter(
@@ -111,7 +125,7 @@ def register():
 
         if existing:
             flash("Username or email already exists.")
-            return render_template("register.html")
+            return render_template("register.html", form=form)
 
         new_user = User(
             username=username,
@@ -131,7 +145,16 @@ def register():
 
         return redirect("/dashboard")
 
-    return render_template("register.html")
+    return render_template("register.html", form=form)
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(error):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": "Invalid or missing CSRF token."}), 400
+
+    flash("Invalid or missing CSRF token.")
+    return redirect(request.referrer or url_for("login"))
 
 
 # HOME
