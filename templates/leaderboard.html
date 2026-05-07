@@ -45,6 +45,17 @@
                         class="ranking-tab {% if ranking_type == 'cash' %}active{% endif %}">
                         Cash
                     </a>
+
+                    <a href="{{ url_for('leaderboard', type='profit') }}"
+                        class="ranking-tab {% if ranking_type == 'profit' %}active{% endif %}">
+                        Profit
+                    </a>
+
+                    <a href="{{ url_for('leaderboard', type='return') }}"
+                        class="ranking-tab {% if ranking_type == 'return' %}active{% endif %}">
+                        Return %
+                    </a>
+
                 </div>
             </div>
 
