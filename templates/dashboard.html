@@ -17,16 +17,36 @@
                 <h1>Stock Trading Dashboard</h1>
             </div>
             <div class="header-actions">
+
+                {% if current_user.is_authenticated %}
                 <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
-                    <p class="welcome-text">Cash <span id="accountCash">${{ session["cash"] }}</span></p>
+                    <p class="welcome-text">
+                        Welcome {{ current_user.username }}
+                    </p>
+
+                    <p class="welcome-text">
+                        Cash
+                        <span id="accountCash">
+                            ${{ current_user.cash }}
+                        </span>
+                    </p>
+
                     <div class="user-links">
                         <a class="action-link secondary" href="/users">Users</a>
                         <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
                         <a class="action-link" href="/logout">Logout</a>
                     </div>
                 </div>
-                <div class="market-pill" id="marketStatus">Market Open</div>
+
+                {% else %}
+                <div class="user-links">
+                    <a class="action-link" href="/login">Login</a>
+                    <a class="action-link secondary" href="/register">Register</a>
+                </div>
+                {% endif %}
+
+                <div class="market-pill" id="marketStatus">Market Open
+                </div>
             </div>
         </header>
 
