@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import EmailField, PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from models import User
 
 
 class LoginForm(FlaskForm):
@@ -14,7 +15,21 @@ class RegisterForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired(), Email(), Length(max=120)])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Register")
+    def validate_username(self, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError("Username already exists.")
 
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError("Email already exists.")
+
+    def validate_password(self, field):
+        if len(field.data) < 8:
+            raise ValidationError("Password must be at least 8 characters.")
+        if not any(c.isupper() for c in field.data):
+            raise ValidationError("Password must contain at least one uppercase letter.")
+        if not any(c.isdigit() for c in field.data):
+            raise ValidationError("Password must contain at least one number.")
 
 class ForgotPasswordForm(FlaskForm):
     email = EmailField("Email", validators=[DataRequired(), Email(), Length(max=120)])
