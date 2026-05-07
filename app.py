@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from dotenv import load_dotenv
@@ -15,7 +16,6 @@ from password_reset_service import (
     get_reset_code_seconds_remaining,
     request_password_reset,
 )
-import hashlib
 import traceback
 
 load_dotenv()
