@@ -54,7 +54,8 @@ def login():
  
         if user:
             login_user(user)
-            return redirect("/dashboard")
+            next_page = request.args.get("next")
+            return redirect(next_page or url_for("dashboard"))
  
         flash("Username or password incorrect.")
         return render_template("login.html", form=form)
@@ -103,7 +104,7 @@ def reset_password():
         flash(message)
  
         if success:
-            return redirect("/login")
+           return redirect(url_for("login"))
  
     return render_template(
         "reset_password.html",
@@ -160,8 +161,8 @@ def handle_csrf_error(error):
 @app.route("/")
 def home():
     if current_user.is_authenticated:
-        return redirect("/dashboard")
-    return redirect("/login")
+        return redirect(url_for("/dashboard"))
+    return redirect(url_for("/login"))
  
  
 # DASHBOARD
@@ -281,7 +282,7 @@ def delete_account():
     db.session.delete(user)
     db.session.commit()
     logout_user()
-    return redirect("/register")
+    return redirect(url_for("/register"))
  
  
 # LOGOUT
