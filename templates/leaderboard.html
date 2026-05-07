@@ -86,7 +86,11 @@
                                 </td>
                                 
                                 <td>{{ user.username }}</td>
-                                <td>${{ "{:,.2f}".format(user.ranking_value) }}</td>
+                                {% if ranking_type == "return" %}
+                                    {{ "%.2f"|format(user.ranking_value) }}%
+                                {% else %}
+                                    ${{ "%.2f"|format(user.ranking_value) }}
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         {% else %}
