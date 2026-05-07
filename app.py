@@ -36,11 +36,12 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
-
         user = User.query.filter(
             (User.username == username) | (User.email == username)
-        ).filter_by(password_hash=password_hash).first()
+        ).first()
+
+        if user and not check_password_hash(user.password_hash, password):
+            user = None
 
         if user:
             session["user"] = user.username
@@ -117,7 +118,7 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        password_hash = generate_password_hash(password)
 
         existing = User.query.filter(
             (User.username == username) | (User.email == email)
