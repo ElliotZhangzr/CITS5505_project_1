@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from dotenv import load_dotenv
 from db import init_db
-from models import db, User
+from models import db, User, Stock, StockTransaction
+from flask_login import login_required, current_user
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
@@ -24,6 +25,16 @@ init_db(app)
 
 with app.app_context():
     load_stock_configs()
+
+def admin_required():
+    if not current_user.is_authenticated:
+        return redirect("/login")
+
+    if not current_user.is_admin:
+        flash("Admin access required.")
+        return redirect("/dashboard")
+
+    return None
 
 
 # LOGIN
