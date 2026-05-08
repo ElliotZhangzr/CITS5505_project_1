@@ -229,6 +229,25 @@ def admin_users():
         current_user_id=current_user.id
     )
 
+@app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
+@login_required
+def toggle_admin_role(user_id):
+    guard = admin_required()
+    if guard:
+        return guard
+
+    if user_id == current_user.id:
+        flash("You cannot change your own admin role.")
+        return redirect("/admin/users")
+
+    user = User.query.get_or_404(user_id)
+    user.is_admin = not user.is_admin
+
+    db.session.commit()
+
+    flash("User role updated successfully.")
+    return redirect("/admin/users")
+
 @app.route("/api/stocks")
 def api_stocks():
     if "user" not in session:
