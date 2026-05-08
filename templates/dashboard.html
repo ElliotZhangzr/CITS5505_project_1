@@ -20,7 +20,7 @@
                     <p class="welcome-text">Welcome {{ session["user"] }}</p>
                     <p class="welcome-text">Cash <span id="accountCash">${{ session["cash"] }}</span></p>
                     <div class="user-links">
-                        {% if is_admin %}
+                        {% if current_user.is_admin %}
                             <a class="action-link secondary" href="/admin">Admin</a>
                         {% endif %}
                         <a class="action-link secondary" href="/users">Users</a>

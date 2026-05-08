@@ -19,7 +19,7 @@
 
             <div class="header-actions">
                 <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
+                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
                     <div class="user-links">
                         <a class="action-link secondary" href="/dashboard">Dashboard</a>
                         <a class="action-link" href="/logout">Logout</a>
