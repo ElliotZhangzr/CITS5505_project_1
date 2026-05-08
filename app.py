@@ -213,6 +213,22 @@ def admin_dashboard():
         total_transactions=total_transactions
     )
 
+# ADMIN USER MANAGEMENT
+@app.route("/admin/users")
+@login_required
+def admin_users():
+    guard = admin_required()
+    if guard:
+        return guard
+
+    users = User.query.order_by(User.created_at.desc()).all()
+
+    return render_template(
+        "admin_users.html",
+        users=users,
+        current_user_id=current_user.id
+    )
+
 @app.route("/api/stocks")
 def api_stocks():
     if "user" not in session:
