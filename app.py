@@ -194,6 +194,24 @@ def users():
         page=data["page"]
     )
 
+# ADMIN DASHBOARD
+@app.route("/admin")
+@login_required
+def admin_dashboard():
+    guard = admin_required()
+    if guard:
+        return guard
+
+    total_users = User.query.count()
+    total_stocks = Stock.query.count()
+    total_transactions = StockTransaction.query.count()
+
+    return render_template(
+        "admin.html",
+        total_users=total_users,
+        total_stocks=total_stocks,
+        total_transactions=total_transactions
+    )
 
 @app.route("/api/stocks")
 def api_stocks():
