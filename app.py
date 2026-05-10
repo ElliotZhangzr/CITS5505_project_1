@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from dotenv import load_dotenv
 from db import init_db
-from models import db, User
+from models import db, User, Stock
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
@@ -26,6 +26,18 @@ with app.app_context():
     load_stock_configs()
 
 
+# ADMIN STOCK MANAGEMENT
+@app.route("/admin/stocks")
+def admin_stocks():
+    if "user" not in session:
+        return redirect("/login")
+
+    stocks = Stock.query.order_by(Stock.symbol).all()
+
+    return render_template(
+        "admin_stocks.html",
+        stocks=stocks
+    )
 # LOGIN
 @app.route("/login", methods=["GET", "POST"])
 def login():
