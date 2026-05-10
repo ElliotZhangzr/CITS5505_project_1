@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from dotenv import load_dotenv
 from db import init_db
-from models import db, User, Stock
+from models import db, User, Stock, StockPrice
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
@@ -27,10 +27,52 @@ with app.app_context():
 
 
 # ADMIN STOCK MANAGEMENT
-@app.route("/admin/stocks")
+@app.route("/admin/stocks", methods=["GET", "POST"])
 def admin_stocks():
     if "user" not in session:
         return redirect("/login")
+
+    if request.method == "POST":
+        symbol = request.form.get("symbol", "").strip().upper()
+        name = request.form.get("name", "").strip()
+        base_price = request.form.get("base_price", "").strip()
+
+        if not symbol or not name or not base_price:
+            flash("All fields are required.")
+            return redirect("/admin/stocks")
+
+        existing_stock = Stock.query.filter_by(symbol=symbol).first()
+
+        if existing_stock:
+            flash("Stock symbol already exists.")
+            return redirect("/admin/stocks")
+
+        try:
+            base_price = float(base_price)
+
+            new_stock = Stock(
+                symbol=symbol,
+                name=name,
+                base_price=base_price
+            )
+
+            db.session.add(new_stock)
+            db.session.commit()
+
+            stock_price = StockPrice(
+                stock_id=new_stock.id,
+                price=base_price
+            )
+
+            db.session.add(stock_price)
+            db.session.commit()
+
+            flash("Stock added successfully.")
+
+        except ValueError:
+            flash("Invalid base price.")
+
+        return redirect("/admin/stocks")
 
     stocks = Stock.query.order_by(Stock.symbol).all()
 
