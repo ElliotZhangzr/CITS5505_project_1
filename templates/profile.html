@@ -157,8 +157,10 @@
         <h3>⚠️ Delete Account?</h3>
         <p>This action is <strong>irreversible</strong>. All your data, holdings, and history will be permanently removed.</p>
         <div class="modal-actions">
+            <input type="password" id="deletePassword" placeholder="Enter your password to confirm" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid #ddd;border-radius:8px;">
             <button class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
             <form method="POST" action="/delete_account">
+                <input type="hidden" name="password" id="modalPassword">
                 <button class="btn-confirm-delete" type="submit">Yes, Delete My Account</button>
             </form>
         </div>
