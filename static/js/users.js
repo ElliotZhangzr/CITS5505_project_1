@@ -1,23 +1,33 @@
 function filterUsers() {
-    const input = document.getElementById("searchInput");
-    const filter = input.value.trim().toLowerCase();
-    const rows = document.querySelectorAll(".user-row");
+
+    // Get search input
+    const searchInput = document.getElementById("searchInput");
+    const searchValue = searchInput.value.trim().toLowerCase();
+
+    // Get all user rows
+    const userRows = document.querySelectorAll(".user-row");
+
+    // No results message
     const noResultsMessage = document.getElementById("noResultsMessage");
 
-    let visibleRows = 0;
+    let matchedUsers = 0;
 
-    rows.forEach((row) => {
-        const rowText = row.textContent.toLowerCase();
+    // Loop through each row
+    userRows.forEach((row) => {
 
-        if (rowText.includes(filter)) {
+        const rowContent = row.textContent.toLowerCase();
+
+        // Show matching rows
+        if (rowContent.includes(searchValue)) {
             row.style.display = "";
-            visibleRows++;
+            matchedUsers++;
         } else {
             row.style.display = "none";
         }
     });
 
-    if (visibleRows === 0) {
+    // Toggle no results message
+    if (matchedUsers === 0) {
         noResultsMessage.classList.remove("d-none");
     } else {
         noResultsMessage.classList.add("d-none");
