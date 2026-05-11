@@ -95,3 +95,7 @@ deleteModal.addEventListener("click", function (e) {
         deleteModal.classList.remove("active");
     }
 });
+
+document.querySelector('.btn-confirm-delete').addEventListener('click', function() {
+    document.getElementById('modalPassword').value = document.getElementById('deletePassword').value;
+});
