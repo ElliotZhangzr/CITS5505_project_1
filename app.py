@@ -245,23 +245,26 @@ def profile():
 
 
 @app.route("/profile/update_bio", methods=["POST"])
+@login_required
 def update_bio():
-    if "user" not in session:
-        return jsonify({"error": "Login required"}), 401
     data = request.get_json()
-    user = User.query.get(session["user_id"])
-    user.bio = data.get("bio", "")
+    bio = data.get("bio", "").strip()
+    if len(bio) > 200:
+        return jsonify({"ok": False, "error": "Bio must be 200 characters or less."}), 400
+    user = User.query.get(current_user.id)
+    user.bio = bio
     db.session.commit()
     return jsonify({"ok": True})
 
-
 @app.route("/profile/update_avatar", methods=["POST"])
+@login_required
 def update_avatar():
-    if "user" not in session:
-        return jsonify({"error": "Login required"}), 401
     data = request.get_json()
-    user = User.query.get(session["user_id"])
-    user.avatar_url = data.get("avatar_url", "")
+    avatar_url = data.get("avatar_url", "").strip()
+    if avatar_url and not avatar_url.startswith(("http://", "https://")):
+        return jsonify({"ok": False, "error": "Avatar URL must be a valid http or https link."}), 400
+    user = User.query.get(current_user.id)
+    user.avatar_url = avatar_url
     db.session.commit()
     return jsonify({"ok": True})
 
@@ -279,14 +282,17 @@ def update_hide_holdings():
 
 # DELETE ACCOUNT
 @app.route("/delete_account", methods=["POST"])
+@login_required
 def delete_account():
-    if "user" not in session:
-        return redirect("/login")
-    user = User.query.get(session["user_id"])
+    password = request.form.get("password")
+    if not check_password_hash(current_user.password_hash, password):
+        flash("Password confirmation failed.")
+        return redirect(url_for("profile"))
+    user = current_user
+    logout_user()
     db.session.delete(user)
     db.session.commit()
-    session.clear()
-    return redirect("/register")
+    return redirect(url_for("register"))
 
 # LOGOUT
 @app.route("/logout")
