@@ -68,6 +68,7 @@
                         <td>
                             {% if user.id != current_user_id %}
                                 <form method="POST" action="{{ url_for('toggle_admin_role', user_id=user.id) }}">
+                                    {{ form.hidden_tag() }}
                                     <button class="btn buy" type="submit">
                                         {% if user.is_admin %}
                                             Remove Admin

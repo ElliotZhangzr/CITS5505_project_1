@@ -16,6 +16,7 @@ from password_reset_service import (
 )
 import hashlib
 import traceback
+from forms import EmptyForm
 
 load_dotenv()
 
@@ -223,10 +224,13 @@ def admin_users():
 
     users = User.query.order_by(User.created_at.desc()).all()
 
+    form = EmptyForm()
+
     return render_template(
         "admin_users.html",
         users=users,
-        current_user_id=current_user.id
+        current_user_id=current_user.id,
+        form=form
     )
 
 @app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
