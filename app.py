@@ -161,8 +161,8 @@ def handle_csrf_error(error):
 @app.route("/")
 def home():
     if current_user.is_authenticated:
-        return redirect(url_for("/dashboard"))
-    return redirect(url_for("/login"))
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
  
  
 # DASHBOARD
@@ -282,7 +282,7 @@ def delete_account():
     db.session.delete(user)
     db.session.commit()
     logout_user()
-    return redirect(url_for("/register"))
+    return redirect(url_for("register"))
  
  
 # LOGOUT
