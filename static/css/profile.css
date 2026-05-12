@@ -198,7 +198,7 @@
 
 .asset-card {
     flex: 1;
-    min-width: 140px;
+    min-width: 160px;
     background: white;
     border: 1px solid var(--line);
     border-radius: 12px;
@@ -352,6 +352,7 @@
 
 .modal-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: flex-end;
 }
@@ -395,6 +396,35 @@
     .profile-card {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .avatar-section {
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .avatar-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .btn-avatar {
+        flex: 1 1 160px;
+        text-align: center;
+    }
+
+    .profile-username {
+        font-size: 1.55rem;
+    }
+
+    .profile-email {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .asset-card {
+        flex-basis: calc(50% - 8px);
     }
 
     .achievement-grid {
@@ -408,5 +438,30 @@
     .btn-delete {
         width: 100%;
         justify-content: center;
+    }
+
+    .modal {
+        padding: 1.25rem;
+    }
+
+    .modal-actions,
+    .modal-actions form {
+        width: 100%;
+    }
+
+    .btn-cancel,
+    .btn-confirm-delete {
+        width: 100%;
+    }
+}
+
+@media (max-width: 460px) {
+    .asset-card {
+        flex-basis: 100%;
+    }
+
+    .avatar-wrapper {
+        width: 96px;
+        height: 96px;
     }
 }
