@@ -52,7 +52,7 @@
                     {% if current_user.is_authenticated and user.id == current_user.id %}(You){% endif %}
                     </td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.joinTime.strftime('%Y-%m-%d %H:%M') if user.joinTime else 'N/A' }}</td>
+                    <td>{{ user.joinTime if user.joinTime else 'N/A' }}</td>
                 </tr>
                 {% endfor %}
             {% endif %}
