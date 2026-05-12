@@ -1,253 +1,235 @@
 from __future__ import annotations
 
 import argparse
-import sqlite3
+from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
+
+from flask import Flask
+from werkzeug.security import generate_password_hash
+
+from models import db, Stock, StockHolding, StockPrice, StockTransaction, User
 
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_DB_PATH = BASE_DIR / "instance" / "app.db"
+BASE_TIME = datetime(2026, 5, 4, 16, 0, 0)
 
 
 USERS = [
-    (
-        1,
-        "ellang",
-        "example@doooy.cn",
-        "3cea35c661bd7dd54b456c6224b903780825aa219c726ea772d678ade062b285",
-        1,
-        9999999999,
-        "",
-        "",
-        0,
-        "2026-05-04 16:13:26.838215",
-    ),
-    (
-        2,
-        "root",
-        "ellir@gmail.com",
-        "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2",
-        0,
-        9049.55,
-        "",
-        "",
-        0,
-        "2026-05-04 16:32:52.351358",
-    ),
+    {
+        "username": "admin",
+        "email": "admin@example.com",
+        "password": "Admin123",
+        "is_admin": True,
+        "cash": Decimal("100000.00"),
+        "bio": "Seeded admin account.",
+        "avatar_url": "",
+        "hide_holdings": False,
+        "created_at": BASE_TIME,
+    },
+    {
+        "username": "trader",
+        "email": "trader@example.com",
+        "password": "Trader123",
+        "is_admin": False,
+        "cash": Decimal("9049.55"),
+        "bio": "Seeded trader account.",
+        "avatar_url": "",
+        "hide_holdings": False,
+        "created_at": BASE_TIME + timedelta(minutes=10),
+    },
 ]
 
 
 STOCKS = [
-    (1, "AAPL", "Apple Inc.", "2026-04-28 08:35:28.641540", 150, 0.006, 0.0002, 0.15, 0, 1000000, 0.25, 1),
-    (2, "TSLA", "Tesla Inc.", "2026-04-28 08:35:28.643347", 200, 0.025, 0.0001, 0.55, 0, 300000, 0.8, 1),
-    (3, "NVDA", "NVIDIA Corporation", "2026-04-28 08:35:28.645040", 900, 0.015, 0.0006, 0.4, 0, 600000, 0.5, 1),
+    {
+        "symbol": "AAPL",
+        "name": "Apple Inc.",
+        "base_price": Decimal("150.00"),
+        "volatility": Decimal("0.006000"),
+        "drift": Decimal("0.000200"),
+        "momentum_factor": Decimal("0.150000"),
+        "mean_reversion_factor": Decimal("0.030000"),
+        "liquidity": Decimal("1000000.00"),
+        "trade_impact_factor": Decimal("0.250000"),
+        "min_price": Decimal("1.00"),
+        "created_at": BASE_TIME,
+        "prices": ["180.00", "176.55", "176.41", "178.41", "180.57", "176.97", "178.99", "177.56", "175.95", "177.66"],
+    },
+    {
+        "symbol": "TSLA",
+        "name": "Tesla Inc.",
+        "base_price": Decimal("200.00"),
+        "volatility": Decimal("0.025000"),
+        "drift": Decimal("0.000100"),
+        "momentum_factor": Decimal("0.550000"),
+        "mean_reversion_factor": Decimal("0.030000"),
+        "liquidity": Decimal("300000.00"),
+        "trade_impact_factor": Decimal("0.800000"),
+        "min_price": Decimal("1.00"),
+        "created_at": BASE_TIME + timedelta(minutes=1),
+        "prices": ["210.00", "207.95", "208.14", "204.20", "204.56", "206.58", "207.33", "210.37", "209.51", "212.14"],
+    },
+    {
+        "symbol": "NVDA",
+        "name": "NVIDIA Corporation",
+        "base_price": Decimal("900.00"),
+        "volatility": Decimal("0.015000"),
+        "drift": Decimal("0.000600"),
+        "momentum_factor": Decimal("0.400000"),
+        "mean_reversion_factor": Decimal("0.030000"),
+        "liquidity": Decimal("600000.00"),
+        "trade_impact_factor": Decimal("0.500000"),
+        "min_price": Decimal("1.00"),
+        "created_at": BASE_TIME + timedelta(minutes=2),
+        "prices": ["800.00", "807.47", "816.19", "823.06", "810.81", "821.56", "825.27", "840.96", "856.63", "872.87"],
+    },
 ]
 
 
-STOCK_PRICES = [
-    (1, 1, 180, "2026-04-28 08:35:28.644162"),
-    (2, 1, 176.55, "2026-04-28 08:35:28.644164"),
-    (3, 1, 176.41, "2026-04-28 08:35:28.644165"),
-    (4, 1, 178.41, "2026-04-28 08:35:28.644166"),
-    (5, 1, 180.57, "2026-04-28 08:35:28.644167"),
-    (6, 1, 176.97, "2026-04-28 08:35:28.644167"),
-    (7, 1, 178.99, "2026-04-28 08:35:28.644168"),
-    (8, 1, 177.56, "2026-04-28 08:35:28.644169"),
-    (9, 1, 175.95, "2026-04-28 08:35:28.644169"),
-    (10, 1, 177.66, "2026-04-28 08:35:28.644170"),
-    (11, 2, 210, "2026-04-28 08:35:28.645231"),
-    (12, 2, 207.95, "2026-04-28 08:35:28.645233"),
-    (13, 2, 208.14, "2026-04-28 08:35:28.645234"),
-    (14, 2, 204.2, "2026-04-28 08:35:28.645234"),
-    (15, 2, 204.56, "2026-04-28 08:35:28.645235"),
-    (16, 2, 206.58, "2026-04-28 08:35:28.645236"),
-    (17, 2, 207.33, "2026-04-28 08:35:28.645237"),
-    (18, 2, 210.37, "2026-04-28 08:35:28.645237"),
-    (19, 2, 209.51, "2026-04-28 08:35:28.645238"),
-    (20, 2, 212.14, "2026-04-28 08:35:28.645239"),
-    (21, 3, 800, "2026-04-28 08:35:28.645817"),
-    (22, 3, 807.47, "2026-04-28 08:35:28.645819"),
-    (23, 3, 816.19, "2026-04-28 08:35:28.645819"),
-    (24, 3, 823.06, "2026-04-28 08:35:28.645820"),
-    (25, 3, 810.81, "2026-04-28 08:35:28.645821"),
-    (26, 3, 821.56, "2026-04-28 08:35:28.645822"),
-    (27, 3, 825.27, "2026-04-28 08:35:28.645822"),
-    (28, 3, 840.96, "2026-04-28 08:35:28.645823"),
-    (29, 3, 856.63, "2026-04-28 08:35:28.645824"),
-    (30, 3, 872.87, "2026-04-28 08:35:28.645824"),
+HOLDINGS = [
+    {
+        "username": "trader",
+        "symbol": "AAPL",
+        "quantity": 7,
+        "average_cost": Decimal("135.78"),
+        "total_cost": Decimal("950.45"),
+        "updated_at": BASE_TIME + timedelta(hours=1),
+    },
 ]
 
 
-STOCK_HOLDINGS = [
-    (1, 2, 1, 7, 135.78, 950.45, "2026-05-04 17:00:24.538000"),
+TRANSACTIONS = [
+    ("trader", "AAPL", "BUY", 1, "136.59", "136.59", "0.00", None, "9863.41", 1),
+    ("trader", "AAPL", "BUY", 1, "137.21", "137.21", "0.00", "136.59", "9726.20", 2),
+    ("trader", "AAPL", "BUY", 1, "137.21", "137.21", "0.00", "136.90", "9588.99", 3),
+    ("trader", "AAPL", "BUY", 1, "134.86", "134.86", "0.00", "137.00", "9454.13", 4),
+    ("trader", "AAPL", "BUY", 1, "134.86", "134.86", "0.00", "136.47", "9319.27", 5),
+    ("trader", "AAPL", "BUY", 1, "134.86", "134.86", "0.00", "136.15", "9184.41", 6),
+    ("trader", "AAPL", "BUY", 1, "134.86", "134.86", "0.00", "135.93", "9049.55", 7),
 ]
 
 
-STOCK_TRANSACTIONS = [
-    (1, 2, 1, "BUY", 1, 136.59, 136.59, 0, 0, 9863.41, "2026-05-04 17:00:18.107135"),
-    (2, 2, 1, "BUY", 1, 137.21, 137.21, 0, 136.59, 9726.2, "2026-05-04 17:00:23.097008"),
-    (3, 2, 1, "BUY", 1, 137.21, 137.21, 0, 136.9, 9588.99, "2026-05-04 17:00:23.931190"),
-    (4, 2, 1, "BUY", 1, 134.86, 134.86, 0, 137, 9454.13, "2026-05-04 17:00:24.088792"),
-    (5, 2, 1, "BUY", 1, 134.86, 134.86, 0, 136.47, 9319.27, "2026-05-04 17:00:24.270243"),
-    (6, 2, 1, "BUY", 1, 134.86, 134.86, 0, 136.15, 9184.41, "2026-05-04 17:00:24.403579"),
-    (7, 2, 1, "BUY", 1, 134.86, 134.86, 0, 135.93, 9049.55, "2026-05-04 17:00:24.539481"),
-]
+def create_seed_app(db_path: Path) -> Flask:
+    app = Flask(__name__, instance_path=str(db_path.parent))
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + str(db_path)
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+    return app
 
 
-CREATE_TABLES_SQL = """
-CREATE TABLE IF NOT EXISTS "user" (
-    id INTEGER NOT NULL PRIMARY KEY,
-    username VARCHAR(30) NOT NULL UNIQUE,
-    email VARCHAR(120) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    is_admin BOOLEAN NOT NULL,
-    cash NUMERIC(12, 2) NOT NULL,
-    bio VARCHAR(200),
-    avatar_url VARCHAR(500),
-    hide_holdings BOOLEAN NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL
-);
+def upsert_user(data: dict) -> User:
+    user = User.query.filter_by(username=data["username"]).first()
+    if user is None:
+        user = User(username=data["username"])
+        db.session.add(user)
 
-CREATE TABLE IF NOT EXISTS stock (
-    id INTEGER NOT NULL PRIMARY KEY,
-    symbol VARCHAR(10) NOT NULL UNIQUE,
-    name VARCHAR(120) NOT NULL,
-    created_at DATETIME NOT NULL,
-    base_price NUMERIC(12, 2) NOT NULL DEFAULT 100.00,
-    volatility NUMERIC(8, 6) NOT NULL DEFAULT 0.010000,
-    drift NUMERIC(8, 6) NOT NULL DEFAULT 0.000000,
-    momentum_factor NUMERIC(8, 6) NOT NULL DEFAULT 0.200000,
-    mean_reversion_factor NUMERIC(8, 6) NOT NULL DEFAULT 0.030000,
-    liquidity NUMERIC(14, 2) NOT NULL DEFAULT 500000.00,
-    trade_impact_factor NUMERIC(8, 6) NOT NULL DEFAULT 0.500000,
-    min_price NUMERIC(12, 2) NOT NULL DEFAULT 1.00
-);
+    user.email = data["email"]
+    user.password_hash = generate_password_hash(data["password"])
+    user.is_admin = data["is_admin"]
+    user.cash = data["cash"]
+    user.bio = data["bio"]
+    user.avatar_url = data["avatar_url"]
+    user.hide_holdings = data["hide_holdings"]
+    user.created_at = data["created_at"]
+    return user
 
-CREATE TABLE IF NOT EXISTS stock_price (
-    id INTEGER NOT NULL PRIMARY KEY,
-    stock_id INTEGER NOT NULL,
-    price NUMERIC(12, 2) NOT NULL,
-    recorded_at DATETIME NOT NULL,
-    FOREIGN KEY (stock_id) REFERENCES stock (id)
-);
 
-CREATE TABLE IF NOT EXISTS stock_holding (
-    id INTEGER NOT NULL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    stock_id INTEGER NOT NULL,
-    quantity INTEGER NOT NULL,
-    average_cost NUMERIC(12, 2) NOT NULL,
-    total_cost NUMERIC(14, 2) NOT NULL,
-    updated_at DATETIME NOT NULL,
-    CONSTRAINT uq_user_stock_holding UNIQUE (user_id, stock_id),
-    FOREIGN KEY (user_id) REFERENCES "user" (id),
-    FOREIGN KEY (stock_id) REFERENCES stock (id)
-);
+def upsert_stock(data: dict) -> Stock:
+    stock = Stock.query.filter_by(symbol=data["symbol"]).first()
+    if stock is None:
+        stock = Stock(symbol=data["symbol"])
+        db.session.add(stock)
 
-CREATE TABLE IF NOT EXISTS stock_transaction (
-    id INTEGER NOT NULL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    stock_id INTEGER NOT NULL,
-    side VARCHAR(4) NOT NULL,
-    quantity INTEGER NOT NULL,
-    price NUMERIC(12, 2) NOT NULL,
-    gross_amount NUMERIC(14, 2) NOT NULL,
-    realized_profit NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    average_cost_before NUMERIC(12, 2),
-    cash_balance_after NUMERIC(14, 2) NOT NULL,
-    created_at DATETIME NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES "user" (id),
-    FOREIGN KEY (stock_id) REFERENCES stock (id)
-);
-"""
+    stock.name = data["name"]
+    stock.base_price = data["base_price"]
+    stock.volatility = data["volatility"]
+    stock.drift = data["drift"]
+    stock.momentum_factor = data["momentum_factor"]
+    stock.mean_reversion_factor = data["mean_reversion_factor"]
+    stock.liquidity = data["liquidity"]
+    stock.trade_impact_factor = data["trade_impact_factor"]
+    stock.min_price = data["min_price"]
+    stock.created_at = data["created_at"]
+    return stock
+
+
+def seed_prices(stocks_by_symbol: dict[str, Stock]) -> None:
+    for stock_data in STOCKS:
+        stock = stocks_by_symbol[stock_data["symbol"]]
+        for index, price in enumerate(stock_data["prices"]):
+            recorded_at = stock_data["created_at"] + timedelta(seconds=index)
+            existing = StockPrice.query.filter_by(stock_id=stock.id, recorded_at=recorded_at).first()
+            if existing is None:
+                existing = StockPrice(stock_id=stock.id, recorded_at=recorded_at)
+                db.session.add(existing)
+            existing.price = Decimal(price)
+
+
+def seed_holdings(users_by_name: dict[str, User], stocks_by_symbol: dict[str, Stock]) -> None:
+    for data in HOLDINGS:
+        user = users_by_name[data["username"]]
+        stock = stocks_by_symbol[data["symbol"]]
+        holding = StockHolding.query.filter_by(user_id=user.id, stock_id=stock.id).first()
+        if holding is None:
+            holding = StockHolding(user_id=user.id, stock_id=stock.id)
+            db.session.add(holding)
+
+        holding.quantity = data["quantity"]
+        holding.average_cost = data["average_cost"]
+        holding.total_cost = data["total_cost"]
+        holding.updated_at = data["updated_at"]
+
+
+def seed_transactions(users_by_name: dict[str, User], stocks_by_symbol: dict[str, Stock]) -> None:
+    for username, symbol, side, quantity, price, gross, profit, avg_before, cash_after, offset in TRANSACTIONS:
+        user = users_by_name[username]
+        stock = stocks_by_symbol[symbol]
+        created_at = BASE_TIME + timedelta(hours=1, seconds=offset)
+        transaction = StockTransaction.query.filter_by(
+            user_id=user.id,
+            stock_id=stock.id,
+            side=side,
+            quantity=quantity,
+            created_at=created_at,
+        ).first()
+
+        if transaction is None:
+            transaction = StockTransaction(
+                user_id=user.id,
+                stock_id=stock.id,
+                side=side,
+                quantity=quantity,
+                created_at=created_at,
+            )
+            db.session.add(transaction)
+
+        transaction.price = Decimal(price)
+        transaction.gross_amount = Decimal(gross)
+        transaction.realized_profit = Decimal(profit)
+        transaction.average_cost_before = Decimal(avg_before) if avg_before is not None else None
+        transaction.cash_balance_after = Decimal(cash_after)
 
 
 def seed_database(db_path: Path) -> None:
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    app = create_seed_app(db_path)
 
-    with sqlite3.connect(db_path) as conn:
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.executescript(CREATE_TABLES_SQL)
+    with app.app_context():
+        db.create_all()
+        users_by_name = {data["username"]: upsert_user(data) for data in USERS}
+        stocks_by_symbol = {data["symbol"]: upsert_stock(data) for data in STOCKS}
+        db.session.flush()
 
-        user_columns = {
-            row[1] for row in conn.execute('PRAGMA table_info("user")').fetchall()
-        }
-        if {"bio", "avatar_url", "hide_holdings"}.issubset(user_columns):
-            conn.executemany(
-                """
-                INSERT INTO "user"
-                (id, username, email, password_hash, is_admin, cash, bio, avatar_url,
-                 hide_holdings, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    username = excluded.username,
-                    email = excluded.email,
-                    password_hash = excluded.password_hash,
-                    is_admin = excluded.is_admin,
-                    cash = excluded.cash,
-                    bio = excluded.bio,
-                    avatar_url = excluded.avatar_url,
-                    hide_holdings = excluded.hide_holdings,
-                    created_at = excluded.created_at
-                """,
-                USERS,
-            )
-        else:
-            legacy_users = [user[:6] + (user[9],) for user in USERS]
-            conn.executemany(
-                """
-                INSERT INTO "user"
-                (id, username, email, password_hash, is_admin, cash, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET
-                    username = excluded.username,
-                    email = excluded.email,
-                    password_hash = excluded.password_hash,
-                    is_admin = excluded.is_admin,
-                    cash = excluded.cash,
-                    created_at = excluded.created_at
-                """,
-                legacy_users,
-            )
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO stock
-            (id, symbol, name, created_at, base_price, volatility, drift,
-             momentum_factor, mean_reversion_factor, liquidity,
-             trade_impact_factor, min_price)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            STOCKS,
-        )
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO stock_price
-            (id, stock_id, price, recorded_at)
-            VALUES (?, ?, ?, ?)
-            """,
-            STOCK_PRICES,
-        )
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO stock_holding
-            (id, user_id, stock_id, quantity, average_cost, total_cost, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            STOCK_HOLDINGS,
-        )
-        conn.executemany(
-            """
-            INSERT OR IGNORE INTO stock_transaction
-            (id, user_id, stock_id, side, quantity, price, gross_amount,
-             realized_profit, average_cost_before, cash_balance_after, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            STOCK_TRANSACTIONS,
-        )
+        seed_prices(stocks_by_symbol)
+        seed_holdings(users_by_name, stocks_by_symbol)
+        seed_transactions(users_by_name, stocks_by_symbol)
+        db.session.commit()
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Insert standalone seed data into a SQLite database.")
+    parser = argparse.ArgumentParser(description="Insert model-based seed data into the SQLite database.")
     parser.add_argument(
         "--db",
         type=Path,
