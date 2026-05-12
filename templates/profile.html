@@ -86,7 +86,7 @@
         <div class="asset-summary">
             <div class="asset-card">
                 <span class="asset-label">Available Cash</span>
-                <span class="asset-value">${{ "{:,.2f}".format(current_user.cash|float) }}</span>
+                <span class="asset-value" id="availableCash">${{ "{:,.2f}".format(current_user.cash|float) }}</span>
             </div>
             <div class="asset-card">
                 <span class="asset-label">Stock Value</span>
@@ -96,6 +96,10 @@
                 <span class="asset-label">Total Assets</span>
                 <span class="asset-value" id="totalAssets">$0.00</span>
             </div>
+            <div class="asset-card">
+                <span class="asset-label">Total P/L</span>
+                <span class="asset-value" id="totalProfit">$0.00</span>
+            </div>
         </div>
         <table class="holdings-table">
             <thead>
@@ -103,11 +107,13 @@
                     <th>Symbol</th>
                     <th>Qty</th>
                     <th>Avg Price</th>
+                    <th>Current Price</th>
                     <th>Market Value</th>
+                    <th>P/L</th>
                 </tr>
             </thead>
             <tbody id="holdingsBody">
-                <tr><td colspan="4" class="empty-msg">No holdings yet.</td></tr>
+                <tr><td colspan="6" class="empty-msg">No holdings yet.</td></tr>
             </tbody>
         </table>
     </section>
