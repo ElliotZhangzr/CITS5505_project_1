@@ -14,6 +14,9 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     cash = db.Column(db.Numeric(12, 2), nullable=False, default=Decimal("10000.00"))
+    bio = db.Column(db.String(200), nullable=True, default="")
+    avatar_url = db.Column(db.String(500), nullable=True, default="")
+    hide_holdings = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     holdings = db.relationship("StockHolding", back_populates="user", cascade="all, delete-orphan")

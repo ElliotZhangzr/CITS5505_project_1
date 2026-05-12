@@ -233,58 +233,67 @@ def api_trades():
 @login_required
 def api_trade_history():
     limit = request.args.get("limit", 50, type=int)
-    return jsonify({"transactions": get_transaction_history(current_user.id, limit=limit)})
- 
- 
+    return jsonify({"transactions": get_transaction_history(session["user_id"], limit=limit)})
+
 # PROFILE
 @app.route("/profile")
-@login_required
 def profile():
-    user = User.query.get(current_user.id)
+    if "user" not in session:
+        return redirect("/login")
+    user = User.query.get(session["user_id"])
     return render_template("profile.html", user=user)
- 
- 
+
+
 @app.route("/profile/update_bio", methods=["POST"])
 @login_required
 def update_bio():
     data = request.get_json()
+    bio = data.get("bio", "").strip()
+    if len(bio) > 200:
+        return jsonify({"ok": False, "error": "Bio must be 200 characters or less."}), 400
     user = User.query.get(current_user.id)
-    user.bio = data.get("bio", "")
+    user.bio = bio
     db.session.commit()
     return jsonify({"ok": True})
- 
- 
+
 @app.route("/profile/update_avatar", methods=["POST"])
 @login_required
 def update_avatar():
     data = request.get_json()
+    avatar_url = data.get("avatar_url", "").strip()
+    if avatar_url and not avatar_url.startswith(("http://", "https://")):
+        return jsonify({"ok": False, "error": "Avatar URL must be a valid http or https link."}), 400
     user = User.query.get(current_user.id)
-    user.avatar_url = data.get("avatar_url", "")
+    user.avatar_url = avatar_url
     db.session.commit()
     return jsonify({"ok": True})
- 
- 
+
+
 @app.route("/profile/update_hide_holdings", methods=["POST"])
-@login_required
 def update_hide_holdings():
+    if "user" not in session:
+        return jsonify({"error": "Login required"}), 401
     data = request.get_json()
-    user = User.query.get(current_user.id)
+    user = User.query.get(session["user_id"])
     user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
- 
- 
+
+
 # DELETE ACCOUNT
 @app.route("/delete_account", methods=["POST"])
 @login_required
 def delete_account():
-    user = User.query.get(current_user.id)
+    password = request.form.get("password")
+    if not check_password_hash(current_user.password_hash, password):
+        flash("Password confirmation failed.")
+        return redirect(url_for("profile"))
+    user = current_user
+    logout_user()
     db.session.delete(user)
     db.session.commit()
-    logout_user()
     return redirect(url_for("register"))
- 
- 
+
 # LOGOUT
 @app.route("/logout")
 @login_required
