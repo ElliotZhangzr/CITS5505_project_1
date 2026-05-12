@@ -137,6 +137,16 @@ h2 {
     font-size: 1.05rem;
 }
 
+.muted-text {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.full-span {
+    grid-column: 1 / -1;
+}
+
 .market-pill {
     padding: 8px 14px;
     border-radius: 999px;
@@ -155,6 +165,7 @@ h2 {
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    margin-bottom: 14px;
 }
 
 .stock-tabs {
@@ -238,6 +249,11 @@ select {
     background: #fff;
 }
 
+.search-input {
+    width: 100%;
+    margin-bottom: 14px;
+}
+
 .trade-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -276,11 +292,75 @@ table {
     border-collapse: collapse;
 }
 
+.table-wrap {
+    overflow-x: auto;
+}
+
 th,
 td {
     text-align: left;
     padding: 10px 8px;
     border-bottom: 1px solid var(--line);
+}
+
+tr:hover {
+    background: rgba(20, 53, 67, 0.04);
+}
+
+.current-user {
+    background: rgba(22, 163, 74, 0.1);
+    font-weight: 700;
+}
+
+.inline-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    margin-left: 8px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--buy);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.empty-state {
+    margin: 12px 0 0;
+    text-align: center;
+    color: var(--muted);
+}
+
+.hidden {
+    display: none;
+}
+
+.pagination-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.ranking-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ranking-tab {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 8px 14px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ranking-tab.active {
+    background: var(--ink);
+    color: white;
 }
 
 .holding-summary {
@@ -342,6 +422,15 @@ td {
     .user-links {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .ranking-tabs {
+        width: 100%;
+    }
+
+    .ranking-tab {
+        flex: 1;
+        text-align: center;
     }
 }
 
