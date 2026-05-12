@@ -3,8 +3,11 @@ from flask import Flask, render_template, request, redirect, session, flash, jso
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
+from db import init_db
+from models import db, User, Stock, StockPrice,StockTransaction
+from flask_login import login_required, current_user
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
-from models import db, User, Stock, StockPrice
+
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
@@ -17,6 +20,7 @@ from password_reset_service import (
     request_password_reset,
 )
 import traceback
+from forms import EmptyForm
 
 load_dotenv()
  
@@ -38,6 +42,16 @@ with app.app_context():
 # ADMIN STOCK MANAGEMENT
 @app.route("/admin/stocks", methods=["GET", "POST"])
 def admin_stocks():
+
+def admin_required():
+    if not current_user.is_authenticated:
+        return redirect("/login")
+
+    if not current_user.is_admin:
+        flash("Admin access required.")
+        return redirect("/dashboard")
+
+    return None
 
     # Check if user is logged in
     if "user" not in session:
@@ -256,6 +270,64 @@ def users():
         has_prev=data["has_prev"],
         page=data["page"]
     )
+
+# ADMIN DASHBOARD
+@app.route("/admin")
+@login_required
+def admin_dashboard():
+    guard = admin_required()
+    if guard:
+        return guard
+
+    total_users = User.query.count()
+    total_stocks = Stock.query.count()
+    total_transactions = StockTransaction.query.count()
+
+    return render_template(
+        "admin.html",
+        total_users=total_users,
+        total_stocks=total_stocks,
+        total_transactions=total_transactions
+    )
+
+# ADMIN USER MANAGEMENT
+@app.route("/admin/users")
+@login_required
+def admin_users():
+    guard = admin_required()
+    if guard:
+        return guard
+
+    users = User.query.order_by(User.created_at.desc()).all()
+
+    form = EmptyForm()
+
+    return render_template(
+        "admin_users.html",
+        users=users,
+        current_user_id=current_user.id,
+        form=form
+    )
+
+@app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
+@login_required
+def toggle_admin_role(user_id):
+    guard = admin_required()
+    if guard:
+        return guard
+
+    if user_id == current_user.id:
+        flash("You cannot change your own admin role.")
+        return redirect("/admin/users")
+
+    user = User.query.get_or_404(user_id)
+    user.is_admin = not user.is_admin
+
+    db.session.commit()
+
+    flash("User role updated successfully.")
+    return redirect("/admin/users")
+
  
  
 @app.route("/api/stocks")

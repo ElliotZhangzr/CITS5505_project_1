@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-bg"></div>
+
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Admin Workspace</p>
+                <h1>Admin Panel</h1>
+            </div>
+
+            <div class="header-actions">
+                <div class="user-panel">
+                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
+                    <div class="user-links">
+                        <a class="action-link secondary" href="/dashboard">Dashboard</a>
+                        <a class="action-link" href="/logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="panel holding-area">
+            <h2>System Summary</h2>
+
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Total Users</th>
+                        <td>{{ total_users }}</td>
+                    </tr>
+                    <tr>
+                        <th>Total Stocks</th>
+                        <td>{{ total_stocks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Total Transactions</th>
+                        <td>{{ total_transactions }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="panel market-area">
+            <h2>Management Options</h2>
+            <ul class="market-list">
+                <li>
+                    <span>User Management</span>
+                    <a class="action-link secondary" href="/admin/users">Manage Users</a>
+                </li>
+                <li>
+                    <span>Stock Management</span>
+                    <a class="action-link secondary" href="/admin/stocks">Manage Stocks</a>
+                </li>
+            </ul>
+        </section>
+    </main>      
+</body>
+</html>
