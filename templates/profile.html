@@ -18,17 +18,7 @@
             <p class="kicker">My Account</p>
             <h1>Profile</h1>
         </div>
-        <div class="header-actions">
-            <div class="user-panel">
-                <p class="welcome-text">Welcome {{ current_user.username }}</p>
-                <p class="welcome-text">Cash <span>${{ current_user.cash }}</span></p>
-                <div class="user-links">
-                    <a class="action-link secondary" href="/dashboard">Dashboard</a>
-                    <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
-                    <a class="action-link" href="/logout">Logout</a>
-                </div>
-            </div>
-        </div>
+        {% include "_main_nav.html" %}
     </header>
 
     <!-- PROFILE CARD -->
@@ -152,7 +142,6 @@
 
     <!-- DANGER ZONE -->
     <section class="panel danger-section">
-        <a class="btn-logout" href="/logout">Logout</a>
         <button class="btn-delete" id="deleteAccountBtn">Delete Account</button>
     </section>
 

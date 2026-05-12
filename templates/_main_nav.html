@@ -1,0 +1,18 @@
+<div class="header-actions">
+    <div class="user-panel">
+        <div class="user-summary">
+            <p class="welcome-text">Welcome {{ current_user.username }}</p>
+            <p class="welcome-text">Cash <span id="accountCash">${{ "{:,.2f}".format(current_user.cash|float) }}</span></p>
+        </div>
+        <nav class="user-links" aria-label="Main navigation">
+            <a class="action-link secondary {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a class="action-link secondary {% if request.endpoint == 'profile' %}active{% endif %}" href="{{ url_for('profile') }}">Profile</a>
+            <a class="action-link secondary {% if request.endpoint == 'users' %}active{% endif %}" href="{{ url_for('users') }}">Users</a>
+            <a class="action-link secondary {% if request.endpoint == 'leaderboard' %}active{% endif %}" href="{{ url_for('leaderboard') }}">Leaderboard</a>
+            {% if current_user.is_admin %}
+                <a class="action-link secondary {% if request.endpoint in ['admin_dashboard', 'admin_users', 'admin_stocks', 'toggle_admin_role'] %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">Admin</a>
+            {% endif %}
+            <a class="action-link" href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</div>
