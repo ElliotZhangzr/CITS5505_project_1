@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Stock Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_stocks.css') }}">
+</head>
+
+<body>
+
+    <h1>Admin Stock Management</h1>
+
+    <div class="top-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/leaderboard">Leaderboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="stock-form">
+
+        <h3>Add New Stock</h3>
+
+        <input
+            type="text"
+            name="symbol"
+            placeholder="Stock Symbol"
+            required
+        >
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Stock Name"
+            required
+        >
+
+        <input
+            type="number"
+            step="0.01"
+            name="base_price"
+            placeholder="Base Price"
+            required
+        >
+
+        <button type="submit">
+            Add Stock
+        </button>
+
+    </form>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Base Price</th>
+                <th>Volatility</th>
+                <th>Liquidity</th>
+                <th>Minimum Price</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.symbol }}</td>
+                <td>{{ stock.name }}</td>
+                <td>${{ "%.2f"|format(stock.base_price) }}</td>
+                <td>{{ stock.volatility }}</td>
+                <td>{{ stock.liquidity }}</td>
+                <td>${{ "%.2f"|format(stock.min_price) }}</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</body>
+
+</html>

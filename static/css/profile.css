@@ -1,0 +1,421 @@
+/* ── Profile page layout ── */
+.profile-card {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* ── Avatar ── */
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid var(--line);
+    cursor: pointer;
+}
+
+.avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 53, 67, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.avatar-wrapper:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.avatar-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-avatar {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-avatar:hover {
+    background: var(--bg-2);
+}
+
+/* ── User info ── */
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-username {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.profile-email {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-reveal {
+    width: auto;
+    padding: 2px 10px;
+    font-size: 0.78rem;
+    border-radius: 999px;
+    background: rgba(20, 53, 67, 0.08);
+    color: var(--ink);
+    border: none;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.btn-reveal:hover {
+    background: rgba(20, 53, 67, 0.16);
+}
+
+.profile-joined {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+/* ── Bio ── */
+.bio-section {
+    grid-column: 1 / -1;
+}
+
+.bio-textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.bio-textarea:focus {
+    border-color: var(--buy);
+}
+
+.bio-footer {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+.btn-save {
+    width: auto;
+    padding: 6px 18px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: white;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.btn-save:hover {
+    opacity: 0.88;
+}
+
+/* ── Holdings ── */
+.holdings-section {
+    grid-column: 1 / -1;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--buy);
+}
+
+.asset-summary {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.asset-card {
+    flex: 1;
+    min-width: 140px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.asset-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.asset-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.holdings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.empty-msg {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    padding: 20px 0;
+}
+
+/* ── Achievements ── */
+.achievements-section {
+    grid-column: 1 / -1;
+}
+
+.achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.achievement {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 14px;
+    text-align: center;
+    background: white;
+    transition: transform 0.15s;
+}
+
+.achievement:hover {
+    transform: translateY(-2px);
+}
+
+.achievement.locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+
+.achievement-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.achievement-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.achievement-desc {
+    font-size: 0.76rem;
+    color: var(--muted);
+}
+
+/* ── Danger zone ── */
+.danger-section {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-logout {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: rgba(20, 53, 67, 0.1);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+    background: rgba(20, 53, 67, 0.18);
+}
+
+.btn-delete {
+    width: auto;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.btn-delete:hover {
+    background: #b91c1c;
+}
+
+/* ── Delete modal ── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+    color: var(--ink);
+}
+
+.modal p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    width: auto;
+    padding: 9px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.btn-cancel:hover {
+    background: var(--bg-2);
+}
+
+.btn-confirm-delete {
+    width: auto;
+    padding: 9px 20px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+.btn-confirm-delete:hover {
+    background: #b91c1c;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+    .profile-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .achievement-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .danger-section {
+        justify-content: stretch;
+    }
+
+    .btn-logout,
+    .btn-delete {
+        width: 100%;
+        justify-content: center;
+    }
+}
