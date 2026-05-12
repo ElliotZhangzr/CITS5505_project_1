@@ -8,6 +8,7 @@ from models import db, User, Stock, StockPrice,StockTransaction
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 
 from user_service import get_users_paginated
+from achievement_service import get_user_achievements
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
 from stock_simulator import load_stock_configs, update_prices_if_due
@@ -381,7 +382,11 @@ def api_trade_history():
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template("profile.html", user=current_user)
+    return render_template(
+        "profile.html",
+        user=current_user,
+        achievements=get_user_achievements(current_user),
+    )
 
 
 @app.route("/profile/update_bio", methods=["POST"])
