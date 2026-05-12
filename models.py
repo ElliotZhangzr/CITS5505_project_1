@@ -3,10 +3,16 @@ from sqlalchemy import DDL, event
 from datetime import datetime
 from decimal import Decimal
 
+try:
+    from flask_login import UserMixin
+except ImportError:
+    class UserMixin:
+        pass
+
 db = SQLAlchemy()
 MAX_STOCK_PRICE_RECORDS = 6000
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -29,6 +35,14 @@ class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     symbol = db.Column(db.String(10), unique=True, nullable=False)
     name = db.Column(db.String(120), nullable=False)
+    base_price = db.Column(db.Numeric(12, 2), nullable=False, default=Decimal("100.00"))
+    volatility = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.010000"))
+    drift = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.000000"))
+    momentum_factor = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.200000"))
+    mean_reversion_factor = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.030000"))
+    liquidity = db.Column(db.Numeric(14, 2), nullable=False, default=Decimal("500000.00"))
+    trade_impact_factor = db.Column(db.Numeric(8, 6), nullable=False, default=Decimal("0.500000"))
+    min_price = db.Column(db.Numeric(12, 2), nullable=False, default=Decimal("1.00"))
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     prices = db.relationship("StockPrice", back_populates="stock", cascade="all, delete-orphan")
