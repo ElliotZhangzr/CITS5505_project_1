@@ -85,7 +85,7 @@
         <div class="asset-summary">
             <div class="asset-card">
                 <span class="asset-label">Available Cash</span>
-                <span class="asset-value">${{ "{:,.2f}".format(session["cash"]|float) }}</span>
+                <span class="asset-value" id="availableCash">${{ "{:,.2f}".format(session["cash"]|float) }}</span>
             </div>
             <div class="asset-card">
                 <span class="asset-label">Stock Value</span>
@@ -95,6 +95,10 @@
                 <span class="asset-label">Total Assets</span>
                 <span class="asset-value" id="totalAssets">$0.00</span>
             </div>
+            <div class="asset-card">
+                <span class="asset-label">Total P/L</span>
+                <span class="asset-value" id="totalProfit">$0.00</span>
+            </div>
         </div>
         <table class="holdings-table">
             <thead>
@@ -102,45 +106,15 @@
                     <th>Symbol</th>
                     <th>Qty</th>
                     <th>Avg Price</th>
+                    <th>Current Price</th>
                     <th>Market Value</th>
+                    <th>P/L</th>
                 </tr>
             </thead>
             <tbody id="holdingsBody">
-                <tr><td colspan="4" class="empty-msg">No holdings yet.</td></tr>
+                <tr><td colspan="6" class="empty-msg">No holdings yet.</td></tr>
             </tbody>
         </table>
-    </section>
-
-    <!-- ACHIEVEMENTS -->
-    <section class="panel achievements-section">
-        <h2>Achievements</h2>
-        <div class="achievement-grid">
-            <div class="achievement unlocked">
-                <div class="achievement-icon">🎯</div>
-                <div class="achievement-name">First Trade</div>
-                <div class="achievement-desc">Complete your first buy or sell</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🏆</div>
-                <div class="achievement-name">Top 10</div>
-                <div class="achievement-desc">Reach top 10 on the leaderboard</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">💎</div>
-                <div class="achievement-name">Diamond Hands</div>
-                <div class="achievement-desc">Hold a stock for more than 7 days</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🚀</div>
-                <div class="achievement-name">To The Moon</div>
-                <div class="achievement-desc">Gain 50% profit on a single stock</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">👑</div>
-                <div class="achievement-name">Market King</div>
-                <div class="achievement-desc">Reach #1 on the leaderboard</div>
-            </div>
-        </div>
     </section>
 
     <!-- DANGER ZONE -->

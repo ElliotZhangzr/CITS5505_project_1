@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
 from db import init_db
 from models import db, User
 from user_service import get_users_paginated
@@ -6,11 +6,24 @@ from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data, get_stocks
 from stock_simulator import update_prices_if_due
 from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
+import base64
 import hashlib
+import re
+from pathlib import Path
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 init_db(app)
+
+AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
+AVATAR_EXTENSIONS = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/svg+xml": "svg",
+}
+AVATAR_DATA_URL_RE = re.compile(r"^data:(image/[a-zA-Z0-9.+-]+);base64,(.+)$")
 
 
 # LOGIN
@@ -185,6 +198,9 @@ def profile():
     if "user" not in session:
         return redirect("/login")
     user = User.query.get(session["user_id"])
+    if user is None:
+        session.clear()
+        return redirect("/login")
     return render_template("profile.html", user=user)
 
 
@@ -194,6 +210,9 @@ def update_bio():
         return jsonify({"error": "Login required"}), 401
     data = request.get_json()
     user = User.query.get(session["user_id"])
+    if user is None:
+        session.clear()
+        return jsonify({"error": "Login required"}), 401
     user.bio = data.get("bio", "")
     db.session.commit()
     return jsonify({"ok": True})
@@ -203,11 +222,41 @@ def update_bio():
 def update_avatar():
     if "user" not in session:
         return jsonify({"error": "Login required"}), 401
-    data = request.get_json()
+
+    data = request.get_json(silent=True) or {}
+    avatar_data = data.get("avatar_data", "")
+    match = AVATAR_DATA_URL_RE.match(avatar_data)
+
+    if not match:
+        return jsonify({"error": "Invalid avatar data"}), 400
+
+    mime_type, encoded_avatar = match.groups()
+    extension = AVATAR_EXTENSIONS.get(mime_type)
+
+    if extension is None:
+        return jsonify({"error": "Unsupported avatar type"}), 400
+
+    try:
+        avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
+    except ValueError:
+        return jsonify({"error": "Invalid avatar encoding"}), 400
+
+    if not avatar_bytes:
+        return jsonify({"error": "Avatar file is empty"}), 400
+
     user = User.query.get(session["user_id"])
-    user.avatar_url = data.get("avatar_url", "")
+    if user is None:
+        session.clear()
+        return jsonify({"error": "Login required"}), 401
+
+    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    avatar_filename = f"user_{session['user_id']}.{extension}"
+    avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
+    avatar_path.write_bytes(avatar_bytes)
+
+    user.avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
     db.session.commit()
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "avatar_url": user.avatar_url})
 
 
 @app.route("/profile/update_hide_holdings", methods=["POST"])
@@ -216,6 +265,9 @@ def update_hide_holdings():
         return jsonify({"error": "Login required"}), 401
     data = request.get_json()
     user = User.query.get(session["user_id"])
+    if user is None:
+        session.clear()
+        return jsonify({"error": "Login required"}), 401
     user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})

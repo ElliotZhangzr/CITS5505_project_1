@@ -20,6 +20,7 @@
                     <p class="welcome-text">Welcome {{ session["user"] }}</p>
                     <p class="welcome-text">Cash <span id="accountCash">${{ session["cash"] }}</span></p>
                     <div class="user-links">
+                        <a class="action-link secondary" href="/profile">Profile</a>
                         <a class="action-link secondary" href="/users">Users</a>
                         <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
                         <a class="action-link" href="/logout">Logout</a>
