@@ -1,6 +1,7 @@
 Flask==3.0.3
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.1
+Flask-Login
 python-dotenv
 resend
 redis

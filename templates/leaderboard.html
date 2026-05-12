@@ -19,7 +19,7 @@
 
             <div class="header-actions">
                 <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
+                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
                     <div class="user-links">
                         <a class="action-link secondary" href="/dashboard">Dashboard</a>
                         <a class="action-link" href="/logout">Logout</a>
@@ -72,7 +72,7 @@
                     <tbody>
                         {% if users %}
                             {% for user in users %}
-                            <tr class="{% if user.username == current_user %}current-user{% endif %}">
+                            <tr class="{% if current_user.is_authenticated and user.username == current_user.username %}current_user{% endif %}">
                                 <td>
                                     {% if loop.index == 1 %}
                                         🥇 1
