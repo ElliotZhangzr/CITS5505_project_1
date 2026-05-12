@@ -85,7 +85,7 @@
                         <td>{{ user.email }}</td>
 
                         <td>
-                            {{ user.joinTime.strftime('%Y-%m-%d %H:%M') if user.joinTime else 'N/A' }}
+                            {{ user.joinTime if user.joinTime else 'N/A' }}
                         </td>
 
                     </tr>
