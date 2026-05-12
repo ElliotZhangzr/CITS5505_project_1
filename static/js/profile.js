@@ -8,16 +8,28 @@ avatarUpload.addEventListener("change", function () {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function (e) {
-        saveAvatar(e.target.result);
+    reader.onload = async function (e) {
+        try {
+            const avatarData = await convertImageToPngDataUrl(e.target.result);
+            saveAvatar(avatarData);
+        } catch {
+            alert("Failed to prepare avatar image.");
+        }
     };
     reader.readAsDataURL(file);
 });
 
-/* ── Avatar: Random generated locally ── */
+/* ── Avatar: Random from public API, then saved locally ── */
 document.getElementById("randomAvatarBtn").addEventListener("click", async function () {
     const seed = Math.random().toString(36).substring(2, 8);
-    saveAvatar(createRandomAvatar(seed));
+    const url = `https://api.dicebear.com/8.x/thumbs/svg?seed=${seed}`;
+
+    try {
+        const avatarData = await fetchImageAsPngDataUrl(url);
+        saveAvatar(avatarData);
+    } catch {
+        alert("Failed to load random avatar.");
+    }
 });
 
 async function saveAvatar(avatarData) {
@@ -30,25 +42,45 @@ async function saveAvatar(avatarData) {
     if (res.ok) {
         const data = await res.json();
         avatarImg.src = `${data.avatar_url}?v=${Date.now()}`;
+        return;
     }
+
+    const error = await res.json().catch(() => ({ error: "Failed to save avatar." }));
+    alert(error.error || "Failed to save avatar.");
 }
 
-function createRandomAvatar(seed) {
-    const colors = ["#143543", "#16a34a", "#2563eb", "#dc2626", "#f59e0b", "#7c3aed"];
-    const colorA = colors[seed.charCodeAt(0) % colors.length];
-    const colorB = colors[seed.charCodeAt(1) % colors.length];
-    const colorC = colors[seed.charCodeAt(2) % colors.length];
-    const initials = seed.slice(0, 2).toUpperCase();
-    const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-            <rect width="120" height="120" rx="60" fill="${colorA}"/>
-            <circle cx="32" cy="34" r="24" fill="${colorB}" opacity="0.85"/>
-            <circle cx="88" cy="88" r="30" fill="${colorC}" opacity="0.75"/>
-            <text x="60" y="68" text-anchor="middle" font-family="Arial, sans-serif"
-                  font-size="34" font-weight="700" fill="white">${initials}</text>
-        </svg>
-    `;
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
+async function fetchImageAsPngDataUrl(url) {
+    const res = await fetch(url);
+    if (!res.ok) {
+        throw new Error("Avatar API request failed.");
+    }
+
+    const blob = await res.blob();
+    const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+    return convertImageToPngDataUrl(dataUrl);
+}
+
+function convertImageToPngDataUrl(source) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = image.naturalWidth || 120;
+            canvas.height = image.naturalHeight || 120;
+
+            const context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/png"));
+        };
+        image.onerror = reject;
+        image.src = source;
+    });
 }
 
 /* ── Email toggle ── */

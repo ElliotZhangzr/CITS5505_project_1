@@ -34,14 +34,10 @@ csrf = CSRFProtect(app)
 init_db(app)
 
 AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
-AVATAR_EXTENSIONS = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif",
-    "image/webp": "webp",
-    "image/svg+xml": "svg",
-}
-AVATAR_DATA_URL_RE = re.compile(r"^data:(image/[a-zA-Z0-9.+-]+);base64,(.+)$")
+AVATAR_DATA_URL_RE = re.compile(
+    r"^data:(image/[a-zA-Z0-9.+-]+)(?:;[a-zA-Z0-9.+-]+=[^;,]+)*;base64,(.+)$",
+    re.IGNORECASE,
+)
  
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -405,34 +401,32 @@ def update_bio():
 def update_avatar():
     data = request.get_json(silent=True) or {}
     avatar_data = data.get("avatar_data", "").strip()
-    avatar_url = data.get("avatar_url", "").strip()
 
-    if avatar_data:
-        match = AVATAR_DATA_URL_RE.match(avatar_data)
-        if not match:
-            return jsonify({"ok": False, "error": "Invalid avatar data."}), 400
+    if not avatar_data:
+        return jsonify({"ok": False, "error": "Avatar image data is required."}), 400
 
-        mime_type, encoded_avatar = match.groups()
-        extension = AVATAR_EXTENSIONS.get(mime_type)
-        if extension is None:
-            return jsonify({"ok": False, "error": "Unsupported avatar type."}), 400
+    match = AVATAR_DATA_URL_RE.match(avatar_data)
+    if not match:
+        return jsonify({"ok": False, "error": "Invalid avatar data."}), 400
 
-        try:
-            avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
-        except (binascii.Error, ValueError):
-            return jsonify({"ok": False, "error": "Invalid avatar encoding."}), 400
+    mime_type, encoded_avatar = match.groups()
+    if mime_type.lower() != "image/png":
+        return jsonify({"ok": False, "error": "Avatar must be saved as PNG."}), 400
 
-        if not avatar_bytes:
-            return jsonify({"ok": False, "error": "Avatar file is empty."}), 400
+    try:
+        avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
+    except (binascii.Error, ValueError):
+        return jsonify({"ok": False, "error": "Invalid avatar encoding."}), 400
 
-        AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        avatar_filename = f"user_{current_user.id}.{extension}"
-        avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
-        avatar_path.write_bytes(avatar_bytes)
-        avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
+    if not avatar_bytes:
+        return jsonify({"ok": False, "error": "Avatar file is empty."}), 400
 
-    if avatar_url and not avatar_url.startswith(("http://", "https://", "data:image/")):
-        return jsonify({"ok": False, "error": "Avatar URL must be a valid image link."}), 400
+    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    avatar_filename = f"user_{current_user.id}.png"
+    avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
+    avatar_path.write_bytes(avatar_bytes)
+    avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
+
     user = User.query.get(current_user.id)
     user.avatar_url = avatar_url
     db.session.commit()
