@@ -29,8 +29,18 @@ with app.app_context():
 # ADMIN STOCK MANAGEMENT
 @app.route("/admin/stocks", methods=["GET", "POST"])
 def admin_stocks():
+
+    # Check if user is logged in
     if "user" not in session:
         return redirect("/login")
+
+    # Get current logged in user
+    user = User.query.filter_by(username=session["user"]).first()
+
+    # Check admin access
+    if not user or not user.is_admin:
+        flash("Access denied.")
+        return redirect("/dashboard")
 
     if request.method == "POST":
         symbol = request.form.get("symbol", "").strip().upper()
