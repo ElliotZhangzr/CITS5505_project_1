@@ -1,11 +1,10 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
+from flask import Flask, render_template, request, redirect, flash, jsonify, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 from db import init_db
 from models import db, User, Stock, StockPrice,StockTransaction
-from flask_login import login_required, current_user
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 
 from user_service import get_users_paginated
@@ -39,9 +38,7 @@ def load_user(user_id):
  
 with app.app_context():
     load_stock_configs()
-# ADMIN STOCK MANAGEMENT
-@app.route("/admin/stocks", methods=["GET", "POST"])
-def admin_stocks():
+
 
 def admin_required():
     if not current_user.is_authenticated:
@@ -53,17 +50,15 @@ def admin_required():
 
     return None
 
-    # Check if user is logged in
-    if "user" not in session:
-        return redirect("/login")
 
-    # Get current logged in user
-    user = User.query.filter_by(username=session["user"]).first()
+# ADMIN STOCK MANAGEMENT
+@app.route("/admin/stocks", methods=["GET", "POST"])
+@login_required
+def admin_stocks():
+    guard = admin_required()
+    if guard:
+        return guard
 
-    # Check admin access
-    if not user or not user.is_admin:
-        flash("Access denied.")
-        return redirect("/dashboard")
 
     if request.method == "POST":
         symbol = request.form.get("symbol", "").strip().upper()
@@ -367,15 +362,13 @@ def api_trades():
 @login_required
 def api_trade_history():
     limit = request.args.get("limit", 50, type=int)
-    return jsonify({"transactions": get_transaction_history(session["user_id"], limit=limit)})
+    return jsonify({"transactions": get_transaction_history(current_user.id, limit=limit)})
 
 # PROFILE
 @app.route("/profile")
+@login_required
 def profile():
-    if "user" not in session:
-        return redirect("/login")
-    user = User.query.get(session["user_id"])
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=current_user)
 
 
 @app.route("/profile/update_bio", methods=["POST"])
@@ -395,8 +388,8 @@ def update_bio():
 def update_avatar():
     data = request.get_json()
     avatar_url = data.get("avatar_url", "").strip()
-    if avatar_url and not avatar_url.startswith(("http://", "https://")):
-        return jsonify({"ok": False, "error": "Avatar URL must be a valid http or https link."}), 400
+    if avatar_url and not avatar_url.startswith(("http://", "https://", "data:image/")):
+        return jsonify({"ok": False, "error": "Avatar URL must be a valid image link."}), 400
     user = User.query.get(current_user.id)
     user.avatar_url = avatar_url
     db.session.commit()
@@ -404,12 +397,10 @@ def update_avatar():
 
 
 @app.route("/profile/update_hide_holdings", methods=["POST"])
+@login_required
 def update_hide_holdings():
-    if "user" not in session:
-        return jsonify({"error": "Login required"}), 401
     data = request.get_json()
-    user = User.query.get(session["user_id"])
-    user.hide_holdings = data.get("hide_holdings", False)
+    current_user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
 

@@ -1,6 +1,7 @@
 /* ── Avatar: Upload from local device ── */
 const avatarUpload = document.getElementById("avatarUpload");
 const avatarImg = document.getElementById("avatarImg");
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
 
 avatarUpload.addEventListener("change", function () {
     const file = this.files[0];
@@ -25,7 +26,7 @@ document.getElementById("randomAvatarBtn").addEventListener("click", async funct
 function saveAvatar(url) {
     fetch("/profile/update_avatar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
         body: JSON.stringify({ avatar_url: url })
     });
 }
@@ -56,7 +57,7 @@ document.getElementById("saveBioBtn").addEventListener("click", async function (
     const bio = bioText.value.trim();
     const res = await fetch("/profile/update_bio", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
         body: JSON.stringify({ bio })
     });
     if (res.ok) {
@@ -74,7 +75,7 @@ document.getElementById("saveBioBtn").addEventListener("click", async function (
 document.getElementById("hideHoldingsToggle").addEventListener("change", async function () {
     await fetch("/profile/update_hide_holdings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
         body: JSON.stringify({ hide_holdings: this.checked })
     });
 });
