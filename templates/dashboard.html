@@ -54,19 +54,21 @@
 
         <section class="panel holding-area" aria-labelledby="holding-title">
             <h2 id="holding-title">Portfolio Holdings Area</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Qty</th>
-                        <th>Avg Price</th>
-                        <th>Current Price</th>
-                        <th>Market Value</th>
-                        <th>P/L</th>
-                    </tr>
-                </thead>
-                <tbody id="holdingBody"></tbody>
-            </table>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Qty</th>
+                            <th>Avg Price</th>
+                            <th>Current Price</th>
+                            <th>Market Value</th>
+                            <th>P/L</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdingBody"></tbody>
+                </table>
+            </div>
             <div class="holding-summary">
                 Stock Value: <strong id="totalValue">$0.00</strong>
                 <span>Total Assets: <strong id="totalAssets">$0.00</strong></span>
