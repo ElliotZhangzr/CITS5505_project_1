@@ -297,22 +297,6 @@
     flex-wrap: wrap;
 }
 
-.btn-logout {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 22px;
-    border-radius: 999px;
-    background: rgba(20, 53, 67, 0.1);
-    color: var(--ink);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.btn-logout:hover {
-    background: rgba(20, 53, 67, 0.18);
-}
-
 .btn-delete {
     width: auto;
     padding: 10px 22px;
@@ -421,7 +405,6 @@
         justify-content: stretch;
     }
 
-    .btn-logout,
     .btn-delete {
         width: 100%;
         justify-content: center;

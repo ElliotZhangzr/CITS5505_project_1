@@ -28,8 +28,8 @@ function filterUsers() {
 
     // Toggle no results message
     if (matchedUsers === 0) {
-        noResultsMessage.classList.remove("d-none");
+        noResultsMessage.classList.remove("hidden");
     } else {
-        noResultsMessage.classList.add("d-none");
+        noResultsMessage.classList.add("hidden");
     }
 }
