@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, session, flash, jso
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
+from db import init_db
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 from models import db, User, Stock, StockPrice
 from user_service import get_users_paginated

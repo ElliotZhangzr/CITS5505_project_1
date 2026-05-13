@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile {{ session["username"] }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Profile {{ current_user.username }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 </head>
@@ -19,8 +20,8 @@
         </div>
         <div class="header-actions">
             <div class="user-panel">
-                <p class="welcome-text">Welcome {{ session["username"] }}</p>
-                <p class="welcome-text">Cash <span>${{ session["cash"] }}</span></p>
+                <p class="welcome-text">Welcome {{ current_user.username }}</p>
+                <p class="welcome-text">Cash <span>${{ current_user.cash }}</span></p>
                 <div class="user-links">
                     <a class="action-link secondary" href="/dashboard">Dashboard</a>
                     <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
@@ -52,9 +53,9 @@
 
         <!-- User Info -->
         <div class="profile-info">
-            <h2 class="profile-username">{{ session["username"] }}</h2>
+            <h2 class="profile-username">{{ current_user.username }}</h2>
             <p class="profile-email" id="emailToggle">
-                <span class="email-hidden" id="emailText" data-email="{{ session['email'] }}">••••••••••</span>
+                <span class="email-hidden" id="emailText" data-email="{{ current_user.email }}">••••••••••</span>
                 <button class="btn-reveal" id="revealEmailBtn" onclick="toggleEmail()">Show</button>
             </p>
             <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
@@ -85,7 +86,7 @@
         <div class="asset-summary">
             <div class="asset-card">
                 <span class="asset-label">Available Cash</span>
-                <span class="asset-value">${{ "{:,.2f}".format(session["cash"]|float) }}</span>
+                <span class="asset-value" id="availableCash">${{ "{:,.2f}".format(current_user.cash|float) }}</span>
             </div>
             <div class="asset-card">
                 <span class="asset-label">Stock Value</span>
@@ -95,6 +96,10 @@
                 <span class="asset-label">Total Assets</span>
                 <span class="asset-value" id="totalAssets">$0.00</span>
             </div>
+            <div class="asset-card">
+                <span class="asset-label">Total P/L</span>
+                <span class="asset-value" id="totalProfit">$0.00</span>
+            </div>
         </div>
         <table class="holdings-table">
             <thead>
@@ -102,11 +107,13 @@
                     <th>Symbol</th>
                     <th>Qty</th>
                     <th>Avg Price</th>
+                    <th>Current Price</th>
                     <th>Market Value</th>
+                    <th>P/L</th>
                 </tr>
             </thead>
             <tbody id="holdingsBody">
-                <tr><td colspan="4" class="empty-msg">No holdings yet.</td></tr>
+                <tr><td colspan="6" class="empty-msg">No holdings yet.</td></tr>
             </tbody>
         </table>
     </section>
@@ -160,6 +167,7 @@
             <input type="password" id="deletePassword" placeholder="Enter your password to confirm" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid #ddd;border-radius:8px;">
             <button class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
             <form method="POST" action="/delete_account">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="password" id="modalPassword">
                 <button class="btn-confirm-delete" type="submit">Yes, Delete My Account</button>
             </form>
