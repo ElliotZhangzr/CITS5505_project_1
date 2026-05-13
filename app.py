@@ -1,11 +1,12 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, redirect, session, flash, jsonify, url_for
+from flask import Flask, render_template, request, redirect, flash, jsonify, url_for
 from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 from db import init_db
+from models import db, User, Stock, StockPrice,StockTransaction
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
-from models import db, User, Stock, StockPrice
+
 from user_service import get_users_paginated
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
@@ -17,7 +18,13 @@ from password_reset_service import (
     get_reset_code_seconds_remaining,
     request_password_reset,
 )
+import base64
+import binascii
+import re
 import traceback
+from functools import wraps
+from pathlib import Path
+from forms import EmptyForm
 
 load_dotenv()
  
@@ -25,6 +32,12 @@ app = Flask(__name__)
 app.secret_key = "secret123"
 csrf = CSRFProtect(app)
 init_db(app)
+
+AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
+AVATAR_DATA_URL_RE = re.compile(
+    r"^data:(image/[a-zA-Z0-9.+-]+)(?:;[a-zA-Z0-9.+-]+=[^;,]+)*;base64,(.+)$",
+    re.IGNORECASE,
+)
  
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -36,22 +49,40 @@ def load_user(user_id):
  
 with app.app_context():
     load_stock_configs()
+
+
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
+
+        if not current_user.is_admin:
+            flash("Admin access required.")
+            return redirect(url_for("dashboard"))
+
+        return view_func(*args, **kwargs)
+
+    return wrapped_view
+
+
+def build_admin_user_rows(users):
+    return [
+        {
+            "user": user,
+            "is_current_user": user.id == current_user.id,
+            "role_label": "Admin" if user.is_admin else "Normal User",
+            "action_label": "Remove Admin" if user.is_admin else "Make Admin",
+        }
+        for user in users
+    ]
+
+
 # ADMIN STOCK MANAGEMENT
 @app.route("/admin/stocks", methods=["GET", "POST"])
+@login_required
+@admin_required
 def admin_stocks():
-
-    # Check if user is logged in
-    if "user" not in session:
-        return redirect("/login")
-
-    # Get current logged in user
-    user = User.query.filter_by(username=session["user"]).first()
-
-    # Check admin access
-    if not user or not user.is_admin:
-        flash("Access denied.")
-        return redirect("/dashboard")
-
     if request.method == "POST":
         symbol = request.form.get("symbol", "").strip().upper()
         name = request.form.get("name", "").strip()
@@ -77,7 +108,7 @@ def admin_stocks():
             )
 
             db.session.add(new_stock)
-            db.session.commit()
+            db.session.flush()
 
             stock_price = StockPrice(
                 stock_id=new_stock.id,
@@ -257,6 +288,54 @@ def users():
         has_prev=data["has_prev"],
         page=data["page"]
     )
+
+# ADMIN DASHBOARD
+@app.route("/admin")
+@login_required
+@admin_required
+def admin_dashboard():
+    total_users = User.query.count()
+    total_stocks = Stock.query.count()
+    total_transactions = StockTransaction.query.count()
+
+    return render_template(
+        "admin.html",
+        total_users=total_users,
+        total_stocks=total_stocks,
+        total_transactions=total_transactions
+    )
+
+# ADMIN USER MANAGEMENT
+@app.route("/admin/users")
+@login_required
+@admin_required
+def admin_users():
+    users = User.query.order_by(User.created_at.desc()).all()
+
+    form = EmptyForm()
+
+    return render_template(
+        "admin_users.html",
+        user_rows=build_admin_user_rows(users),
+        form=form
+    )
+
+@app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
+@login_required
+@admin_required
+def toggle_admin_role(user_id):
+    if user_id == current_user.id:
+        flash("You cannot change your own admin role.")
+        return redirect(url_for("admin_users"))
+
+    user = User.query.get_or_404(user_id)
+    user.is_admin = not user.is_admin
+
+    db.session.commit()
+
+    flash("User role updated successfully.")
+    return redirect(url_for("admin_users"))
+
  
  
 @app.route("/api/stocks")
@@ -296,15 +375,13 @@ def api_trades():
 @login_required
 def api_trade_history():
     limit = request.args.get("limit", 50, type=int)
-    return jsonify({"transactions": get_transaction_history(session["user_id"], limit=limit)})
+    return jsonify({"transactions": get_transaction_history(current_user.id, limit=limit)})
 
 # PROFILE
 @app.route("/profile")
+@login_required
 def profile():
-    if "user" not in session:
-        return redirect("/login")
-    user = User.query.get(session["user_id"])
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=current_user)
 
 
 @app.route("/profile/update_bio", methods=["POST"])
@@ -322,23 +399,45 @@ def update_bio():
 @app.route("/profile/update_avatar", methods=["POST"])
 @login_required
 def update_avatar():
-    data = request.get_json()
-    avatar_url = data.get("avatar_url", "").strip()
-    if avatar_url and not avatar_url.startswith(("http://", "https://")):
-        return jsonify({"ok": False, "error": "Avatar URL must be a valid http or https link."}), 400
+    data = request.get_json(silent=True) or {}
+    avatar_data = data.get("avatar_data", "").strip()
+
+    if not avatar_data:
+        return jsonify({"ok": False, "error": "Avatar image data is required."}), 400
+
+    match = AVATAR_DATA_URL_RE.match(avatar_data)
+    if not match:
+        return jsonify({"ok": False, "error": "Invalid avatar data."}), 400
+
+    mime_type, encoded_avatar = match.groups()
+    if mime_type.lower() != "image/png":
+        return jsonify({"ok": False, "error": "Avatar must be saved as PNG."}), 400
+
+    try:
+        avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
+    except (binascii.Error, ValueError):
+        return jsonify({"ok": False, "error": "Invalid avatar encoding."}), 400
+
+    if not avatar_bytes:
+        return jsonify({"ok": False, "error": "Avatar file is empty."}), 400
+
+    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    avatar_filename = f"user_{current_user.id}.png"
+    avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
+    avatar_path.write_bytes(avatar_bytes)
+    avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
+
     user = User.query.get(current_user.id)
     user.avatar_url = avatar_url
     db.session.commit()
-    return jsonify({"ok": True})
+    return jsonify({"ok": True, "avatar_url": user.avatar_url})
 
 
 @app.route("/profile/update_hide_holdings", methods=["POST"])
+@login_required
 def update_hide_holdings():
-    if "user" not in session:
-        return jsonify({"error": "Login required"}), 401
     data = request.get_json()
-    user = User.query.get(session["user_id"])
-    user.hide_holdings = data.get("hide_holdings", False)
+    current_user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
 
