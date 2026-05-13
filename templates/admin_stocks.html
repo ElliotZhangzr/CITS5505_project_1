@@ -62,31 +62,33 @@
         <section class="panel holding-area">
             <h2>Listed Stocks</h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Name</th>
-                        <th>Base Price</th>
-                        <th>Volatility</th>
-                        <th>Liquidity</th>
-                        <th>Minimum Price</th>
-                    </tr>
-                </thead>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Base Price</th>
+                            <th>Volatility</th>
+                            <th>Liquidity</th>
+                            <th>Minimum Price</th>
+                        </tr>
+                    </thead>
 
-                <tbody>
-                    {% for stock in stocks %}
-                    <tr>
-                        <td>{{ stock.symbol }}</td>
-                        <td>{{ stock.name }}</td>
-                        <td>${{ "%.2f"|format(stock.base_price) }}</td>
-                        <td>{{ stock.volatility }}</td>
-                        <td>{{ stock.liquidity }}</td>
-                        <td>${{ "%.2f"|format(stock.min_price) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    <tbody>
+                        {% for stock in stocks %}
+                        <tr>
+                            <td>{{ stock.symbol }}</td>
+                            <td>{{ stock.name }}</td>
+                            <td>${{ "%.2f"|format(stock.base_price) }}</td>
+                            <td>{{ stock.volatility }}</td>
+                            <td>{{ stock.liquidity }}</td>
+                            <td>${{ "%.2f"|format(stock.min_price) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 </body>

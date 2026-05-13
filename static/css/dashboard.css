@@ -20,6 +20,7 @@ body {
     font-family: "Avenir Next", "Segoe UI", sans-serif;
     color: var(--ink);
     background: radial-gradient(circle at 10% 10%, #ffffff 0%, var(--bg-1) 40%, var(--bg-2) 100%);
+    min-width: 320px;
 }
 
 .dashboard-bg {
@@ -36,7 +37,7 @@ body {
     display: grid;
     gap: 16px;
     grid-template-columns: repeat(12, 1fr);
-    padding: 20px;
+    padding: clamp(12px, 2vw, 24px);
     max-width: 1280px;
     margin: 0 auto;
 }
@@ -59,12 +60,17 @@ body {
     flex-wrap: wrap;
 }
 
+.page-header > div:first-child {
+    min-width: 220px;
+}
+
 .header-actions {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
     justify-content: flex-end;
+    min-width: min(100%, 680px);
 }
 
 .user-panel {
@@ -77,6 +83,7 @@ body {
     background: rgba(255, 255, 255, 0.72);
     flex-wrap: wrap;
     justify-content: flex-end;
+    width: 100%;
 }
 
 .user-summary {
@@ -84,6 +91,13 @@ body {
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+.user-summary .welcome-text:first-child {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .welcome-text {
@@ -96,6 +110,8 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .action-link {
@@ -109,6 +125,8 @@ body {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
+    white-space: nowrap;
+    line-height: 1;
 }
 
 .action-link.secondary {
@@ -129,8 +147,15 @@ body {
     grid-column: 1 / -1;
     display: flex;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+}
+
+.admin-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .kicker {
@@ -185,6 +210,7 @@ h2 {
 .stock-tabs {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .stock-tab {
@@ -203,7 +229,7 @@ h2 {
 
 #stockChart {
     width: 100%;
-    height: 280px;
+    height: clamp(220px, 34vw, 280px);
     border-radius: 12px;
     border: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(15, 101, 142, 0.07), rgba(255, 255, 255, 0.5));
@@ -261,6 +287,7 @@ select {
     font-size: 1rem;
     color: var(--ink);
     background: #fff;
+    min-width: 0;
 }
 
 .search-input {
@@ -304,10 +331,18 @@ select {
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 640px;
 }
 
 .table-wrap {
+    max-width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+}
+
+.compact-table table {
+    min-width: 0;
 }
 
 th,
@@ -409,6 +444,23 @@ tr:hover {
 }
 
 @media (max-width: 900px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header {
+        align-items: stretch;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .user-panel {
+        justify-content: space-between;
+    }
+
     .chart-area,
     .trade-area,
     .holding-area,
@@ -417,9 +469,144 @@ tr:hover {
     }
 }
 
+@media (max-width: 760px) {
+    body {
+        padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+
+    .dashboard {
+        padding: 12px;
+        padding-bottom: 24px;
+    }
+
+    .dashboard::after {
+        content: "";
+        grid-column: 1 / -1;
+        height: 20px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 12px;
+        border-radius: 0 0 18px 18px;
+        margin: -12px -12px 0;
+        padding: 14px 12px 12px;
+    }
+
+    .page-header > div:first-child {
+        min-width: 0;
+    }
+
+    .header-actions,
+    .user-panel,
+    .user-summary {
+        width: 100%;
+    }
+
+    .user-panel {
+        border-radius: 14px;
+        padding: 10px 12px;
+    }
+
+    .user-summary {
+        justify-content: flex-start;
+    }
+
+    .user-summary .welcome-text:first-child {
+        max-width: 52%;
+    }
+
+    .user-links {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        z-index: 50;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(84px, 1fr);
+        grid-template-columns: none;
+        gap: 6px;
+        width: auto;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 14px 36px rgba(21, 45, 64, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+    }
+
+    .user-links::-webkit-scrollbar {
+        display: none;
+    }
+
+    .action-link {
+        flex: none;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 8px;
+        border-radius: 12px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+        text-align: center;
+        line-height: 1.15;
+    }
+
+    .admin-nav .action-link,
+    .ranking-tab,
+    .stock-tab {
+        flex: 1 1 calc(50% - 8px);
+        text-align: center;
+    }
+
+    .admin-nav {
+        margin-inline: -12px;
+        padding-inline: 12px;
+    }
+
+    .admin-nav .action-link {
+        flex: 0 0 auto;
+        min-width: 136px;
+    }
+
+    .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .holding-summary {
+        justify-content: flex-start;
+        text-align: left;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .stock-tabs,
+    .ranking-tabs {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stock-tab,
+    .ranking-tab {
+        min-height: 40px;
+    }
+
+    .pagination-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media (max-width: 640px) {
     .dashboard {
-        padding: 14px;
+        gap: 12px;
     }
 
     .header-actions {
@@ -429,13 +616,27 @@ tr:hover {
 
     .user-panel {
         width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        padding: 12px;
     }
 
     .user-links {
-        width: 100%;
-        justify-content: flex-end;
+        width: auto;
+    }
+
+    .action-link {
+        min-height: 40px;
+        padding: 0 10px;
+        font-size: 0.78rem;
+    }
+
+    .trade-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .market-list li {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .ranking-tabs {
@@ -445,6 +646,74 @@ tr:hover {
     .ranking-tab {
         flex: 1;
         text-align: center;
+    }
+}
+
+@media (max-width: 460px) {
+    .dashboard {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .panel {
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    .page-header {
+        margin: -10px -10px 0;
+        padding: 12px 10px 10px;
+    }
+
+    .user-summary {
+        gap: 6px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .welcome-text {
+        font-size: 0.88rem;
+    }
+
+    .user-links {
+        left: 8px;
+        right: 8px;
+        grid-auto-columns: minmax(78px, 1fr);
+        padding: 6px;
+    }
+
+    .action-link {
+        min-height: 42px;
+        padding: 0 6px;
+        font-size: 0.76rem;
+    }
+
+    .stock-tabs,
+    .ranking-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    h2 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    th,
+    td {
+        padding: 9px 8px;
+    }
+
+    .trade-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .btn {
+        min-height: 44px;
     }
 }
 
