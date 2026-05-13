@@ -39,6 +39,17 @@
 
 @media (max-width: 900px) {
     .stock-form {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .stock-form button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .stock-form {
         grid-template-columns: 1fr;
     }
 }
