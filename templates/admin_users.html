@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Users</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-bg"></div>
+
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Admin Workspace</p>
+                <h1>User Management</h1>
+            </div>
+
+            <div class="header-actions">
+                <div class="user-panel">
+                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
+                    <div class="user-links">
+                        <a class="action-link secondary" href="/admin">Admin Panel</a>
+                        <a class="action-link secondary" href="/dashboard">Dashboard</a>
+                        <a class="action-link" href="/logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        {% include "_admin_nav.html" %}
+
+        <section class="panel holding-area">
+            <h2>Registered Users</h2>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class="trade-message">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Cash</th>
+                        <th>Role</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in user_rows %}
+                    <tr>
+                        <td>{{ row.user.username }}</td>
+                        <td>{{ row.user.email }}</td>
+                        <td>${{ "{:,.2f}".format(row.user.cash) }}</td>
+                        <td>{{ row.role_label }}</td>
+                        <td>{{ row.user.created_at.strftime("%Y-%m-%d") }}</td>
+                        <td>
+                            {% if not row.is_current_user %}
+                                <form method="POST" action="{{ url_for('toggle_admin_role', user_id=row.user.id) }}">
+                                    {{ form.hidden_tag() }}
+                                    <button class="btn buy" type="submit">
+                                        {{ row.action_label }}
+                                    </button>
+                                </form>
+                            {% else %}
+                                Current User
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>      
+</body>
+</html>
