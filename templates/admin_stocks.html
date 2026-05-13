@@ -19,14 +19,7 @@
                 <h1>Stock Management</h1>
             </div>
 
-            <div class="header-actions">
-                <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
-                    <div class="user-links">
-                        <a class="action-link" href="{{ url_for('logout') }}">Logout</a>
-                    </div>
-                </div>
-            </div>
+            {% include "_main_nav.html" %}
         </header>
 
         {% include "_admin_nav.html" %}

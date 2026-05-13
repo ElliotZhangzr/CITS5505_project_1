@@ -30,7 +30,7 @@ def get_ranking_value(user_data, ranking_type):
     else:
         return user_data["cash"]
     
-def get_leaderboard_context(ranking_type, current_user):
+def get_leaderboard_context(ranking_type, current_username):
 
     users = User.query.all()
 
@@ -67,5 +67,5 @@ def get_leaderboard_context(ranking_type, current_user):
         "title": title,
         "ranking_type": ranking_type,
         "value_label": value_label,
-        "current_user": current_user
+        "current_username": current_username
     }
