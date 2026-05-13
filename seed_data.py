@@ -18,6 +18,17 @@ BASE_TIME = datetime(2026, 5, 4, 16, 0, 0)
 
 USERS = [
     {
+        "username": "root",
+        "email": "root@example.com",
+        "password": "root",
+        "is_admin": True,
+        "cash": Decimal("100000.00"),
+        "bio": "Seeded root admin account.",
+        "avatar_url": "",
+        "hide_holdings": False,
+        "created_at": BASE_TIME,
+    },
+    {
         "username": "admin",
         "email": "admin@example.com",
         "password": "Admin123",
