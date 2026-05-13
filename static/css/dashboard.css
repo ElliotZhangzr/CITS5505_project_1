@@ -20,6 +20,7 @@ body {
     font-family: "Avenir Next", "Segoe UI", sans-serif;
     color: var(--ink);
     background: radial-gradient(circle at 10% 10%, #ffffff 0%, var(--bg-1) 40%, var(--bg-2) 100%);
+    min-width: 320px;
 }
 
 .dashboard-bg {
@@ -36,7 +37,7 @@ body {
     display: grid;
     gap: 16px;
     grid-template-columns: repeat(12, 1fr);
-    padding: 20px;
+    padding: clamp(12px, 2vw, 24px);
     max-width: 1280px;
     margin: 0 auto;
 }
@@ -65,6 +66,7 @@ body {
     gap: 12px;
     flex-wrap: wrap;
     justify-content: flex-end;
+    min-width: min(100%, 680px);
 }
 
 .user-panel {
@@ -77,6 +79,7 @@ body {
     background: rgba(255, 255, 255, 0.72);
     flex-wrap: wrap;
     justify-content: flex-end;
+    width: 100%;
 }
 
 .user-summary {
@@ -96,6 +99,8 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .action-link {
@@ -109,6 +114,7 @@ body {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .action-link.secondary {
@@ -131,6 +137,7 @@ body {
     gap: 10px;
     flex-wrap: wrap;
     align-items: center;
+    overflow-x: auto;
 }
 
 .kicker {
@@ -185,6 +192,7 @@ h2 {
 .stock-tabs {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .stock-tab {
@@ -203,7 +211,7 @@ h2 {
 
 #stockChart {
     width: 100%;
-    height: 280px;
+    height: clamp(220px, 34vw, 280px);
     border-radius: 12px;
     border: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(15, 101, 142, 0.07), rgba(255, 255, 255, 0.5));
@@ -261,6 +269,7 @@ select {
     font-size: 1rem;
     color: var(--ink);
     background: #fff;
+    min-width: 0;
 }
 
 .search-input {
@@ -304,10 +313,12 @@ select {
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 640px;
 }
 
 .table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 th,
@@ -409,6 +420,19 @@ tr:hover {
 }
 
 @media (max-width: 900px) {
+    .page-header {
+        align-items: stretch;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .user-panel {
+        justify-content: space-between;
+    }
+
     .chart-area,
     .trade-area,
     .holding-area,
@@ -417,9 +441,41 @@ tr:hover {
     }
 }
 
+@media (max-width: 760px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .user-summary,
+    .user-links {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .action-link {
+        flex: 1 1 calc(50% - 8px);
+    }
+
+    .admin-nav .action-link,
+    .ranking-tab,
+    .stock-tab {
+        flex: 1 1 calc(50% - 8px);
+        text-align: center;
+    }
+
+    .section-head {
+        align-items: flex-start;
+    }
+
+    .holding-summary {
+        justify-content: flex-start;
+        text-align: left;
+    }
+}
+
 @media (max-width: 640px) {
     .dashboard {
-        padding: 14px;
+        gap: 12px;
     }
 
     .header-actions {
@@ -429,13 +485,28 @@ tr:hover {
 
     .user-panel {
         width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        padding: 12px;
     }
 
     .user-links {
         width: 100%;
-        justify-content: flex-end;
+        justify-content: stretch;
+    }
+
+    .action-link {
+        min-height: 40px;
+        padding: 0 10px;
+        font-size: 0.92rem;
+    }
+
+    .trade-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .market-list li {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .ranking-tabs {
@@ -445,6 +516,35 @@ tr:hover {
     .ranking-tab {
         flex: 1;
         text-align: center;
+    }
+}
+
+@media (max-width: 460px) {
+    .panel {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .user-summary {
+        gap: 6px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .action-link,
+    .admin-nav .action-link,
+    .ranking-tab,
+    .stock-tab {
+        flex-basis: 100%;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    th,
+    td {
+        padding: 9px 8px;
     }
 }
 
