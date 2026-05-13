@@ -28,6 +28,7 @@
     {% endwith %}
 
     <form method="POST" class="stock-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <h3>Add New Stock</h3>
 
