@@ -221,6 +221,14 @@
     color: var(--ink);
 }
 
+.profit-up {
+    color: var(--buy);
+}
+
+.profit-down {
+    color: var(--sell);
+}
+
 .holdings-table {
     width: 100%;
     border-collapse: collapse;
