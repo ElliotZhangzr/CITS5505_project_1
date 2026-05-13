@@ -554,6 +554,18 @@ tr:hover {
         white-space: nowrap;
         text-align: center;
         line-height: 1.15;
+    .page-header {
+        flex-direction: column;
+    }
+
+    .user-summary,
+    .user-links {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .action-link {
+        flex: 1 1 calc(50% - 8px);
     }
 
     .admin-nav .action-link,
@@ -576,6 +588,8 @@ tr:hover {
     .section-head {
         align-items: flex-start;
         flex-direction: column;
+    .section-head {
+        align-items: flex-start;
     }
 
     .holding-summary {
