@@ -16,42 +16,7 @@
                 <p class="kicker">Trading Workspace</p>
                 <h1>Stock Trading Dashboard</h1>
             </div>
-            <div class="header-actions">
-
-                {% if current_user.is_authenticated %}
-                <div class="user-panel">
-                    <p class="welcome-text">
-                        Welcome {{ current_user.username }}
-                    </p>
-
-                    <p class="welcome-text">
-                        Cash
-                        <span id="accountCash">
-                            ${{ current_user.cash }}
-                        </span>
-                    </p>
-
-                    <div class="user-links">
-                        {% if current_user.is_admin %}
-                            <a class="action-link secondary" href="/admin">Admin</a>
-                        {% endif %}
-                        <a class="action-link secondary" href="/profile">Profile</a>
-                        <a class="action-link secondary" href="/users">Users</a>
-                        <a class="action-link secondary" href="/leaderboard">Leaderboard</a>
-                        <a class="action-link" href="/logout">Logout</a>
-                    </div>
-                </div>
-
-                {% else %}
-                <div class="user-links">
-                    <a class="action-link" href="/login">Login</a>
-                    <a class="action-link secondary" href="/register">Register</a>
-                </div>
-                {% endif %}
-
-                <div class="market-pill" id="marketStatus">Market Open
-                </div>
-            </div>
+            {% include "_main_nav.html" %}
         </header>
 
         <section class="panel chart-area" aria-labelledby="chart-title">
