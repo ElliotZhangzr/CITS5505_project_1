@@ -1,76 +1,44 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f7fa;
-    margin: 0;
-    padding: 20px;
-}
-
-h1 {
-    margin-bottom: 20px;
-    color: #143543;
-}
-
-.top-links {
-    margin-bottom: 20px;
-}
-
-.top-links a {
-    text-decoration: none;
-    padding: 10px 14px;
-    background: #143543;
-    color: white;
-    border-radius: 6px;
-    margin-right: 10px;
-}
-
-.flash-message {
-    background: #d1fae5;
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    color: #065f46;
+.admin-messages,
+.stock-form-panel {
+    grid-column: 1 / -1;
 }
 
 .stock-form {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.stock-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .stock-form input {
-    padding: 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--ink);
+    font: inherit;
+    box-sizing: border-box;
 }
 
 .stock-form button {
-    padding: 10px 16px;
-    background: #143543;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    min-height: 42px;
+    white-space: nowrap;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
-
-th,
-td {
-    padding: 12px;
-    border: 1px solid #d8dee4;
-    text-align: left;
-}
-
-th {
-    background: #143543;
-    color: white;
-}
-
-tr:nth-child(even) {
-    background: #f8fafc;
+@media (max-width: 900px) {
+    .stock-form {
+        grid-template-columns: 1fr;
+    }
 }

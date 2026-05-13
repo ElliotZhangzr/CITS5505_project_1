@@ -28,6 +28,8 @@
             </div>
         </header>
 
+        {% include "_admin_nav.html" %}
+
         <section class="panel holding-area">
             <h2>Registered Users</h2>
 
@@ -52,29 +54,19 @@
                 </thead>
 
                 <tbody>
-                    {% for user in users %}
+                    {% for row in user_rows %}
                     <tr>
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>${{ "{:,.2f}".format(user.cash) }}</td>
+                        <td>{{ row.user.username }}</td>
+                        <td>{{ row.user.email }}</td>
+                        <td>${{ "{:,.2f}".format(row.user.cash) }}</td>
+                        <td>{{ row.role_label }}</td>
+                        <td>{{ row.user.created_at.strftime("%Y-%m-%d") }}</td>
                         <td>
-                            {% if user.is_admin %}
-                                Admin
-                            {% else %}
-                                Normal User
-                            {% endif %}
-                        </td>
-                        <td>{{ user.created_at.strftime("%Y-%m-%d") }}</td>
-                        <td>
-                            {% if user.id != current_user_id %}
-                                <form method="POST" action="{{ url_for('toggle_admin_role', user_id=user.id) }}">
+                            {% if not row.is_current_user %}
+                                <form method="POST" action="{{ url_for('toggle_admin_role', user_id=row.user.id) }}">
                                     {{ form.hidden_tag() }}
                                     <button class="btn buy" type="submit">
-                                        {% if user.is_admin %}
-                                            Remove Admin
-                                        {% else %}
-                                            Make Admin
-                                        {% endif %}
+                                        {{ row.action_label }}
                                     </button>
                                 </form>
                             {% else %}

@@ -22,6 +22,7 @@ import base64
 import binascii
 import re
 import traceback
+from functools import wraps
 from pathlib import Path
 from forms import EmptyForm
 
@@ -33,14 +34,10 @@ csrf = CSRFProtect(app)
 init_db(app)
 
 AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
-AVATAR_EXTENSIONS = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/gif": "gif",
-    "image/webp": "webp",
-    "image/svg+xml": "svg",
-}
-AVATAR_DATA_URL_RE = re.compile(r"^data:(image/[a-zA-Z0-9.+-]+);base64,(.+)$")
+AVATAR_DATA_URL_RE = re.compile(
+    r"^data:(image/[a-zA-Z0-9.+-]+)(?:;[a-zA-Z0-9.+-]+=[^;,]+)*;base64,(.+)$",
+    re.IGNORECASE,
+)
  
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -54,26 +51,38 @@ with app.app_context():
     load_stock_configs()
 
 
-def admin_required():
-    if not current_user.is_authenticated:
-        return redirect("/login")
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapped_view(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
 
-    if not current_user.is_admin:
-        flash("Admin access required.")
-        return redirect("/dashboard")
+        if not current_user.is_admin:
+            flash("Admin access required.")
+            return redirect(url_for("dashboard"))
 
-    return None
+        return view_func(*args, **kwargs)
+
+    return wrapped_view
+
+
+def build_admin_user_rows(users):
+    return [
+        {
+            "user": user,
+            "is_current_user": user.id == current_user.id,
+            "role_label": "Admin" if user.is_admin else "Normal User",
+            "action_label": "Remove Admin" if user.is_admin else "Make Admin",
+        }
+        for user in users
+    ]
 
 
 # ADMIN STOCK MANAGEMENT
 @app.route("/admin/stocks", methods=["GET", "POST"])
 @login_required
+@admin_required
 def admin_stocks():
-    guard = admin_required()
-    if guard:
-        return guard
-
-
     if request.method == "POST":
         symbol = request.form.get("symbol", "").strip().upper()
         name = request.form.get("name", "").strip()
@@ -99,7 +108,7 @@ def admin_stocks():
             )
 
             db.session.add(new_stock)
-            db.session.commit()
+            db.session.flush()
 
             stock_price = StockPrice(
                 stock_id=new_stock.id,
@@ -283,11 +292,8 @@ def users():
 # ADMIN DASHBOARD
 @app.route("/admin")
 @login_required
+@admin_required
 def admin_dashboard():
-    guard = admin_required()
-    if guard:
-        return guard
-
     total_users = User.query.count()
     total_stocks = Stock.query.count()
     total_transactions = StockTransaction.query.count()
@@ -302,32 +308,25 @@ def admin_dashboard():
 # ADMIN USER MANAGEMENT
 @app.route("/admin/users")
 @login_required
+@admin_required
 def admin_users():
-    guard = admin_required()
-    if guard:
-        return guard
-
     users = User.query.order_by(User.created_at.desc()).all()
 
     form = EmptyForm()
 
     return render_template(
         "admin_users.html",
-        users=users,
-        current_user_id=current_user.id,
+        user_rows=build_admin_user_rows(users),
         form=form
     )
 
 @app.route("/admin/users/<int:user_id>/toggle-admin", methods=["POST"])
 @login_required
+@admin_required
 def toggle_admin_role(user_id):
-    guard = admin_required()
-    if guard:
-        return guard
-
     if user_id == current_user.id:
         flash("You cannot change your own admin role.")
-        return redirect("/admin/users")
+        return redirect(url_for("admin_users"))
 
     user = User.query.get_or_404(user_id)
     user.is_admin = not user.is_admin
@@ -335,7 +334,7 @@ def toggle_admin_role(user_id):
     db.session.commit()
 
     flash("User role updated successfully.")
-    return redirect("/admin/users")
+    return redirect(url_for("admin_users"))
 
  
  
@@ -402,34 +401,32 @@ def update_bio():
 def update_avatar():
     data = request.get_json(silent=True) or {}
     avatar_data = data.get("avatar_data", "").strip()
-    avatar_url = data.get("avatar_url", "").strip()
 
-    if avatar_data:
-        match = AVATAR_DATA_URL_RE.match(avatar_data)
-        if not match:
-            return jsonify({"ok": False, "error": "Invalid avatar data."}), 400
+    if not avatar_data:
+        return jsonify({"ok": False, "error": "Avatar image data is required."}), 400
 
-        mime_type, encoded_avatar = match.groups()
-        extension = AVATAR_EXTENSIONS.get(mime_type)
-        if extension is None:
-            return jsonify({"ok": False, "error": "Unsupported avatar type."}), 400
+    match = AVATAR_DATA_URL_RE.match(avatar_data)
+    if not match:
+        return jsonify({"ok": False, "error": "Invalid avatar data."}), 400
 
-        try:
-            avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
-        except (binascii.Error, ValueError):
-            return jsonify({"ok": False, "error": "Invalid avatar encoding."}), 400
+    mime_type, encoded_avatar = match.groups()
+    if mime_type.lower() != "image/png":
+        return jsonify({"ok": False, "error": "Avatar must be saved as PNG."}), 400
 
-        if not avatar_bytes:
-            return jsonify({"ok": False, "error": "Avatar file is empty."}), 400
+    try:
+        avatar_bytes = base64.b64decode(encoded_avatar, validate=True)
+    except (binascii.Error, ValueError):
+        return jsonify({"ok": False, "error": "Invalid avatar encoding."}), 400
 
-        AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-        avatar_filename = f"user_{current_user.id}.{extension}"
-        avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
-        avatar_path.write_bytes(avatar_bytes)
-        avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
+    if not avatar_bytes:
+        return jsonify({"ok": False, "error": "Avatar file is empty."}), 400
 
-    if avatar_url and not avatar_url.startswith(("http://", "https://", "data:image/")):
-        return jsonify({"ok": False, "error": "Avatar URL must be a valid image link."}), 400
+    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    avatar_filename = f"user_{current_user.id}.png"
+    avatar_path = AVATAR_UPLOAD_DIR / avatar_filename
+    avatar_path.write_bytes(avatar_bytes)
+    avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
+
     user = User.query.get(current_user.id)
     user.avatar_url = avatar_url
     db.session.commit()

@@ -5,91 +5,97 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Stock Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_stocks.css') }}">
 </head>
 
 <body>
+    <div class="dashboard-bg"></div>
 
-    <h1>Admin Stock Management</h1>
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Admin Workspace</p>
+                <h1>Stock Management</h1>
+            </div>
 
-    <div class="top-links">
-        <a href="/dashboard">Dashboard</a>
-        <a href="/leaderboard">Leaderboard</a>
-    </div>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="flash-message">
-                    {{ message }}
+            <div class="header-actions">
+                <div class="user-panel">
+                    <p class="welcome-text">Welcome {{ current_user.username }}</p>
+                    <div class="user-links">
+                        <a class="action-link" href="{{ url_for('logout') }}">Logout</a>
+                    </div>
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+            </div>
+        </header>
 
-    <form method="POST" class="stock-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% include "_admin_nav.html" %}
 
-        <h3>Add New Stock</h3>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <section class="panel admin-messages">
+                    {% for message in messages %}
+                        <p class="trade-message">{{ message }}</p>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
 
-        <input
-            type="text"
-            name="symbol"
-            placeholder="Stock Symbol"
-            required
-        >
+        <section class="panel stock-form-panel">
+            <h2>Add New Stock</h2>
 
-        <input
-            type="text"
-            name="name"
-            placeholder="Stock Name"
-            required
-        >
+            <form method="POST" class="stock-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <input
-            type="number"
-            step="0.01"
-            name="base_price"
-            placeholder="Base Price"
-            required
-        >
+                <label>
+                    Symbol
+                    <input type="text" name="symbol" placeholder="AAPL" required>
+                </label>
 
-        <button type="submit">
-            Add Stock
-        </button>
+                <label>
+                    Name
+                    <input type="text" name="name" placeholder="Apple Inc." required>
+                </label>
 
-    </form>
+                <label>
+                    Base Price
+                    <input type="number" step="0.01" name="base_price" placeholder="150.00" required>
+                </label>
 
-    <table>
+                <button class="btn buy" type="submit">Add Stock</button>
+            </form>
+        </section>
 
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Base Price</th>
-                <th>Volatility</th>
-                <th>Liquidity</th>
-                <th>Minimum Price</th>
-            </tr>
-        </thead>
+        <section class="panel holding-area">
+            <h2>Listed Stocks</h2>
 
-        <tbody>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Base Price</th>
+                        <th>Volatility</th>
+                        <th>Liquidity</th>
+                        <th>Minimum Price</th>
+                    </tr>
+                </thead>
 
-            {% for stock in stocks %}
-            <tr>
-                <td>{{ stock.symbol }}</td>
-                <td>{{ stock.name }}</td>
-                <td>${{ "%.2f"|format(stock.base_price) }}</td>
-                <td>{{ stock.volatility }}</td>
-                <td>{{ stock.liquidity }}</td>
-                <td>${{ "%.2f"|format(stock.min_price) }}</td>
-            </tr>
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
+                <tbody>
+                    {% for stock in stocks %}
+                    <tr>
+                        <td>{{ stock.symbol }}</td>
+                        <td>{{ stock.name }}</td>
+                        <td>${{ "%.2f"|format(stock.base_price) }}</td>
+                        <td>{{ stock.volatility }}</td>
+                        <td>{{ stock.liquidity }}</td>
+                        <td>${{ "%.2f"|format(stock.min_price) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
 </body>
 
 </html>

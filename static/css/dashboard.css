@@ -111,6 +111,14 @@ body {
     opacity: 0.92;
 }
 
+.admin-nav {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 .kicker {
     text-transform: uppercase;
     letter-spacing: 0.08em;
