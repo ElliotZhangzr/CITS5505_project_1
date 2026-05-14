@@ -1,0 +1,55 @@
+.admin-messages,
+.stock-form-panel {
+    grid-column: 1 / -1;
+}
+
+.stock-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(160px, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.stock-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.stock-form input {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--ink);
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.stock-form button {
+    min-height: 42px;
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .stock-form {
+        grid-template-columns: repeat(2, minmax(160px, 1fr));
+    }
+
+    .stock-form button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .stock-form {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Profile {{ current_user.username }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+<body>
+<div class="dashboard-bg"></div>
+<main class="dashboard">
+
+    <!-- HEADER -->
+    <header class="page-header panel">
+        <div>
+            <p class="kicker">My Account</p>
+            <h1>Profile</h1>
+        </div>
+        {% include "_main_nav.html" %}
+    </header>
+
+    <!-- PROFILE CARD -->
+    <section class="panel profile-card">
+
+        <!-- Avatar -->
+        <div class="avatar-section">
+            <div class="avatar-wrapper" id="avatarWrapper">
+                <img id="avatarImg"
+                     src="{{ user.avatar_url or url_for('static', filename='img/default_avatar.png') }}"
+                     alt="Avatar">
+                <div class="avatar-overlay" id="avatarOverlay">
+                    <span>Change</span>
+                </div>
+            </div>
+            <div class="avatar-actions">
+                <label class="btn-avatar" for="avatarUpload">⬆ Upload Photo</label>
+                <input type="file" id="avatarUpload" accept="image/*" hidden>
+                <button class="btn-avatar" id="randomAvatarBtn">🎲 Random Avatar</button>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="profile-info">
+            <h2 class="profile-username">{{ current_user.username }}</h2>
+            <p class="profile-email" id="emailToggle">
+                <span class="email-hidden" id="emailText" data-email="{{ current_user.email }}">••••••••••</span>
+                <button class="btn-reveal" id="revealEmailBtn" onclick="toggleEmail()">Show</button>
+            </p>
+            <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+        </div>
+    </section>
+
+    <!-- BIO -->
+    <section class="panel bio-section">
+        <h2>Personal Signature</h2>
+        <textarea id="bioText" class="bio-textarea" maxlength="200"
+                  placeholder="Write something about yourself...">{{ user.bio or '' }}</textarea>
+        <div class="bio-footer">
+            <span id="bioCount">0</span>/200
+            <button class="btn-save" id="saveBioBtn">Save</button>
+        </div>
+    </section>
+
+    <!-- CASH & HOLDINGS -->
+    <section class="panel holdings-section">
+        <div class="section-head">
+            <h2>Assets & Holdings</h2>
+            <label class="toggle-label">
+                <input type="checkbox" id="hideHoldingsToggle"
+                       {% if user.hide_holdings %}checked{% endif %}>
+                Hide my holdings from others
+            </label>
+        </div>
+        <div class="asset-summary">
+            <div class="asset-card">
+                <span class="asset-label">Available Cash</span>
+                <span class="asset-value" id="availableCash">${{ "{:,.2f}".format(current_user.cash|float) }}</span>
+            </div>
+            <div class="asset-card">
+                <span class="asset-label">Stock Value</span>
+                <span class="asset-value" id="stockValue">$0.00</span>
+            </div>
+            <div class="asset-card">
+                <span class="asset-label">Total Assets</span>
+                <span class="asset-value" id="totalAssets">$0.00</span>
+            </div>
+            <div class="asset-card">
+                <span class="asset-label">Total P/L</span>
+                <span class="asset-value" id="totalProfit">$0.00</span>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="holdings-table">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Qty</th>
+                        <th>Avg Price</th>
+                        <th>Current Price</th>
+                        <th>Market Value</th>
+                        <th>P/L</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingsBody">
+                    <tr><td colspan="6" class="empty-msg">No holdings yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section class="panel achievements-section">
+        <h2>Achievements</h2>
+        <div class="achievement-grid">
+            <div class="achievement unlocked">
+                <div class="achievement-icon">🎯</div>
+                <div class="achievement-name">First Trade</div>
+                <div class="achievement-desc">Complete your first buy or sell</div>
+            </div>
+            <div class="achievement locked">
+                <div class="achievement-icon">🏆</div>
+                <div class="achievement-name">Top 10</div>
+                <div class="achievement-desc">Reach top 10 on the leaderboard</div>
+            </div>
+            <div class="achievement locked">
+                <div class="achievement-icon">💎</div>
+                <div class="achievement-name">Diamond Hands</div>
+                <div class="achievement-desc">Hold a stock for more than 7 days</div>
+            </div>
+            <div class="achievement locked">
+                <div class="achievement-icon">🚀</div>
+                <div class="achievement-name">To The Moon</div>
+                <div class="achievement-desc">Gain 50% profit on a single stock</div>
+            </div>
+            <div class="achievement locked">
+                <div class="achievement-icon">👑</div>
+                <div class="achievement-name">Market King</div>
+                <div class="achievement-desc">Reach #1 on the leaderboard</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DANGER ZONE -->
+    <section class="panel danger-section">
+        <button class="btn-delete" id="deleteAccountBtn">Delete Account</button>
+    </section>
+
+</main>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <h3>⚠️ Delete Account?</h3>
+        <p>This action is <strong>irreversible</strong>. All your data, holdings, and history will be permanently removed.</p>
+        <div class="modal-actions">
+            <input type="password" id="deletePassword" placeholder="Enter your password to confirm" style="width:100%;margin-bottom:10px;padding:10px;border:1px solid #ddd;border-radius:8px;">
+            <button class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
+            <form method="POST" action="/delete_account">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="password" id="modalPassword">
+                <button class="btn-confirm-delete" type="submit">Yes, Delete My Account</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>

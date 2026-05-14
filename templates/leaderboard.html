@@ -4,31 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/leaderboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
     <div class="dashboard-bg"></div>
 
-    <main class="leaderboard-page">
+    <main class="dashboard">
         <header class="page-header panel">
             <div>
                 <p class="kicker">Trading Rankings</p>
-                <h1>🏆 Leaderboard</h1>
+                <h1>Leaderboard</h1>
             </div>
 
-            <div class="header-actions">
-                <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
-                    <div class="user-links">
-                        <a class="action-link secondary" href="/dashboard">Dashboard</a>
-                        <a class="action-link" href="/logout">Logout</a>
-                    </div>
-                </div>
-            </div>
+            {% include "_main_nav.html" %}
         </header>
 
-        <section class="panel leaderboard-panel">
+        <section class="panel full-span">
             <div class="section-head">
                 <div>
                     <h2>{{ title }}</h2>
@@ -72,14 +63,14 @@
                     <tbody>
                         {% if users %}
                             {% for user in users %}
-                            <tr class="{% if user.username == current_user %}current-user{% endif %}">
+                            <tr class="{% if current_user.is_authenticated and user.username == current_username %}current-user{% endif %}">
                                 <td>
                                     {% if loop.index == 1 %}
-                                        🥇 1
+                                        1
                                     {% elif loop.index == 2 %}
-                                        🥈 2
+                                        2
                                     {% elif loop.index == 3 %}
-                                        🥉 3
+                                        3
                                     {% else %}
                                         {{ loop.index }}
                                     {% endif %}
