@@ -290,6 +290,20 @@ def users():
         page=data["page"]
     )
 
+
+@app.route("/users/<int:user_id>")
+@login_required
+def public_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    portfolio = None if user.hide_holdings else build_portfolio(user.id)
+
+    return render_template(
+        "public_profile.html",
+        user=user,
+        portfolio=portfolio,
+        achievements=get_user_achievements(user),
+    )
+
 # ADMIN DASHBOARD
 @app.route("/admin")
 @login_required
