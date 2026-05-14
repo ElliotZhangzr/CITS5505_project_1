@@ -256,9 +256,12 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 16px 14px;
-    text-align: center;
+    text-align: left;
     background: white;
     transition: transform 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .achievement:hover {
@@ -266,20 +269,67 @@
 }
 
 .achievement.locked {
-    opacity: 0.4;
-    filter: grayscale(1);
+    opacity: 0.62;
+    filter: grayscale(0.45);
 }
 
-.achievement-icon {
-    font-size: 2rem;
-    margin-bottom: 8px;
+.achievement.unlocked {
+    border-color: rgba(22, 163, 74, 0.32);
+    box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0.08);
+}
+
+.achievement-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+}
+
+.achievement-status,
+.achievement-difficulty {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border-radius: 999px;
+    padding: 0 9px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.achievement-status {
+    background: rgba(20, 53, 67, 0.08);
+    color: var(--muted);
+}
+
+.achievement.unlocked .achievement-status {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--buy);
+}
+
+.achievement-difficulty {
+    background: rgba(20, 53, 67, 0.08);
+    color: var(--ink);
+}
+
+.difficulty-easy .achievement-difficulty {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--buy);
+}
+
+.difficulty-medium .achievement-difficulty {
+    background: rgba(15, 101, 142, 0.12);
+    color: #0f658e;
+}
+
+.difficulty-hard .achievement-difficulty {
+    background: rgba(220, 38, 38, 0.12);
+    color: var(--sell);
 }
 
 .achievement-name {
     font-size: 0.88rem;
     font-weight: 700;
     color: var(--ink);
-    margin-bottom: 4px;
 }
 
 .achievement-desc {
