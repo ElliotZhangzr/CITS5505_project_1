@@ -13,6 +13,7 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    flex: 0 0 auto;
 }
 
 .avatar-wrapper {
@@ -78,6 +79,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .profile-username {
@@ -190,15 +192,13 @@
 }
 
 .asset-summary {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
-    flex-wrap: wrap;
     margin-bottom: 16px;
 }
 
 .asset-card {
-    flex: 1;
-    min-width: 160px;
     background: white;
     border: 1px solid var(--line);
     border-radius: 12px;
@@ -394,24 +394,26 @@
 /* ── Responsive ── */
 @media (max-width: 640px) {
     .profile-card {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
         gap: 1rem;
     }
 
     .avatar-section {
-        width: 100%;
-        align-items: flex-start;
+        width: auto;
+        align-items: center;
     }
 
     .avatar-actions {
-        width: 100%;
-        justify-content: flex-start;
+        width: auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
     }
 
     .btn-avatar {
-        flex: 1 1 160px;
         text-align: center;
+        min-height: 36px;
     }
 
     .profile-username {
@@ -423,12 +425,30 @@
         flex-direction: column;
     }
 
+    .asset-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
     .asset-card {
-        flex-basis: calc(50% - 8px);
+        padding: 12px;
+    }
+
+    .asset-value {
+        font-size: 1.08rem;
     }
 
     .achievement-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .achievement {
+        padding: 12px 10px;
+    }
+
+    .achievement-icon {
+        font-size: 1.5rem;
     }
 
     .danger-section {
@@ -452,16 +472,39 @@
     .btn-cancel,
     .btn-confirm-delete {
         width: 100%;
+        min-height: 44px;
     }
 }
 
 @media (max-width: 460px) {
-    .asset-card {
-        flex-basis: 100%;
+    .profile-card {
+        align-items: flex-start;
+    }
+
+    .profile-info {
+        flex: 1 1 0;
+    }
+
+    .profile-username {
+        font-size: 1.35rem;
+        word-break: break-word;
+    }
+
+    .asset-summary {
+        grid-template-columns: 1fr;
     }
 
     .avatar-wrapper {
-        width: 96px;
-        height: 96px;
+        width: 82px;
+        height: 82px;
+    }
+
+    .btn-avatar {
+        padding: 6px 8px;
+        font-size: 0.76rem;
+    }
+
+    .achievement-grid {
+        grid-template-columns: 1fr;
     }
 }
