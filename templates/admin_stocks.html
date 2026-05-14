@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Stock Management</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_stocks.css') }}">
 </head>
@@ -42,17 +43,33 @@
 
                 <label>
                     Symbol
-                    <input type="text" name="symbol" placeholder="AAPL" required>
+                    <input
+                        type="text"
+                        name="symbol"
+                        placeholder="Enter stock symbol"
+                        autocomplete="off"
+                        required>
                 </label>
 
                 <label>
                     Name
-                    <input type="text" name="name" placeholder="Apple Inc." required>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Enter stock name"
+                        autocomplete="off"
+                        required>
                 </label>
 
                 <label>
                     Base Price
-                    <input type="number" step="0.01" name="base_price" placeholder="150.00" required>
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="base_price"
+                        placeholder="Enter base price"
+                        autocomplete="off"
+                        required>
                 </label>
 
                 <button class="btn buy" type="submit">Add Stock</button>
@@ -68,24 +85,30 @@
                         <tr>
                             <th>Symbol</th>
                             <th>Name</th>
-                            <th>Base Price</th>
+                            <th>Base Price ($)</th>
                             <th>Volatility</th>
                             <th>Liquidity</th>
-                            <th>Minimum Price</th>
+                            <th>Minimum Price ($)</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        {% for stock in stocks %}
-                        <tr>
-                            <td>{{ stock.symbol }}</td>
-                            <td>{{ stock.name }}</td>
-                            <td>${{ "%.2f"|format(stock.base_price) }}</td>
-                            <td>{{ stock.volatility }}</td>
-                            <td>{{ stock.liquidity }}</td>
-                            <td>${{ "%.2f"|format(stock.min_price) }}</td>
-                        </tr>
-                        {% endfor %}
+                        {% if stocks %}
+                            {% for stock in stocks %}
+                            <tr>
+                                <td>{{ stock.symbol }}</td>
+                                <td>{{ stock.name }}</td>
+                                <td>${{ "%.2f"|format(stock.base_price) }}</td>
+                                <td>{{ stock.volatility }}</td>
+                                <td>{{ stock.liquidity }}</td>
+                                <td>${{ "%.2f"|format(stock.min_price) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6">No stocks available.</td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
