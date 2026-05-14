@@ -112,33 +112,23 @@
 
     <!-- ACHIEVEMENTS -->
     <section class="panel achievements-section">
-        <h2>Achievements</h2>
+        <div class="section-head">
+            <div>
+                <h2>Achievements</h2>
+                <p class="muted-text">Unlock progress based on trading, portfolio, and profile activity.</p>
+            </div>
+        </div>
         <div class="achievement-grid">
-            <div class="achievement unlocked">
-                <div class="achievement-icon">🎯</div>
-                <div class="achievement-name">First Trade</div>
-                <div class="achievement-desc">Complete your first buy or sell</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🏆</div>
-                <div class="achievement-name">Top 10</div>
-                <div class="achievement-desc">Reach top 10 on the leaderboard</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">💎</div>
-                <div class="achievement-name">Diamond Hands</div>
-                <div class="achievement-desc">Hold a stock for more than 7 days</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🚀</div>
-                <div class="achievement-name">To The Moon</div>
-                <div class="achievement-desc">Gain 50% profit on a single stock</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">👑</div>
-                <div class="achievement-name">Market King</div>
-                <div class="achievement-desc">Reach #1 on the leaderboard</div>
-            </div>
+            {% for achievement in achievements %}
+                <article class="achievement {{ 'unlocked' if achievement.unlocked else 'locked' }} difficulty-{{ achievement.difficulty }}">
+                    <div class="achievement-topline">
+                        <span class="achievement-status">{{ 'Unlocked' if achievement.unlocked else 'Locked' }}</span>
+                        <span class="achievement-difficulty">{{ achievement.difficulty|title }}</span>
+                    </div>
+                    <div class="achievement-name">{{ achievement.name }}</div>
+                    <div class="achievement-desc">{{ achievement.description }}</div>
+                </article>
+            {% endfor %}
         </div>
     </section>
 
