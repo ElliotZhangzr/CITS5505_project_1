@@ -1,37 +1,88 @@
-from flask import Flask
-from models import db
-import os
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-msg">{{ messages[0] }}</div>
+    {% endif %}
+    
+    {% endwith %}
+    {% if form.errors %}
+    <div class="flash-msg error">
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-def _ensure_sqlite_writable(path: str):
-    directory = os.path.dirname(path)
-    if not os.access(directory, os.W_OK):
-        raise RuntimeError(f"Database directory is not writable: {directory}")
+    <p class="subtitle">Stock Market</p>
+    <h1>Enter verification code</h1>
 
-    if os.path.exists(path):
-        os.chmod(path, os.stat(path).st_mode | 0o600)
-        if not os.access(path, os.W_OK):
-            raise RuntimeError(f"Database file is not writable: {path}")
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <label>Email</label>
+        <input name="email" type="email" placeholder="Enter your email" value="{{ email }}" required>
 
+        <label>Verification code</label>
+        <input name="code" type="text" maxlength="6" placeholder="A1B2C3" required>
+        <p id="codeCountdown" data-seconds="{{ code_seconds_remaining }}">Verification code expires in --:--</p>
 
-def init_db(app: Flask):
-    """Initialize the database, create tables if they do not exist"""
-    os.makedirs(app.instance_path, exist_ok=True)
-    db_path = os.path.join(app.instance_path, 'app.db')
-    _ensure_sqlite_writable(db_path)
+        <label>New password</label>
+        <input name="new_password" type="password" placeholder="Enter new password" required>
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-        'sqlite:///' + db_path
-    )
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
+        <label>Confirm password</label>
+        <input name="confirm_password" type="password" placeholder="Confirm new password" required>
 
-    with app.app_context():
-        # Check if database file exists, create tables if not
-        if not os.path.exists(db_path):
-            db.create_all()
-            _ensure_sqlite_writable(db_path)
-            print("Database and tables created.")
-        else:
-            db.create_all()
-            print("Database already exists.")
+        <button type="submit">Reset password</button>
+    </form>
+
+    <p id="resendCountdown" data-seconds="{{ resend_seconds_remaining }}">
+        You can request another code now.
+    </p>
+    <p>
+        Need another code?
+        <a id="resendLink" href="/forgot-password{% if email %}?email={{ email }}{% endif %}">Send again</a>
+    </p>
+    <p><a href="/login">Back to login</a></p>
+</div>
+
+<script>
+const countdown = document.getElementById("codeCountdown");
+let secondsRemaining = Number(countdown.dataset.seconds || 0);
+const resendCountdown = document.getElementById("resendCountdown");
+const resendLink = document.getElementById("resendLink");
+let resendSecondsRemaining = Number(resendCountdown.dataset.seconds || 0);
+
+function renderCountdown() {
+    if (secondsRemaining <= 0) {
+        countdown.textContent = "Verification code has expired.";
+        return;
+    }
+
+    const minutes = Math.floor(secondsRemaining / 60);
+    const seconds = secondsRemaining % 60;
+    countdown.textContent = `Verification code expires in ${minutes}:${String(seconds).padStart(2, "0")}`;
+    secondsRemaining -= 1;
+    setTimeout(renderCountdown, 1000);
+}
+
+function renderResendCountdown() {
+    if (resendSecondsRemaining <= 0) {
+        resendCountdown.textContent = "You can request another code now.";
+        resendLink.style.pointerEvents = "";
+        resendLink.style.opacity = "";
+        return;
+    }
+
+    resendCountdown.textContent = `You can request another code in ${resendSecondsRemaining}s.`;
+    resendLink.style.pointerEvents = "none";
+    resendLink.style.opacity = "0.45";
+    resendSecondsRemaining -= 1;
+    setTimeout(renderResendCountdown, 1000);
+}
+
+renderCountdown();
+renderResendCountdown();
+</script>

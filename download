@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-bg"></div>
+
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Trading Rankings</p>
+                <h1>Leaderboard</h1>
+            </div>
+
+            {% include "_main_nav.html" %}
+        </header>
+
+        <section class="panel full-span">
+            <div class="section-head">
+                <div>
+                    <h2>{{ title }}</h2>
+                    <p class="muted-text">Compare users by cash and total assets</p>
+                </div>
+
+                <div class="ranking-tabs">
+                    <a href="{{ url_for('leaderboard', type='assets') }}"
+                        class="ranking-tab {% if ranking_type == 'assets' %}active{% endif %}">
+                        Total Assets
+                    </a>
+
+                    <a href="{{ url_for('leaderboard', type='cash') }}"
+                        class="ranking-tab {% if ranking_type == 'cash' %}active{% endif %}">
+                        Cash
+                    </a>
+
+                    <a href="{{ url_for('leaderboard', type='profit') }}"
+                        class="ranking-tab {% if ranking_type == 'profit' %}active{% endif %}">
+                        Profit
+                    </a>
+
+                    <a href="{{ url_for('leaderboard', type='return') }}"
+                        class="ranking-tab {% if ranking_type == 'return' %}active{% endif %}">
+                        Return %
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>User</th>
+                            <th>{{ value_label }} ($)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% if users %}
+                            {% for user in users %}
+                            <tr class="{% if current_user.is_authenticated and user.username == current_username %}current-user{% endif %}">
+                                <td>
+                                    {% if loop.index == 1 %}
+                                        1
+                                    {% elif loop.index == 2 %}
+                                        2
+                                    {% elif loop.index == 3 %}
+                                        3
+                                    {% else %}
+                                        {{ loop.index }}
+                                    {% endif %}
+                                </td>
+                                
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    {% if ranking_type == "return" %}
+                                        {{ "%.2f"|format(user.ranking_value) }}%
+                                    {% else %}
+                                        ${{ "%.2f"|format(user.ranking_value) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">No users available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>      
+</body>
+</html>

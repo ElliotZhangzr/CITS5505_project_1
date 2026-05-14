@@ -1,0 +1,75 @@
+	1.	As a user, I want to be able to register a new account with a username and password so that I can start playing the game.
+
+	2.	As a user, I want to be able to log in to the system with a username and password so that I can access my game account and assets.
+
+	3.	As a user, I want to be able to log out of the system so that I can sign out of my account.
+    
+	4.	As a player, I want to be able to view real-time stock prices on the market page so that I can understand the current market situation.
+
+	5.	As a player, I want to be able to view historical stock price charts so that I can analyze price trends.
+	
+    6.	As a player, I want to be able to buy a specified quantity of stocks so that I can invest and earn profits.
+	
+    7.	As a player, I want to be able to sell the stocks I hold so that I can make profits or stop losses in time.
+	
+    8.	As a player, I want to be able to view the list of pending sell orders so that I can track the status of my sell orders. (To be decided)
+	
+    9.	As a player, I want to be able to view the quantity and cost of each stock I hold so that I can understand the composition of my portfolio.
+	
+    10.	As a player, I want to be able to view market events that affect stock prices so that I can understand the reasons for price fluctuations. (To be decided)
+	
+    11.	As a player, I want to be able to see key market statistics so that I can understand the overall market condition. (To be decided)
+	
+    12.	As a player, I want to be able to view other players’ stock holdings so that I can learn from their investment strategies. (To be decided)
+	
+    13.	As a player, I want to receive a prompt when I do not have enough cash to buy stocks so that I can understand why the purchase failed.
+	
+    14.	As a player, I want to receive a prompt when I try to sell more stocks than I hold so that I can avoid negative holdings.
+	
+    15.	As a player, I want to be able to purchase real estate assets of different levels so that I can earn stable rental income.
+	
+    16.	As a player, I want to be able to purchase business assets of different levels so that I can earn high-risk, high-return business income.
+	
+    17.	As a player, I want to be able to view all the real estate assets I own so that I can understand my real estate portfolio.
+	
+    18.	As a player, I want to be able to view all the business assets I own so that I can understand my business portfolio.
+	
+    19.	As a player, I want to be able to view the specific rate of return and income amount for each type of asset so that I can evaluate the contribution of different assets.
+	
+    20.	As a player, I want to see the exact total cost before purchasing an asset so that I can confirm whether I have enough cash.
+	
+    21.	As a player, I want to receive a prompt when I do not have enough cash to purchase an asset so that I can understand how much additional cash I need.
+	
+    22.	As a player, I want to be able to browse all purchasable luxury goods on the shop page so that I can choose items to improve my charm and satisfy my desire to consume.
+	
+    23.	As a player, I want to be able to see whether a product is in stock or sold out so that I can know whether I can purchase it.
+	
+    24.	As a player, I want to receive a prompt when I do not have enough cash to purchase a product so that I can understand that I need to save money or earn more.
+	
+    25.	As a player, I want to be able to view all the luxury goods I have purchased on the collection page so that I can showcase my collection achievements.
+	
+    26.	As a player, I want to be able to see the total number of items in my collection so that I can understand the scale of my collection.
+	
+    27.	As a player, I want to be able to see how much each collectible contributes to my total charm so that I can understand the value of my collection.
+	
+    28.	As a player, I want to be able to view other players’ daily cash snapshots on the leaderboard so that I can understand my ranking and competitive position.
+	
+    29.	As a player, I want to be able to click on players in the leaderboard to view their detailed asset information so that I can learn from their investment strategies. (To be decided)
+	
+    30.	As a player, I want to be able to see historical leaderboard data and ranking trends so that I can analyze ranking change patterns. (To be decided)
+	
+    31.	As an administrator, I want to be able to adjust the parameters that affect stock prices in the backend so that I can control market fluctuations.
+	
+    32.	As an administrator, I want to be able to create events that affect specific stocks so that I can generate market fluctuations and game challenges.
+	
+    33.	As an administrator, I want to be able to create events that affect an entire industry so that I can create system-wide market impacts.
+	
+    34.	As an administrator, I want to be able to edit or delete created events so that I can adjust the game flow.
+	
+    35.	As an administrator, I want to be able to view a complete asset snapshot of any player so that I can monitor game balance.
+	
+    36.	As a player, I want my game data to be saved to the server in real time so that I can avoid losing data because of client-side issues.
+	
+    37.	As a player, I want to receive clear error messages when a transaction fails so that I can understand what went wrong.
+	
+    38.	As a player, I want to be able to view the game rules and operating instructions so that I can understand how to play the game correctly.

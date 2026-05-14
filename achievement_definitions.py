@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<canvas id="trading-canvas"></canvas>
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-msg error">{{ messages[0] }}</div>
+        <script>
+            document.querySelectorAll('input').forEach(i => i.classList.add('input-error'));
+        </script>
+    {% endif %}
+    {% endwith %}
+
+    {% if form.errors %}
+    <div class="flash-msg error">
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="avatar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+    </div>
+    <p class="subtitle">Stock Market</p>
+    <h1>Welcome back</h1>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <label>Username or email</label>
+        <input name="username" type="text" placeholder="Enter your username or email" required>
+        <label>Password</label>
+        <div class="password-wrapper">
+            <input name="password" type="password" id="password" placeholder="Enter your password" required>
+            <span class="eye-toggle" onclick="togglePassword()">
+                <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </span>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <p><a href="/forgot-password">Forgot password?</a></p>
+    <p>No account? <a href="/register">Register here</a></p>
+</div>
+
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script>
+function togglePassword() {
+    const input = document.getElementById("password");
+    const icon = document.getElementById("eye-icon");
+    if (input.type === "password") {
+        input.type = "text";
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';        
+    } else {
+        input.type = "password";
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    }
+}
+</script>

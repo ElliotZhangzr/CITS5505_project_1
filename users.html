@@ -1,0 +1,32 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-msg">{{ messages[0] }}</div>
+    {% endif %}
+    
+    {% endwith %}
+    {% if form.errors %}
+    <div class="flash-msg error">
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <p class="subtitle">Stock Market</p>
+    <h1>Reset password</h1>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <label>Email</label>
+        <input name="email" type="email" placeholder="Enter your email" value="{{ email }}" required>
+        <button type="submit">Send verification code</button>
+    </form>
+
+    <p>Already have a code? <a href="/reset-password{% if email %}?email={{ email }}{% endif %}">Reset password</a></p>
+    <p><a href="/login">Back to login</a></p>
+</div>

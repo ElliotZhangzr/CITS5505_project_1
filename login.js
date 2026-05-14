@@ -1,0 +1,152 @@
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center; 
+    align-items: center;    
+    background: #faf8f2;
+    font-family: Arial;
+    margin: 0;
+    overflow: hidden;       
+}
+.container {
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 340px;
+}
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e8f5e9;
+    color: #3a7d44;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 1.5rem;
+    color: #1a1a1a;
+}
+.subtitle {
+    font-size: 12px;
+    color: #888;
+    margin: 0 0 4px;
+}
+label {
+    display: block;
+    text-align: left;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+}
+input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+    color: #1a1a1a;
+    outline: none;
+}
+input:focus {
+    border-color: #3a7d44;
+    background: white;
+}
+
+.input-error {
+    border-color: #e53935 !important;
+    background: #fff5f5 !important;
+}
+
+button {
+    width: 100%;
+    padding: 11px;
+    background: #3a7d44;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+button:hover {
+    background: #2e6636;
+}
+.flash-msg {
+    background: #e8f5e9;
+    border: 1px solid #a5d6a7;
+    color: #2e7d32;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 1.25rem;
+}
+a {
+    color: #3a7d44;
+    text-decoration: none;
+    font-weight: 500;
+}
+p {
+    font-size: 13px;
+    color: #888;
+    margin-top: 1.25rem;
+}
+
+.flash-msg.error {
+    background: #fdecea;
+    border: 1px solid #f5c6c6;
+    color: #c62828;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.eye-toggle {
+    position: absolute;
+    right: 12px;
+    top: 38%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+}
+
+.eye-toggle:hover {
+    color: #3a7d44;
+}
+
+/* ── Coin animation ── */
+#trading-canvas {
+    position: fixed;         
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;             
+    pointer-events: none;   
+}
+
+.container {
+    position: relative;      
+    z-index: 10;
+    background: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 340px;
+}
