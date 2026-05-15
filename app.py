@@ -465,11 +465,16 @@ def update_hide_holdings():
 @app.route("/delete_account", methods=["POST"])
 @login_required
 def delete_account():
-    password = request.form.get("password")
+    password = request.form.get("password", "")
+    if not password:
+        flash("Password confirmation failed.")
+        return redirect(url_for("profile"))
+
     if not check_password_hash(current_user.password_hash, password):
         flash("Password confirmation failed.")
         return redirect(url_for("profile"))
-    user = current_user
+
+    user = User.query.get(current_user.id)
     logout_user()
     db.session.delete(user)
     db.session.commit()
