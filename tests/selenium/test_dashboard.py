@@ -10,7 +10,7 @@ Test coverage:
 3. Buy/sell interaction section is visible.
 4. Portfolio holdings area is visible.
 5. Portfolio summary values are displayed.
-6. Market overview area is visible.
+6. Stock graph is visible.
 7. Dashboard API endpoints return accessible data for logged-in users.
 8. Unauthenticated users cannot access dashboard-related API data.
 
@@ -130,12 +130,27 @@ def test_dashboard_portfolio_summary_visible(driver):
 
 
 # -------------------------------------------------
-# Test 6 - Market overview area is visible
+# Test 6 - Stock graph is rendered inside canvas
 # -------------------------------------------------
-def test_dashboard_market_overview_area_visible(driver):
+def test_stock_graph_is_rendered(driver):
     login(driver)
 
-    assert "market overview area" in driver.page_source.lower()
+    canvas = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.TAG_NAME, "canvas"))
+    )
+
+    is_blank = driver.execute_script("""
+        const canvas = arguments[0];
+        const ctx = canvas.getContext('2d');
+
+        const pixelBuffer = new Uint32Array(
+            ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+        );
+
+        return !pixelBuffer.some(color => color !== 0);
+    """, canvas)
+
+    assert is_blank is False
 
 
 # -------------------------------------------------
