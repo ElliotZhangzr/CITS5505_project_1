@@ -42,16 +42,78 @@ Administrators additionally have access to the **Admin Panel** at `/admin`, wher
 ---
 
 ## 2. Group Members
+
 | UWA ID | Name | GitHub Username |
-| :--- | :--- | :--- |
-| **24389925** | **Zerun Zhang** | **ElliotZhangzr** |
-| **24807169** | **Dilani Gunathilaka Mapitigamage** | **Dilani1997** |
-| **24746589** | **Weishan Li** | **Weishan-Li** |
-|**23685578**  | **Kushagra patel**|**kp40800**|
+|---|---|---|
+| 24389925 | Zerun Zhang | [ElliotZhangzr](https://github.com/ElliotZhangzr) |
+| 24807169 | Dilani Gunathilaka Mapitigamage | [Dilani1997](https://github.com/Dilani1997) |
+| 24746589 | Weishan Li | [Weishan-Li](https://github.com/Weishan-Li) |
+| 23685578 | Kushagra Patel | [kp240800](https://github.com/kp240800) |
 
 ---
 
 ## 3. Launch Instructions
+
+### Prerequisites
+
+- Python 3.11+
+- Google Chrome (required for Selenium tests)
+
+### Setup
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/ElliotZhangzr/CITS5505_project_1.git
+cd CITS5505_project_1
+```
+
+**2. Create and activate a virtual environment**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+.venv\Scripts\activate           # Windows
+```
+
+**3. Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Configure environment variables**
+
+Create a `.env` file in the project root:
+```
+SECRET_KEY=your-secret-key-here
+RESEND_API_KEY=your-resend-api-key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+```
+
+> Password reset emails require a valid [Resend](https://resend.com) API key. The rest of the application works without it.
+
+**5. Initialise the database**
+```bash
+flask db upgrade
+```
+
+**6. (Optional) Load seed data**
+```bash
+python seed_data.py
+```
+
+This creates three accounts:
+
+| Username | Password | Role |
+|---|---|---|
+| `root` | `root` | Admin |
+| `admin` | `Admin123` | Admin |
+| `trader` | `Trader123` | User |
+
+**7. Start the application**
+```bash
+python app.py
+```
+
+Open [http://127.0.0.1:5001](http://127.0.0.1:5001) in your browser.
 
 ---
 
