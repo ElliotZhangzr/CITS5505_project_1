@@ -132,6 +132,42 @@ document.getElementById("hideHoldingsToggle").addEventListener("change", async f
     });
 });
 
+/* ── Feedback ── */
+const feedbackText = document.getElementById("feedbackText");
+const feedbackCount = document.getElementById("feedbackCount");
+
+feedbackCount.textContent = feedbackText.value.length;
+feedbackText.addEventListener("input", function () {
+    feedbackCount.textContent = this.value.length;
+});
+
+document.getElementById("submitFeedbackBtn").addEventListener("click", async function () {
+    const content = feedbackText.value.trim();
+    if (!content) {
+        alert("Please enter your feedback.");
+        return;
+    }
+    const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+        body: JSON.stringify({ content })
+    });
+    if (res.ok) {
+        feedbackText.value = "";
+        feedbackCount.textContent = "0";
+        const btn = this;
+        btn.textContent = "Submitted ✓";
+        btn.style.background = "#16a34a";
+        setTimeout(() => {
+            btn.textContent = "Submit";
+            btn.style.background = "";
+        }, 1500);
+    } else {
+        const error = await res.json().catch(() => ({ error: "Failed to submit feedback." }));
+        alert(error.error || "Failed to submit feedback.");
+    }
+});
+
 /* ── Delete account modal ── */
 const deleteModal = document.getElementById("deleteModal");
 

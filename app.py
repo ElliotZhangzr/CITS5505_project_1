@@ -4,7 +4,7 @@ from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 from db import init_db
-from models import db, User, Stock, StockPrice,StockTransaction
+from models import db, User, Stock, StockPrice, StockTransaction, Feedback
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 
 from user_service import get_users_paginated
@@ -465,6 +465,20 @@ def update_hide_holdings():
     current_user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
+
+@app.route("/api/feedback", methods=["POST"])
+@login_required
+def submit_feedback():
+    data = request.get_json(silent=True) or {}
+    content = data.get("content", "").strip()
+    if not content:
+        return jsonify({"ok": False, "error": "Feedback cannot be empty."}), 400
+    if len(content) > 1000:
+        return jsonify({"ok": False, "error": "Feedback must be 1000 characters or less."}), 400
+    db.session.add(Feedback(user_id=current_user.id, content=content))
+    db.session.commit()
+    return jsonify({"ok": True})
+
 
 # DELETE ACCOUNT
 @app.route("/delete_account", methods=["POST"])
