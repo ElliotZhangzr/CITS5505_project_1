@@ -16,17 +16,7 @@
                 <p class="kicker">Trading Workspace</p>
                 <h1>Stock Trading Dashboard</h1>
             </div>
-
             {% include "_main_nav.html" %}
-
-            <div class="header-actions">
-                <div class="user-panel">
-                    <p class="welcome-text">Welcome {{ session["user"] }}</p>
-                    <p class="welcome-text">Cash <span id="accountCash">${{ session["cash"] }}</span></p>
-                </div>
-                <div class="market-pill" id="marketStatus">Market Open</div>
-            </div>
-
         </header>
 
         <section class="panel chart-area" aria-labelledby="chart-title">
