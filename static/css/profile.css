@@ -120,6 +120,17 @@
     color: var(--muted);
 }
 
+.profile-privacy {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.public-avatar {
+    cursor: default;
+}
+
 /* ── Bio ── */
 .bio-section {
     grid-column: 1 / -1;
@@ -142,6 +153,18 @@
 
 .bio-textarea:focus {
     border-color: var(--buy);
+}
+
+.public-bio {
+    margin: 0;
+    min-height: 56px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--ink);
+    background: #fff;
+    line-height: 1.5;
+    white-space: pre-wrap;
 }
 
 .bio-footer {
@@ -239,6 +262,16 @@
     color: var(--muted);
     font-size: 0.9rem;
     padding: 20px 0;
+}
+
+.private-profile-note {
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
 }
 
 /* ── Achievements ── */

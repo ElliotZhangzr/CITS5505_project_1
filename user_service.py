@@ -8,7 +8,6 @@ def get_users_paginated(page=1, per_page=5):
             {
                 "id": user.id,
                 "username": user.username,
-                "email": user.email,
                 "joinTime": user.created_at.strftime("%d %b %Y, %I:%M %p"),
             }
             for user in users.items

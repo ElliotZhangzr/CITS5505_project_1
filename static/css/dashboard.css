@@ -374,6 +374,17 @@ tr:hover {
     font-weight: 700;
 }
 
+.user-profile-link {
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.user-profile-link:hover {
+    color: var(--buy);
+    text-decoration: underline;
+}
+
 .empty-state {
     margin: 12px 0 0;
     text-align: center;

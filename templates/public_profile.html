@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.username }} Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+</head>
+
+<body>
+    <div class="dashboard-bg"></div>
+
+    <main class="dashboard">
+        <header class="page-header panel">
+            <div>
+                <p class="kicker">Community Profile</p>
+                <h1>{{ user.username }}</h1>
+            </div>
+
+            {% include "_main_nav.html" %}
+        </header>
+
+        <section class="panel profile-card">
+            <div class="avatar-section">
+                <div class="avatar-wrapper public-avatar">
+                    <img
+                        src="{{ user.avatar_url or url_for('static', filename='img/default_avatar.png') }}"
+                        alt="{{ user.username }} avatar"
+                    >
+                </div>
+            </div>
+
+            <div class="profile-info">
+                <h2 class="profile-username">{{ user.username }}</h2>
+                <p class="profile-joined">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                <p class="profile-privacy">
+                    {{ 'Holdings hidden by user' if user.hide_holdings else 'Holdings visible' }}
+                </p>
+            </div>
+        </section>
+
+        <section class="panel bio-section">
+            <h2>Personal Signature</h2>
+            {% if user.bio %}
+                <p class="public-bio">{{ user.bio }}</p>
+            {% else %}
+                <p class="muted-text">This user has not written a personal signature yet.</p>
+            {% endif %}
+        </section>
+
+        <section class="panel holdings-section">
+            <div class="section-head">
+                <div>
+                    <h2>Assets & Holdings</h2>
+                    <p class="muted-text">
+                        {{ 'This user chose to keep portfolio details private.' if user.hide_holdings else 'Portfolio details shared by this user.' }}
+                    </p>
+                </div>
+            </div>
+
+            {% if user.hide_holdings %}
+                <div class="private-profile-note">
+                    Portfolio, cash, and holdings are hidden by this user.
+                </div>
+            {% else %}
+                <div class="asset-summary">
+                    <div class="asset-card">
+                        <span class="asset-label">Available Cash</span>
+                        <span class="asset-value">${{ "{:,.2f}".format(portfolio.cash|float) }}</span>
+                    </div>
+                    <div class="asset-card">
+                        <span class="asset-label">Stock Value</span>
+                        <span class="asset-value">${{ "{:,.2f}".format(portfolio.stockValue|float) }}</span>
+                    </div>
+                    <div class="asset-card">
+                        <span class="asset-label">Total Assets</span>
+                        <span class="asset-value">${{ "{:,.2f}".format(portfolio.totalAssets|float) }}</span>
+                    </div>
+                    <div class="asset-card">
+                        <span class="asset-label">Total P/L</span>
+                        <span class="asset-value {{ 'profit-up' if portfolio.totalProfit|float >= 0 else 'profit-down' }}">
+                            ${{ "{:,.2f}".format(portfolio.totalProfit|float) }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="holdings-table">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Qty</th>
+                                <th>Avg Price</th>
+                                <th>Current Price</th>
+                                <th>Market Value</th>
+                                <th>P/L</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if portfolio.holdings %}
+                                {% for holding in portfolio.holdings %}
+                                    <tr>
+                                        <td>{{ holding.symbol }}</td>
+                                        <td>{{ holding.quantity }}</td>
+                                        <td>${{ "{:,.2f}".format(holding.averageCost|float) }}</td>
+                                        <td>${{ "{:,.2f}".format(holding.currentPrice|float) }}</td>
+                                        <td>${{ "{:,.2f}".format(holding.marketValue|float) }}</td>
+                                        <td class="{{ 'profit-up' if holding.unrealizedProfit|float >= 0 else 'profit-down' }}">
+                                            ${{ "{:,.2f}".format(holding.unrealizedProfit|float) }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="empty-msg">No holdings yet.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </section>
+
+        <section class="panel achievements-section">
+            <div class="section-head">
+                <div>
+                    <h2>Achievements</h2>
+                    <p class="muted-text">Public achievement progress for this user.</p>
+                </div>
+            </div>
+
+            <div class="achievement-grid">
+                {% for achievement in achievements %}
+                    <article class="achievement {{ 'unlocked' if achievement.unlocked else 'locked' }} difficulty-{{ achievement.difficulty }}">
+                        <div class="achievement-topline">
+                            <span class="achievement-status">{{ 'Unlocked' if achievement.unlocked else 'Locked' }}</span>
+                            <span class="achievement-difficulty">{{ achievement.difficulty|title }}</span>
+                        </div>
+                        <div class="achievement-name">{{ achievement.name }}</div>
+                        <div class="achievement-desc">{{ achievement.description }}</div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

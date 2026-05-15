@@ -44,7 +44,6 @@
                         <tr>
                             <th>User ID</th>
                             <th>Name</th>
-                            <th>Email</th>
                             <th>Join Time</th>
                         </tr>
                     </thead>
@@ -52,19 +51,20 @@
                     <tbody id="userTableBody">
                         {% if users|length == 0 %}
                             <tr>
-                                <td colspan="4" class="empty-state">No users found.</td>
+                                <td colspan="3" class="empty-state">No users found.</td>
                             </tr>
                         {% else %}
                             {% for user in users %}
                             <tr class="user-row {% if current_user.is_authenticated and user.id == current_user.id %}current-user{% endif %}">
                                 <td>{{ user.id }}</td>
                                 <td>
-                                    {{ user.username }}
+                                    <a class="user-profile-link" href="{{ url_for('public_profile', user_id=user.id) }}">
+                                        {{ user.username }}
+                                    </a>
                                     {% if current_user.is_authenticated and user.id == current_user.id %}
                                         <span class="inline-pill">You</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ user.email }}</td>
                                 <td>{{ user.joinTime if user.joinTime else 'N/A' }}</td>
                             </tr>
                             {% endfor %}
