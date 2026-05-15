@@ -318,12 +318,14 @@ def admin_dashboard():
     total_users = User.query.count()
     total_stocks = Stock.query.count()
     total_transactions = StockTransaction.query.count()
+    total_feedback = Feedback.query.count()
 
     return render_template(
         "admin.html",
         total_users=total_users,
         total_stocks=total_stocks,
-        total_transactions=total_transactions
+        total_transactions=total_transactions,
+        total_feedback=total_feedback,
     )
 
 # ADMIN USER MANAGEMENT
@@ -465,6 +467,14 @@ def update_hide_holdings():
     current_user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
+
+@app.route("/admin/feedback")
+@login_required
+@admin_required
+def admin_feedback():
+    feedbacks = Feedback.query.order_by(Feedback.created_at.desc()).all()
+    return render_template("admin_feedback.html", feedbacks=feedbacks)
+
 
 @app.route("/api/feedback", methods=["POST"])
 @login_required

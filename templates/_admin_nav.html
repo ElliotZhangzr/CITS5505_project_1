@@ -2,4 +2,5 @@
     <a class="action-link secondary {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">Overview</a>
     <a class="action-link secondary {% if request.endpoint in ['admin_users', 'toggle_admin_role'] %}active{% endif %}" href="{{ url_for('admin_users') }}">Users</a>
     <a class="action-link secondary {% if request.endpoint == 'admin_stocks' %}active{% endif %}" href="{{ url_for('admin_stocks') }}">Stocks</a>
+    <a class="action-link secondary {% if request.endpoint == 'admin_feedback' %}active{% endif %}" href="{{ url_for('admin_feedback') }}">Feedback</a>
 </nav>
