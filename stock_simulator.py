@@ -71,6 +71,9 @@ def stock_state_key(stock_id):
 
 
 def load_stock_configs():
+    from sqlalchemy import inspect as sa_inspect
+    if not sa_inspect(db.engine).has_table("stock"):
+        return
     stocks = Stock.query.order_by(Stock.symbol).all()
     memory_client = get_memory_client()
     config_ids = []

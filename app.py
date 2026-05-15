@@ -29,12 +29,16 @@ from functools import wraps
 from pathlib import Path
 from forms import EmptyForm
 
+from flask_migrate import Migrate
+
+
 load_dotenv()
  
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 csrf = CSRFProtect(app)
 init_db(app)
+migrate = Migrate(app, db)
 
 AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
 AVATAR_DATA_URL_RE = re.compile(

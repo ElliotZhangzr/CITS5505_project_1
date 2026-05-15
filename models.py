@@ -100,6 +100,18 @@ class StockTransaction(db.Model):
         return f'<StockTransaction {self.user_id} {self.side} {self.stock_id} {self.quantity}>'
 
 
+class Feedback(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    user = db.relationship("User", backref=db.backref("feedbacks", cascade="all, delete-orphan"))
+
+    def __repr__(self):
+        return f'<Feedback {self.user_id} {self.created_at}>'
+
+
 limit_stock_price_records = DDL(f"""
 CREATE TRIGGER IF NOT EXISTS limit_stock_price_records
 AFTER INSERT ON stock_price
