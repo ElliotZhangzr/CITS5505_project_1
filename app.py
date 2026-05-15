@@ -21,7 +21,9 @@ from password_reset_service import (
 )
 import base64
 import binascii
+import os
 import re
+import secrets
 import traceback
 from functools import wraps
 from pathlib import Path
@@ -30,7 +32,7 @@ from forms import EmptyForm
 load_dotenv()
  
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 csrf = CSRFProtect(app)
 init_db(app)
 
