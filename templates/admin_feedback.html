@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <!-- Custom CSS -->
+    <title>Admin Feedback</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
@@ -14,41 +13,41 @@
         <header class="page-header panel">
             <div>
                 <p class="kicker">Admin Workspace</p>
-                <h1>Admin Panel</h1>
+                <h1>Feedback</h1>
             </div>
-
             {% include "_main_nav.html" %}
         </header>
 
         {% include "_admin_nav.html" %}
 
         <section class="panel holding-area">
-            <h2>System Summary</h2>
+            <h2>User Feedback</h2>
 
-            <div class="table-wrap compact-table">
+            <div class="table-wrap">
                 <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Feedback</th>
+                            <th>Submitted At</th>
+                        </tr>
+                    </thead>
                     <tbody>
+                        {% for item in feedbacks %}
                         <tr>
-                            <th>Total Users</th>
-                            <td>{{ total_users }}</td>
+                            <td>{{ item.user.username }}</td>
+                            <td>{{ item.content }}</td>
+                            <td>{{ item.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
                         </tr>
+                        {% else %}
                         <tr>
-                            <th>Total Stocks</th>
-                            <td>{{ total_stocks }}</td>
+                            <td colspan="3" class="empty-msg">No feedback yet.</td>
                         </tr>
-                        <tr>
-                            <th>Total Transactions</th>
-                            <td>{{ total_transactions }}</td>
-                        </tr>
-                        <tr>
-                            <th>Total Feedback</th>
-                            <td>{{ total_feedback }}</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </section>
-
-    </main>      
+    </main>
 </body>
 </html>

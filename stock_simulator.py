@@ -4,8 +4,8 @@ import random
 
 from sqlalchemy.exc import OperationalError
 
+from memory_store import get_json, get_memory_client, set_json
 from models import db, Stock, StockPrice
-from redis_store import get_json, get_redis_client, set_json
 
 
 UPDATE_INTERVAL_SECONDS = 2
@@ -71,8 +71,11 @@ def stock_state_key(stock_id):
 
 
 def load_stock_configs():
+    from sqlalchemy import inspect as sa_inspect
+    if not sa_inspect(db.engine).has_table("stock"):
+        return
     stocks = Stock.query.order_by(Stock.symbol).all()
-    redis_client = get_redis_client()
+    memory_client = get_memory_client()
     config_ids = []
 
     for stock in stocks:
@@ -91,10 +94,10 @@ def load_stock_configs():
         config_ids.append(str(stock.id))
         get_simulation_state(stock.id)
 
-    redis_client.delete(STOCK_CONFIG_IDS_KEY)
+    memory_client.delete(STOCK_CONFIG_IDS_KEY)
 
     if config_ids:
-        redis_client.rpush(STOCK_CONFIG_IDS_KEY, *config_ids)
+        memory_client.rpush(STOCK_CONFIG_IDS_KEY, *config_ids)
 
 
 def deserialize_config(config):
@@ -112,12 +115,12 @@ def deserialize_config(config):
 
 
 def get_stock_configs():
-    redis_client = get_redis_client()
-    config_ids = redis_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
+    memory_client = get_memory_client()
+    config_ids = memory_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
 
     if not config_ids:
         load_stock_configs()
-        config_ids = redis_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
+        config_ids = memory_client.lrange(STOCK_CONFIG_IDS_KEY, 0, -1)
 
     configs = []
 

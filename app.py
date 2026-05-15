@@ -4,7 +4,7 @@ from flask_wtf.csrf import CSRFError, CSRFProtect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 from db import init_db
-from models import db, User, Stock, StockPrice,StockTransaction
+from models import db, User, Stock, StockPrice, StockTransaction, Feedback
 from forms import ForgotPasswordForm, LoginForm, RegisterForm, ResetPasswordForm
 
 from user_service import get_users_paginated
@@ -21,18 +21,24 @@ from password_reset_service import (
 )
 import base64
 import binascii
+import os
 import re
+import secrets
 import traceback
 from functools import wraps
 from pathlib import Path
 from forms import EmptyForm
 
+from flask_migrate import Migrate
+
+
 load_dotenv()
  
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 csrf = CSRFProtect(app)
 init_db(app)
+migrate = Migrate(app, db)
 
 AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
 AVATAR_DATA_URL_RE = re.compile(
@@ -312,12 +318,14 @@ def admin_dashboard():
     total_users = User.query.count()
     total_stocks = Stock.query.count()
     total_transactions = StockTransaction.query.count()
+    total_feedback = Feedback.query.count()
 
     return render_template(
         "admin.html",
         total_users=total_users,
         total_stocks=total_stocks,
-        total_transactions=total_transactions
+        total_transactions=total_transactions,
+        total_feedback=total_feedback,
     )
 
 # ADMIN USER MANAGEMENT
@@ -459,6 +467,28 @@ def update_hide_holdings():
     current_user.hide_holdings = data.get("hide_holdings", False)
     db.session.commit()
     return jsonify({"ok": True})
+
+@app.route("/admin/feedback")
+@login_required
+@admin_required
+def admin_feedback():
+    feedbacks = Feedback.query.order_by(Feedback.created_at.desc()).all()
+    return render_template("admin_feedback.html", feedbacks=feedbacks)
+
+
+@app.route("/api/feedback", methods=["POST"])
+@login_required
+def submit_feedback():
+    data = request.get_json(silent=True) or {}
+    content = data.get("content", "").strip()
+    if not content:
+        return jsonify({"ok": False, "error": "Feedback cannot be empty."}), 400
+    if len(content) > 1000:
+        return jsonify({"ok": False, "error": "Feedback must be 1000 characters or less."}), 400
+    db.session.add(Feedback(user_id=current_user.id, content=content))
+    db.session.commit()
+    return jsonify({"ok": True})
+
 
 # DELETE ACCOUNT
 @app.route("/delete_account", methods=["POST"])

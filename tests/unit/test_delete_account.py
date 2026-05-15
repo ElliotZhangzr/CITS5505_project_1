@@ -67,7 +67,7 @@ class DeleteAccountTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.location.endswith("/register"))
-        self.assertEqual(messages, [])
+        self.assertIn("Account deleted successfully.", messages)
         mock_logout.assert_called_once()
         self.assertIsNone(db.session.get(User, user_id))
         self.assertIsNone(db.session.get(StockHolding, holding_id))

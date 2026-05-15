@@ -1,0 +1,8 @@
+Database migrations for this project.
+
+These files document the database schema changes reflected in the
+models.py history. Use Flask-Migrate commands from the project root:
+
+    flask --app app db upgrade
+    flask --app app db downgrade
+    flask --app app db history

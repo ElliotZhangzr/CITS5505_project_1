@@ -5,8 +5,8 @@ import string
 
 from werkzeug.security import generate_password_hash
 
+from memory_store import get_json, get_memory_client, set_json
 from models import db, User
-from redis_store import get_json, get_redis_client, set_json
 from sendemail import send_password_reset_email
 
 
@@ -39,7 +39,7 @@ def generate_reset_code():
 
 
 def clear_reset_code(email):
-    get_redis_client().delete(reset_code_key(email))
+    get_memory_client().delete(reset_code_key(email))
 
 
 def get_reset_data(email):
@@ -51,7 +51,7 @@ def save_reset_data(email, reset_data):
 
 
 def get_reset_code_seconds_remaining(email):
-    ttl = get_redis_client().ttl(reset_code_key(email))
+    ttl = get_memory_client().ttl(reset_code_key(email))
     return max(0, ttl)
 
 
