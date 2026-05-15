@@ -12,13 +12,12 @@ function filterUsers() {
 
     let matchedUsers = 0;
 
-    // Loop through each row
     userRows.forEach((row) => {
+        const userId = row.cells[0]?.textContent.trim().toLowerCase() || "";
+        const username = row.cells[1]?.querySelector(".user-profile-link")?.textContent.trim().toLowerCase() || "";
+        const matchesSearch = userId.includes(searchValue) || username.includes(searchValue);
 
-        const rowContent = row.textContent.toLowerCase();
-
-        // Show matching rows
-        if (rowContent.includes(searchValue)) {
+        if (matchesSearch) {
             row.style.display = "";
             matchedUsers++;
         } else {
