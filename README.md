@@ -1,7 +1,43 @@
-# CITS5505_demo
-CITS5505_SEM-1_2026 Agile Web Development SEM-1 2026
+# CITS5505 Stock Trading Simulator
+CITS5505 Agile Web Development — Semester 1, 2026
 
-## 1. Application Description
+---
+
+## 1. Application Purpose, Design and Usage
+
+### Purpose
+
+A browser-based simulated stock trading platform where users start with **$10,000 virtual cash** and trade against a live-updating market. The goal is to grow your portfolio, climb the leaderboard, and unlock achievements — without any real financial risk.
+
+### Design
+
+The application is built with a **Flask** backend and a vanilla JavaScript frontend, using **SQLite** as the database managed through **Flask-Migrate**.
+
+**Key features:**
+
+| Feature | Description |
+|---|---|
+| Authentication | Register, login, logout, and password reset via email verification |
+| Live Stock Market | Prices update every 2 seconds using a GBM-based simulation with momentum, mean reversion, and trade impact |
+| Trading | Buy and sell stocks; portfolio tracks quantity, average cost, market value, and P&L |
+| Leaderboard | Rank all users by cash, total assets, profit, or return percentage |
+| Profile | Upload or generate an avatar, write a personal bio, toggle holdings visibility |
+| Public Profiles | View any user's profile and portfolio (if not hidden) |
+| Achievements | 14 unlockable achievements across easy / medium / hard tiers |
+| Feedback | Submit feedback from the profile page; admins can view all submissions |
+| Admin Panel | Manage users and stocks, view system stats and user feedback |
+
+### Usage
+
+After logging in, users land on the **Dashboard** where they can:
+- Monitor real-time stock prices and charts
+- Buy or sell stocks via the trading panel
+- Track their portfolio summary (cash, stock value, total assets, P&L)
+- View their transaction history
+
+From the navigation bar, users can access the **Leaderboard**, **Users** directory, and their own **Profile**.
+
+Administrators additionally have access to the **Admin Panel** at `/admin`, where they can add stocks, manage user roles, and read submitted feedback.
 
 ---
 
