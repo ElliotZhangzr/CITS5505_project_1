@@ -119,52 +119,34 @@ Open [http://127.0.0.1:5001](http://127.0.0.1:5001) in your browser.
 
 ## 4. Test Instructions
 
+### Unit Tests
 
+Run all unit tests with:
+```bash
+python run_unit_tests.py
+```
 
-# cits5504-practice
+Or using pytest directly:
+```bash
+pytest tests/unit/
+```
 
-1. Create a repository and initialized config
-git init : creates a new git repository in the current folder
+Covers: authentication forms, trading service, portfolio logic, leaderboard, profile, admin logic, seed data, stock simulator, user service, and password reset service.
 
-git clone [url] : clones an existing project from github to your local machine
+### Selenium Tests
 
-git status : checks the file status, shows file that have been changed but not yet committed
+Selenium tests require the Flask server to be running first.
 
-git log : displays the record of commit history and their unique hashes
+**Terminal 1 — start the server:**
+```bash
+python app.py
+```
 
-git remote -v : checks the details of connection between the local with remote repositories
+**Terminal 2 — run Selenium tests:**
+```bash
+pytest tests/selenium/
+```
 
-2. update and submint
-git add [filename] : adds a specific file to the staging area
+Covers: login/logout, registration, dashboard, leaderboard, and admin pages.
 
-git add . : adds all changed files in the folder to the staging area
-
-git add * : adds all changed files in the folder to the staging area
-
-git commit -m "[message]" : creates a commit with a descriptive message to record a snapshot of the current code
-
-git commit -am "[message]" : Stages and commits all tracked, changed files in a single step.
-
-3. branch and switch branch
-git checkout -b [branch_name] : create a new branch and switch to it immediately
-
-git checkout [branch_name/hash/tag_name] : switch to a specific branch
-
-git branch -d [branch_name/hash/tag_name] : delete the specific branch
-
-git tag [tag_name] : Adds a human-readable label (e.g., v0.1) to the current commit
-
-4. github collabration
-git push origin [branch_name] : Pushes local commits to the remote GitHub repository
-
-git pull origin [branch_name] : Fetches the latest code from GitHub and merges it into the local branch.
-
-5. project management tool
-Issues:
-
-Pull Requests(pr):
-
-Code Review:
-
-Branch Protection Rules:
-
+> Chrome and `chromedriver` are managed automatically via `webdriver-manager`.
