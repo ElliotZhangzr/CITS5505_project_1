@@ -5,8 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .leaderboard-page .dashboard {
+            width: min(100%, 1280px);
+        }
+
+        .leaderboard-page .panel {
+            min-width: 0;
+        }
+
+        @media (max-width: 760px) {
+            .leaderboard-page {
+                padding-bottom: calc(92px + env(safe-area-inset-bottom));
+            }
+
+            .leaderboard-page .dashboard {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .leaderboard-page .page-header {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                margin: -12px -12px 0;
+                border-radius: 0 0 18px 18px;
+            }
+
+            .leaderboard-page .full-span {
+                grid-column: 1 / -1;
+            }
+
+            .leaderboard-page .section-head {
+                align-items: flex-start;
+            }
+
+            .leaderboard-page .ranking-tabs {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }
+
+            .leaderboard-page .ranking-tab {
+                min-height: 44px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .leaderboard-page .ranking-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .leaderboard-page .table-wrap {
+                overflow: visible;
+            }
+
+            .leaderboard-page table,
+            .leaderboard-page thead,
+            .leaderboard-page tbody,
+            .leaderboard-page tr,
+            .leaderboard-page td {
+                display: block;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .leaderboard-page thead {
+                display: none;
+            }
+
+            .leaderboard-page tbody tr {
+                margin-bottom: 10px;
+                padding: 12px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: #ffffff;
+            }
+
+            .leaderboard-page td {
+                display: grid;
+                grid-template-columns: 80px minmax(0, 1fr);
+                gap: 10px;
+                padding: 7px 0;
+                border-bottom: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .leaderboard-page td::before {
+                color: var(--muted);
+                font-weight: 700;
+            }
+
+            .leaderboard-page td:nth-child(1)::before {
+                content: "Rank";
+            }
+
+            .leaderboard-page td:nth-child(2)::before {
+                content: "User";
+            }
+
+            .leaderboard-page td:nth-child(3)::before {
+                content: "Value";
+            }
+        }
+
+        @media (max-width: 380px) {
+            .leaderboard-page .dashboard {
+                padding: 10px;
+            }
+
+            .leaderboard-page .panel {
+                padding: 14px 12px;
+            }
+
+            .leaderboard-page .page-header {
+                margin: -10px -10px 0;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="leaderboard-page">
     <div class="dashboard-bg"></div>
 
     <main class="dashboard">
