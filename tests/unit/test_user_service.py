@@ -68,6 +68,22 @@ class UserServiceTests(unittest.TestCase):
         self.assertIsInstance(join_time, str)
         self.assertEqual(join_time, "01 May 2026, 10:00 AM")
 
+    def test_user_search_filters_by_username_across_database(self):
+        self.create_users(12)
+
+        result = get_users_paginated(page=1, per_page=5, search="user12")
+
+        self.assertEqual([user["username"] for user in result["users"]], ["user12"])
+        self.assertFalse(result["has_next"])
+        self.assertEqual(result["search"], "user12")
+
+    def test_user_search_filters_by_user_id(self):
+        users = self.create_users(3)
+
+        result = get_users_paginated(page=1, per_page=5, search=str(users[1].id))
+
+        self.assertEqual([user["id"] for user in result["users"]], [users[1].id])
+
     def test_user_dict_does_not_return_email(self):
         self.create_users(1)
 

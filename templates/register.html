@@ -11,6 +11,12 @@
     <p class="subtitle">Stock Market</p>
     <h1>Register</h1>
 
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-msg error">{{ messages[0] }}</div>
+    {% endif %}
+    {% endwith %}
+
     {% if form.errors %}
     <div class="flash-msg error">
         {% for field, errors in form.errors.items() %}

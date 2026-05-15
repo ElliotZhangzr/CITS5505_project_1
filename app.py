@@ -287,13 +287,15 @@ def leaderboard():
 @login_required
 def users():
     page = request.args.get("page", 1, type=int)
-    data = get_users_paginated(page=page)
+    search = request.args.get("q", "")
+    data = get_users_paginated(page=page, search=search)
     return render_template(
         "users.html",
         users=data["users"],
         has_next=data["has_next"],
         has_prev=data["has_prev"],
-        page=data["page"]
+        page=data["page"],
+        search=data["search"],
     )
 
 
