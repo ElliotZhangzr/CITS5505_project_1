@@ -460,19 +460,28 @@ def update_hide_holdings():
     db.session.commit()
     return jsonify({"ok": True})
 
-
 # DELETE ACCOUNT
 @app.route("/delete_account", methods=["POST"])
 @login_required
 def delete_account():
     password = request.form.get("password")
-    if not check_password_hash(current_user.password_hash, password):
+
+    user = User.query.get(current_user.id)
+
+    if not user:
+        flash("User not found.")
+        return redirect(url_for("login"))
+
+    if not check_password_hash(user.password_hash, password):
         flash("Password confirmation failed.")
         return redirect(url_for("profile"))
-    user = current_user
+
     logout_user()
+
     db.session.delete(user)
     db.session.commit()
+
+    flash("Account deleted successfully.")
     return redirect(url_for("register"))
 
 # LOGOUT
