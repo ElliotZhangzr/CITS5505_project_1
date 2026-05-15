@@ -3,6 +3,8 @@ import hashlib
 import secrets
 import string
 
+from werkzeug.security import generate_password_hash
+
 from models import db, User
 from redis_store import get_json, get_redis_client, set_json
 from sendemail import send_password_reset_email
@@ -148,7 +150,7 @@ def confirm_password_reset(email, code, new_password, confirm_password):
         clear_reset_code(normalized_email)
         return False, "Verification code is invalid or expired."
 
-    user.password_hash = hash_value(new_password)
+    user.password_hash = generate_password_hash(new_password)
     db.session.commit()
     clear_reset_code(normalized_email)
 

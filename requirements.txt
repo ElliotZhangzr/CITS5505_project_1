@@ -7,4 +7,7 @@ resend
 redis
 email-validator==2.2.0
 numpy>=1.26
+selenium
+pytest
+webdriver-manager
 # urllib3<2
