@@ -3,7 +3,7 @@ CITS5505 Agile Web Development — Semester 1, 2026
 
 ---
 
-## 1. Application Purpose, Design and Usage
+## 1. Application Purpose, Technology Stack, Design and Usage
 
 ### Purpose
 
@@ -26,6 +26,18 @@ The application is built with a **Flask** backend and a vanilla JavaScript front
 | Achievements | 14 unlockable achievements across easy / medium / hard tiers |
 | Feedback | Submit feedback from the profile page; admins can view all submissions |
 | Admin Panel | Manage users and stocks, view system stats and user feedback |
+
+## Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Backend | Flask, Flask-Login, Flask-WTF, Flask-Migrate |
+| Frontend | HTML, CSS, Vanilla JavaScript |
+| Database | SQLite, SQLAlchemy |
+| Testing | Pytest, Selenium |
+| Authentication | Session-based authentication with Flask-Login |
+| Email Service | Resend API |
+| Deployment Tools | Python virtual environment |
 
 ### Usage
 
@@ -150,3 +162,37 @@ pytest tests/selenium/
 Covers: login/logout, registration, dashboard, leaderboard, and admin pages.
 
 > Chrome and `chromedriver` are managed automatically via `webdriver-manager`.
+
+## Security Features
+
+- Password hashing using Werkzeug
+- CSRF protection using Flask-WTF
+- Session-based authentication with Flask-Login
+- Role-based admin access control
+- Secure password reset tokens
+- Backend validation for profile and trading forms
+
+## Achievement System
+
+Users unlock achievements by reaching trading milestones such as:
+- Completing first trade
+- Reaching profit targets
+- Maintaining high portfolio value
+- Active trading participation
+
+Achievements are grouped into:
+- Easy
+- Medium
+- Hard
+
+## Screenshots
+
+### Dashboard
+![Dashboard](images/dashboard.png)
+
+### Leaderboard
+![Leaderboard](images/leaderboard.png)
+
+### Profile Page
+![Profile](images/profile1a.png)
+![Profile](images/profile1b.png)
