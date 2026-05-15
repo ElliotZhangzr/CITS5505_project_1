@@ -24,7 +24,7 @@ USERS = [
         "is_admin": True,
         "cash": Decimal("100000.00"),
         "bio": "Seeded root admin account.",
-        "avatar_url": "",
+        "avatar_url": "/static/uploads/avatars/user_1.png",
         "hide_holdings": False,
         "created_at": BASE_TIME,
     },
