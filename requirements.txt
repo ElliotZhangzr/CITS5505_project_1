@@ -7,5 +7,6 @@ python-dotenv
 werkzeug
 wtforms
 requests
+email-validator
 resend
 yfinance
