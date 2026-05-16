@@ -73,20 +73,20 @@ class AuthFormsTests(unittest.TestCase):
         self.assertTrue(form.validate())
         self.assertEqual(form.errors, {})
 
-    def test_register_form_rejects_duplicate_username(self):
+    def test_register_form_allows_duplicate_username_for_route_message(self):
         create_user(username="taken", email="first@example.com")
         form = self.build_register_form(username="taken", email="second@example.com")
 
-        self.assertFalse(form.validate())
-        self.assertIn("Username already exists.", form.username.errors)
+        self.assertTrue(form.validate())
+        self.assertEqual(form.username.errors, [])
         self.assertEqual(form.email.errors, [])
 
-    def test_register_form_rejects_duplicate_email(self):
+    def test_register_form_allows_duplicate_email_for_route_message(self):
         create_user(username="first", email="taken@example.com")
         form = self.build_register_form(username="second", email="taken@example.com")
 
-        self.assertFalse(form.validate())
-        self.assertIn("Email already exists.", form.email.errors)
+        self.assertTrue(form.validate())
+        self.assertEqual(form.email.errors, [])
         self.assertEqual(form.username.errors, [])
 
     def test_register_form_rejects_password_shorter_than_eight_characters(self):

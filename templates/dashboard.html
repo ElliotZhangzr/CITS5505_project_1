@@ -6,8 +6,166 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .dashboard-page .dashboard {
+            width: min(100%, 1280px);
+        }
+
+        .dashboard-page .panel {
+            min-width: 0;
+        }
+
+        .dashboard-page #stockChart {
+            display: block;
+            max-width: 100%;
+        }
+
+        .dashboard-page .page-header {
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+
+        .dashboard-page .page-header > div:first-child {
+            flex: 0 0 auto;
+        }
+
+        .dashboard-page .header-actions {
+            flex: 1 1 auto;
+            min-width: 0;
+            justify-content: flex-end;
+        }
+
+        .dashboard-page .trade-form select,
+        .dashboard-page .trade-form input,
+        .dashboard-page .trade-form button {
+            min-height: 44px;
+        }
+
+        @media (max-width: 980px) {
+            .dashboard-page .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-page .chart-area,
+            .dashboard-page .trade-area,
+            .dashboard-page .holding-area,
+            .dashboard-page .market-area {
+                grid-column: 1 / -1;
+            }
+
+            .dashboard-page .trade-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-items: end;
+            }
+
+            .dashboard-page .trade-actions {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .dashboard-page {
+                padding-bottom: calc(92px + env(safe-area-inset-bottom));
+            }
+
+            .dashboard-page .dashboard {
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .dashboard-page .page-header {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                margin: -12px -12px 0;
+                border-radius: 0 0 18px 18px;
+                flex-wrap: wrap;
+            }
+
+            .dashboard-page .section-head {
+                gap: 10px;
+            }
+
+            .dashboard-page .stock-tabs {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }
+
+            .dashboard-page .stock-tab {
+                width: 100%;
+                min-height: 40px;
+            }
+
+            .dashboard-page #stockChart {
+                height: clamp(210px, 58vw, 280px);
+            }
+
+            .dashboard-page .chart-meta {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .dashboard-page .trade-form {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-page .trade-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .dashboard-page .holding-summary {
+                display: grid;
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 460px) {
+            .dashboard-page .dashboard {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .dashboard-page .panel {
+                padding: 14px 12px;
+            }
+
+            .dashboard-page .page-header {
+                margin: -10px -10px 0;
+                padding: 12px 10px;
+            }
+
+            .dashboard-page h1 {
+                font-size: 1.32rem;
+            }
+
+            .dashboard-page .stock-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-page #currentPrice {
+                font-size: 1.05rem;
+            }
+
+            .dashboard-page .trade-actions {
+                gap: 8px;
+            }
+
+            .dashboard-page .market-list li {
+                display: grid;
+                grid-template-columns: 1fr auto;
+            }
+
+            .dashboard-page .market-list li span:first-child {
+                grid-row: span 2;
+                align-self: center;
+                font-weight: 700;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="dashboard-page">
     <div class="dashboard-bg"></div>
 
     <main class="dashboard">

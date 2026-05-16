@@ -7,7 +7,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
-<body>
+<body class="admin-page">
     <div class="dashboard-bg"></div>
 
     <main class="dashboard">
@@ -22,7 +22,7 @@
 
         {% include "_admin_nav.html" %}
 
-        <section class="panel holding-area">
+        <section class="panel holding-area admin-summary">
             <h2>System Summary</h2>
 
             <div class="table-wrap compact-table">

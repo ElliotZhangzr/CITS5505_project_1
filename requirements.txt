@@ -1,0 +1,12 @@
+flask
+flask-sqlalchemy
+flask-migrate
+flask-login
+flask-wtf
+python-dotenv
+werkzeug
+wtforms
+requests
+email-validator
+resend
+yfinance

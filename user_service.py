@@ -1,7 +1,18 @@
-from models import User
+from models import db, User
 
-def get_users_paginated(page=1, per_page=5):
-    users = User.query.order_by(User.created_at.asc()).paginate(page=page, per_page=per_page)
+def get_users_paginated(page=1, per_page=5, search=""):
+    search = (search or "").strip()
+    query = User.query
+
+    if search:
+        filters = [User.username.ilike(f"%{search}%")]
+
+        if search.isdigit():
+            filters.append(User.id == int(search))
+
+        query = query.filter(db.or_(*filters))
+
+    users = query.order_by(User.created_at.asc()).paginate(page=page, per_page=per_page)
 
     return {
         "users": [
@@ -14,5 +25,6 @@ def get_users_paginated(page=1, per_page=5):
         ],
         "has_next": users.has_next,
         "has_prev": users.has_prev,
-        "page": page
+        "page": page,
+        "search": search,
     }

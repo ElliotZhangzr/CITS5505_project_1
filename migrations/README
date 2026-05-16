@@ -6,3 +6,6 @@ models.py history. Use Flask-Migrate commands from the project root:
     flask --app app db upgrade
     flask --app app db downgrade
     flask --app app db history
+after change models:
+    flask db migrate -m "description"
+    flask db upgrade

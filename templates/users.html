@@ -6,9 +6,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Users</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .users-page .dashboard {
+            width: min(100%, 1280px);
+        }
+
+        .users-page .panel {
+            min-width: 0;
+        }
+
+        .users-page .search-input {
+            min-height: 44px;
+        }
+
+            .users-page .user-name-cell {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .users-page .search-form {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 10px;
+                align-items: center;
+                margin-bottom: 14px;
+            }
+
+            .users-page .search-form .search-input {
+                margin-bottom: 0;
+            }
+
+            .users-page .search-submit {
+                min-height: 44px;
+                padding-inline: 18px;
+                white-space: nowrap;
+            }
+
+        @media (max-width: 760px) {
+            .users-page {
+                padding-bottom: calc(92px + env(safe-area-inset-bottom));
+            }
+
+            .users-page .dashboard {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            .users-page .page-header {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                margin: -12px -12px 0;
+                border-radius: 0 0 18px 18px;
+            }
+
+            .users-page .full-span {
+                grid-column: 1 / -1;
+            }
+
+            .users-page .section-head {
+                align-items: flex-start;
+            }
+
+            .users-page .pagination-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .users-page .pagination-actions .action-link {
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .users-page .table-wrap {
+                overflow: visible;
+            }
+
+            .users-page table,
+            .users-page thead,
+            .users-page tbody,
+            .users-page tr,
+            .users-page td {
+                display: block;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .users-page thead {
+                display: none;
+            }
+
+            .users-page .user-row {
+                margin-bottom: 10px;
+                padding: 12px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: #ffffff;
+            }
+
+            .users-page td {
+                display: grid;
+                grid-template-columns: 88px minmax(0, 1fr);
+                gap: 10px;
+                padding: 7px 0;
+                border-bottom: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .users-page td::before {
+                color: var(--muted);
+                font-weight: 700;
+            }
+
+            .users-page td:nth-child(1)::before {
+                content: "User ID";
+            }
+
+            .users-page td:nth-child(2)::before {
+                content: "Name";
+            }
+
+            .users-page td:nth-child(3)::before {
+                content: "Join Time";
+            }
+
+            .users-page .user-name-cell {
+                display: flex;
+                min-width: 0;
+            }
+
+            .users-page .pagination-actions {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .users-page .search-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .users-page .dashboard {
+                padding: 10px;
+            }
+
+            .users-page .panel {
+                padding: 14px 12px;
+            }
+
+            .users-page .page-header {
+                margin: -10px -10px 0;
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body class="users-page">
     <div class="dashboard-bg"></div>
 
     <main class="dashboard">
@@ -29,14 +185,18 @@
                 </div>
             </div>
 
-            <input
-                type="text"
-                class="search-input"
-                placeholder="Search users..."
-                id="searchInput"
-                autocomplete="off"
-                onkeyup="filterUsers()"
-            >
+            <form class="search-form" method="GET" action="{{ url_for('users') }}">
+                <input
+                    type="text"
+                    class="search-input"
+                    placeholder="Search by user ID or username..."
+                    id="searchInput"
+                    name="q"
+                    value="{{ search or '' }}"
+                    autocomplete="off"
+                >
+                <button class="btn buy search-submit" type="submit">Search</button>
+            </form>
 
             <div class="table-wrap">
                 <table>
@@ -44,7 +204,6 @@
                         <tr>
                             <th>User ID</th>
                             <th>Name</th>
-                            <th>Email</th>
                             <th>Join Time</th>
                         </tr>
                     </thead>
@@ -52,13 +211,13 @@
                     <tbody id="userTableBody">
                         {% if users|length == 0 %}
                             <tr>
-                                <td colspan="4" class="empty-state">No users found.</td>
+                                <td colspan="3" class="empty-state">No users found.</td>
                             </tr>
                         {% else %}
                             {% for user in users %}
                             <tr class="user-row {% if current_user.is_authenticated and user.id == current_user.id %}current-user{% endif %}">
                                 <td>{{ user.id }}</td>
-                                <td>
+                                <td class="user-name-cell">
                                     <a class="user-profile-link" href="{{ url_for('public_profile', user_id=user.id) }}">
                                         {{ user.username }}
                                     </a>
@@ -66,7 +225,6 @@
                                         <span class="inline-pill">You</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ user.email }}</td>
                                 <td>{{ user.joinTime if user.joinTime else 'N/A' }}</td>
                             </tr>
                             {% endfor %}
@@ -75,23 +233,19 @@
                 </table>
             </div>
 
-            <p id="noResultsMessage" class="empty-state hidden">No matching users found.</p>
-
             <div class="pagination-actions">
                 {% if has_prev %}
-                    <a href="{{ url_for('users', page=page-1) }}" class="action-link secondary">Previous</a>
+                    <a href="{{ url_for('users', page=page-1, q=search) }}" class="action-link secondary">Previous</a>
                 {% else %}
                     <span></span>
                 {% endif %}
 
                 {% if has_next %}
-                    <a href="{{ url_for('users', page=page+1) }}" class="action-link secondary">Next</a>
+                    <a href="{{ url_for('users', page=page+1, q=search) }}" class="action-link secondary">Next</a>
                 {% endif %}
             </div>
         </section>
     </main>
-
-    <script src="{{ url_for('static', filename='js/users.js') }}"></script>
 </body>
 
 </html>

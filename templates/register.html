@@ -1,6 +1,21 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
 <div class="container">
+    <p class="subtitle">Stock Market</p>
     <h1>Register</h1>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-msg error">{{ messages[0] }}</div>
+    {% endif %}
+    {% endwith %}
 
     {% if form.errors %}
     <div class="flash-msg error">
@@ -21,3 +36,5 @@
     </form>
     <p>Already have an account? <a href="/login">Back to login</a></p>
 </div>
+</body>
+</html>
