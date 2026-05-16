@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from flask import Flask
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 
 from models import db, Stock, StockHolding, StockPrice, StockTransaction, User
@@ -222,6 +223,7 @@ def create_seed_app(db_path: Path) -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + str(db_path)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
+    Migrate(app, db)
     return app
 
 

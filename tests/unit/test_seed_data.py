@@ -2,6 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from flask_migrate import upgrade
 from werkzeug.security import check_password_hash
 
 import seed_data
@@ -12,6 +13,9 @@ class SeedDataTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.db_path = Path(self.temp_dir.name) / "seed.db"
+        app = seed_data.create_seed_app(self.db_path)
+        with app.app_context():
+            upgrade()
 
     def tearDown(self):
         self.temp_dir.cleanup()
