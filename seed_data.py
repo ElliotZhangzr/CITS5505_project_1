@@ -50,6 +50,17 @@ USERS = [
         "hide_holdings": False,
         "created_at": BASE_TIME + timedelta(minutes=10),
     },
+    {
+        "username": "testuser1",
+        "email": "testuser1@gmail.com",
+        "password": "Testuser1",
+        "is_admin": False,
+        "cash": Decimal("10000.00"),
+        "bio": "",
+        "avatar_url": "",
+        "hide_holdings": False,
+        "created_at": BASE_TIME + timedelta(minutes=5),
+    },
     {"username": "user01", "email": "user01@example.com", "password": "User01pwd", "is_admin": False, "cash": Decimal("99100.00"), "bio": "", "avatar_url": "", "hide_holdings": False, "created_at": BASE_TIME + timedelta(minutes=20)},
     {"username": "user02", "email": "user02@example.com", "password": "User02pwd", "is_admin": False, "cash": Decimal("99370.00"), "bio": "", "avatar_url": "", "hide_holdings": False, "created_at": BASE_TIME + timedelta(minutes=25)},
     {"username": "user03", "email": "user03@example.com", "password": "User03pwd", "is_admin": False, "cash": Decimal("98300.00"), "bio": "", "avatar_url": "", "hide_holdings": False, "created_at": BASE_TIME + timedelta(minutes=30)},
@@ -308,11 +319,9 @@ def seed_transactions(users_by_name: dict[str, User], stocks_by_symbol: dict[str
 
 
 def seed_database(db_path: Path) -> None:
-    db_path.parent.mkdir(parents=True, exist_ok=True)
     app = create_seed_app(db_path)
 
     with app.app_context():
-        db.create_all()
         users_by_name = {data["username"]: upsert_user(data) for data in USERS}
         stocks_by_symbol = {data["symbol"]: upsert_stock(data) for data in STOCKS}
         db.session.flush()
