@@ -61,16 +61,21 @@ def test_duplicate_username_or_email_shows_error(driver):
     driver.get(f"{BASE_URL}/register")
 
     driver.find_element(By.NAME, "username").send_keys("testuser1")
-    driver.find_element(By.NAME, "email").send_keys("testuser1@example.com")
+    driver.find_element(By.NAME, "email").send_keys("testuser1@gmail.com")
     driver.find_element(By.NAME, "password").send_keys("Testuser1")
 
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
     WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located((By.TAG_NAME, "body"))
+        EC.presence_of_element_located((By.CLASS_NAME, "flash-msg"))
     )
 
-    assert "username or email already exists" in driver.page_source.lower()
+    page = driver.page_source.lower()
+
+    assert (
+        "username already exists" in page
+        or "email already exists" in page
+    )
 
 
 def test_empty_register_form_stays_on_register_page(driver):
