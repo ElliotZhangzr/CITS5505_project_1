@@ -420,7 +420,7 @@ def update_bio():
     bio = data.get("bio", "").strip()
     if len(bio) > 200:
         return jsonify({"ok": False, "error": "Bio must be 200 characters or less."}), 400
-    user = User.query.get(current_user.id)
+    user = db.session.get(User, current_user.id)
     user.bio = bio
     db.session.commit()
     return jsonify({"ok": True})
@@ -456,7 +456,7 @@ def update_avatar():
     avatar_path.write_bytes(avatar_bytes)
     avatar_url = url_for("static", filename=f"uploads/avatars/{avatar_filename}")
 
-    user = User.query.get(current_user.id)
+    user = db.session.get(User, current_user.id)
     user.avatar_url = avatar_url
     db.session.commit()
     return jsonify({"ok": True, "avatar_url": user.avatar_url})
@@ -498,7 +498,7 @@ def submit_feedback():
 def delete_account():
     password = request.form.get("password")
 
-    user = User.query.get(current_user.id)
+    user = db.session.get(User, current_user.id)
 
     if not user:
         flash("User not found.")

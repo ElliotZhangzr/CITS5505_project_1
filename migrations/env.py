@@ -13,10 +13,7 @@ target_db = current_app.extensions["migrate"].db
 
 
 def get_engine():
-    try:
-        return target_db.get_engine()
-    except TypeError:
-        return target_db.engine
+    return target_db.engine
 
 
 def get_metadata():

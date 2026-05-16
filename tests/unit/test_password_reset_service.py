@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import patch
 
 from werkzeug.security import check_password_hash
@@ -41,7 +41,7 @@ class PasswordResetServiceTests(unittest.TestCase):
         key = reset_code_key(email)
         data = {
             "code_hash": hash_value(code.upper()),
-            "sent_at": datetime.utcnow().isoformat(),
+            "sent_at": datetime.now(timezone.utc).isoformat(),
             "attempts": attempts,
             "valid": valid,
         }
