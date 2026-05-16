@@ -29,7 +29,8 @@ class SeedDataTests(unittest.TestCase):
             admin = User.query.filter_by(username="admin").one()
             trader = User.query.filter_by(username="trader").one()
 
-            self.assertEqual(usernames, {"root", "admin", "trader"})
+            expected_usernames = {data["username"] for data in seed_data.USERS}
+            self.assertEqual(usernames, expected_usernames)
             self.assertTrue(root.is_admin)
             self.assertTrue(admin.is_admin)
             self.assertFalse(trader.is_admin)
@@ -100,7 +101,8 @@ class SeedDataTests(unittest.TestCase):
             trader = User.query.filter_by(username="trader").one()
             transactions = StockTransaction.query.filter_by(user_id=trader.id).all()
 
-            self.assertEqual(len(transactions), len(seed_data.TRANSACTIONS))
+            trader_transactions = [t for t in seed_data.TRANSACTIONS if t[0] == "trader"]
+            self.assertEqual(len(transactions), len(trader_transactions))
             self.assertTrue(all(transaction.side == "BUY" for transaction in transactions))
             self.assertTrue(all(transaction.quantity == 1 for transaction in transactions))
 
@@ -126,9 +128,10 @@ class SeedDataTests(unittest.TestCase):
             expected_price_count = sum(len(stock["prices"]) for stock in seed_data.STOCKS)
             trader = User.query.filter_by(username="trader").one()
 
+            trader_transactions = [t for t in seed_data.TRANSACTIONS if t[0] == "trader"]
             self.assertEqual(StockPrice.query.count(), expected_price_count)
             self.assertEqual(StockHolding.query.filter_by(user_id=trader.id).count(), 1)
-            self.assertEqual(StockTransaction.query.filter_by(user_id=trader.id).count(), len(seed_data.TRANSACTIONS))
+            self.assertEqual(StockTransaction.query.filter_by(user_id=trader.id).count(), len(trader_transactions))
 
 
 if __name__ == "__main__":
