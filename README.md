@@ -95,10 +95,10 @@ Admins access `/admin` via the top navigation bar and can access four management
 
 | UWA ID | Name | GitHub Username |
 |---|---|---|
-| 24389925 | Zerun Zhang | [ElliotZhangzr](https://github.com/ElliotZhangzr) |
-| 24807169 | Dilani Gunathilaka Mapitigamage | [Dilani1997](https://github.com/Dilani1997) |
-| 24746589 | Weishan Li | [Weishan-Li](https://github.com/Weishan-Li) |
-| 23685578 | Kushagra Patel | [kp240800](https://github.com/kp240800) |
+| 24389925 | Zerun Zhang | https://github.com/ElliotZhangzr |
+| 24807169 | Dilani Gunathilaka Mapitigamage | https://github.com/Dilani1997 |
+| 24746589 | Weishan Li | https://github.com/Weishan-Li |
+| 23685578 | Kushagra Patel | https://github.com/kp240800 |
 
 
 ---
