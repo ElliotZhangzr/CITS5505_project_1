@@ -221,7 +221,7 @@ def upsert_user(data: dict) -> User:
         db.session.add(user)
 
     user.email = data["email"]
-    user.password_hash = generate_password_hash(data["password"])
+    user.password_hash = generate_password_hash(data["password"], method="pbkdf2:sha256")
     user.is_admin = data["is_admin"]
     user.cash = data["cash"]
     user.bio = data["bio"]

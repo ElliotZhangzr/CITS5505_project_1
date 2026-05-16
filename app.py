@@ -224,7 +224,7 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-        password_hash = generate_password_hash(password)
+        password_hash = generate_password_hash(password, method="pbkdf2:sha256")
  
         existing = User.query.filter(
             (User.username == username) | (User.email == email)

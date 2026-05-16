@@ -150,7 +150,7 @@ def confirm_password_reset(email, code, new_password, confirm_password):
         clear_reset_code(normalized_email)
         return False, "Verification code is invalid or expired."
 
-    user.password_hash = generate_password_hash(new_password)
+    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
     db.session.commit()
     clear_reset_code(normalized_email)
 
