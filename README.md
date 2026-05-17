@@ -107,7 +107,7 @@ Admins access `/admin` via the top navigation bar and can access four management
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - Google Chrome (required for running Selenium tests)
 
 ### Setup
