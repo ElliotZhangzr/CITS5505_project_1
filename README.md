@@ -185,6 +185,8 @@ Visit `http://127.0.0.1:5001` in a browser. Devices on the same local network (e
 
 > This information is displayed in the running terminal.
 
+> You can log in immediately using the default admin account: username `root`, password `root`.
+
 ---
 
 ## 4. Test Instructions
@@ -193,7 +195,7 @@ Visit `http://127.0.0.1:5001` in a browser. Devices on the same local network (e
 
 #### Unit Tests
 
-Run all unit tests (from the project root directory):
+Before running unit tests, stop any running Flask server by pressing `Ctrl+C` (Windows / Linux) or `Cmd+C` (macOS) in its terminal. To run all unit tests at once, use the following command from the project root directory:
 
 ```bash
 python -m pytest tests/unit/
@@ -213,20 +215,28 @@ Selenium tests require the Flask server to be started first, then run in a separ
 macOS / Linux:
 
 ```bash
-# Terminal 1 (if using a virtual environment, first run: source .venv/bin/activate)
+# Terminal 1
+cd CITS5505_project_1        # skip if already in the project directory
+source .venv/bin/activate    # skip if virtual environment is already activated
 flask run
 
-# Terminal 2 (new window requires re-activation; first run: source .venv/bin/activate)
+# Terminal 2
+cd CITS5505_project_1        # skip if already in the project directory
+source .venv/bin/activate    # skip if virtual environment is already activated
 python -m pytest tests/selenium/
 ```
 
 Windows:
 
 ```bat
-:: Terminal 1 (if using a virtual environment, first run: .venv\Scripts\activate)
+:: Terminal 1
+cd CITS5505_project_1        :: skip if already in the project directory
+.venv\Scripts\activate       :: skip if virtual environment is already activated
 flask run
 
-:: Terminal 2 (new window requires re-activation; first run: .venv\Scripts\activate)
+:: Terminal 2
+cd CITS5505_project_1        :: skip if already in the project directory
+.venv\Scripts\activate       :: skip if virtual environment is already activated
 python -m pytest tests/selenium/
 ```
 
