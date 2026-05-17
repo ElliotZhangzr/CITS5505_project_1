@@ -8,7 +8,7 @@ from memory_store import get_json, get_memory_client, set_json
 from models import db, Stock, StockPrice
 
 
-UPDATE_INTERVAL_SECONDS = 2
+UPDATE_INTERVAL_SECONDS = 2  # price tick rate; new price generated at most every N seconds
 PRESSURE_DECAY = Decimal("0.78")
 PRESSURE_RELEASE_RATE = Decimal("0.45")
 MAX_PRICE_RETURN = Decimal("0.15")
@@ -162,6 +162,7 @@ def save_simulation_state(stock_id, state):
     set_json(stock_state_key(stock_id), state_to_json(state))
 
 
+# GBM with mean reversion and trade-pressure overlay
 def generate_next_price(last_price, config, state):
     current_price = positive_price(last_price, config["base_price"])
     release_pending_pressure(state)
@@ -244,6 +245,7 @@ def generate_initial_prices(base_price, count=400):
     return prices
 
 
+# trades shift pending pressure, not price directly; pressure bleeds into next tick
 def apply_trade_impact(stock_id, side, gross_amount):
     config = get_stock_config(stock_id)
 

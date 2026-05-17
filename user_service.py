@@ -8,7 +8,7 @@ def get_users_paginated(page=1, per_page=5, search=""):
         filters = [User.username.ilike(f"%{search}%")]
 
         if search.isdigit():
-            filters.append(User.id == int(search))
+            filters.append(User.id == int(search))  # numeric input also matches by user ID
 
         query = query.filter(db.or_(*filters))
 

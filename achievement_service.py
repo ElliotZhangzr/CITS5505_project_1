@@ -5,6 +5,7 @@ from models import Stock, StockHolding, StockTransaction, User
 from trading_service import build_portfolio
 
 
+# evaluates a single achievement condition using an operator string from its definition
 def compare_metric(value, operator, target):
     if operator == ">=":
         return value >= target
@@ -21,6 +22,7 @@ def compare_metric(value, operator, target):
     raise ValueError(f"Unsupported achievement operator: {operator}")
 
 
+# full-table scan — builds a portfolio for every user; called once per profile load
 def get_total_assets_rank(user_id):
     ranked_users = []
 

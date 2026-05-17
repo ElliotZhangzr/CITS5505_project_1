@@ -3,6 +3,7 @@ import time
 from threading import RLock
 
 
+# Redis-compatible in-process store; avoids a Redis dependency in development
 class InMemoryStore:
     def __init__(self):
         self._values = {}

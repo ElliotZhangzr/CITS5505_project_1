@@ -9,6 +9,7 @@ def _ensure_sqlite_writable(path: str):
         raise RuntimeError(f"Database directory is not writable: {directory}")
 
     if os.path.exists(path):
+        # some environments create the file read-only; ensure user write bit is set
         os.chmod(path, os.stat(path).st_mode | 0o600)
         if not os.access(path, os.W_OK):
             raise RuntimeError(f"Database file is not writable: {path}")

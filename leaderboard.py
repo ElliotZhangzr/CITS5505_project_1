@@ -1,7 +1,7 @@
 from models import User
 from trading_service import build_portfolio
 
-INITIAL_CASH = 10000.0
+INITIAL_CASH = 10000.0  # starting balance used as baseline for return % calculation
 
 def calculate_user_metrics(user):
     portfolio = build_portfolio(user.id)

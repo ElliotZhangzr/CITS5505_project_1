@@ -205,33 +205,3 @@ def build_portfolio(user_id):
     }
 
 
-def get_transaction_history(user_id, limit=50):
-    transactions = (
-        StockTransaction.query
-        .filter_by(user_id=user_id)
-        .join(Stock)
-        .order_by(StockTransaction.created_at.desc(), StockTransaction.id.desc())
-        .limit(limit)
-        .all()
-    )
-
-    return [
-        {
-            "id": transaction.id,
-            "stockId": transaction.stock_id,
-            "symbol": transaction.stock.symbol,
-            "side": transaction.side,
-            "quantity": transaction.quantity,
-            "price": float(money(transaction.price)),
-            "grossAmount": float(money(transaction.gross_amount)),
-            "realizedProfit": float(money(transaction.realized_profit)),
-            "averageCostBefore": (
-                float(money(transaction.average_cost_before))
-                if transaction.average_cost_before is not None
-                else None
-            ),
-            "cashBalanceAfter": float(money(transaction.cash_balance_after)),
-            "createdAt": transaction.created_at.isoformat(),
-        }
-        for transaction in transactions
-    ]

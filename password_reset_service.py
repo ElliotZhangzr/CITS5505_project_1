@@ -13,7 +13,7 @@ from sendemail import send_password_reset_email
 RESET_CODE_LENGTH = 6
 RESET_CODE_TTL_SECONDS = 10 * 60
 RESET_CODE_RESEND_SECONDS = 60
-RESET_CODE_MAX_ATTEMPTS = 5
+RESET_CODE_MAX_ATTEMPTS = 5  # brute-force protection; code invalidated on excess
 
 
 def normalize_email(email):
@@ -73,7 +73,7 @@ def request_password_reset(email):
         return False, "Email is required."
 
     user = User.query.filter_by(email=normalized_email).first()
-    generic_message = "If this email exists, a verification code has been sent."
+    generic_message = "If this email exists, a verification code has been sent."  # same message whether email exists or not, prevents enumeration
 
     existing_code = get_reset_data(normalized_email)
 
@@ -94,7 +94,7 @@ def request_password_reset(email):
 
     code = generate_reset_code()
     reset_data = {
-        "code_hash": hash_value(code.upper()),
+        "code_hash": hash_value(code.upper()),  # stored as SHA-256 hash, never plaintext
         "sent_at": datetime.now(timezone.utc).isoformat(),
         "attempts": 0,
         "valid": True,

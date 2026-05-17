@@ -8,11 +8,13 @@
 </head>
 <body>
 
+<!-- animated particle background, drawn by login.js -->
 <canvas id="trading-canvas"></canvas>
 
 <div class="container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
+        <!-- server flash: wrong credentials -->
         <div class="flash-msg error">{{ messages[0] }}</div>
         <script>
             document.querySelectorAll('input').forEach(i => i.classList.add('input-error'));
@@ -20,6 +22,7 @@
     {% endif %}
     {% endwith %}
 
+    <!-- WTForms field validation errors -->
     {% if form.errors %}
     <div class="flash-msg error">
         {% for field, errors in form.errors.items() %}

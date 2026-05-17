@@ -13,7 +13,7 @@ def get_stock_data(limit=400):
             .limit(limit)
             .all()
         )
-        market_data[stock.symbol] = [float(item.price) for item in reversed(prices)]
+        market_data[stock.symbol] = [float(item.price) for item in reversed(prices)]  # reversed: DB returns newest-first, chart needs chronological order
 
     return {
         "stocks": [
