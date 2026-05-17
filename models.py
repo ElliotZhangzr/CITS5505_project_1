@@ -5,7 +5,7 @@ from decimal import Decimal
 from flask_login import UserMixin
 
 db = SQLAlchemy()
-MAX_STOCK_PRICE_RECORDS = 6000
+MAX_STOCK_PRICE_RECORDS = 6000  # SQLite trigger purges oldest rows beyond this cap
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,7 +16,7 @@ class User(UserMixin, db.Model):
     cash = db.Column(db.Numeric(12, 2), nullable=False, default=Decimal("10000.00"))
     bio = db.Column(db.String(200), nullable=True, default="")
     avatar_url = db.Column(db.String(500), nullable=True, default="")
-    hide_holdings = db.Column(db.Boolean, nullable=False, default=False)
+    hide_holdings = db.Column(db.Boolean, nullable=False, default=False)  # privacy flag; hides portfolio from public profile
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     holdings = db.relationship("StockHolding", back_populates="user", cascade="all, delete-orphan")
@@ -112,6 +112,7 @@ class Feedback(db.Model):
         return f'<Feedback {self.user_id} {self.created_at}>'
 
 
+# keeps stock_price rows bounded; registered as an after_create event so it runs on schema creation
 limit_stock_price_records = DDL(f"""
 CREATE TRIGGER IF NOT EXISTS limit_stock_price_records
 AFTER INSERT ON stock_price

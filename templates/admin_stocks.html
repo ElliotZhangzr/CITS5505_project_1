@@ -24,6 +24,7 @@
 
         {% include "_admin_nav.html" %}
 
+        <!-- flash: duplicate symbol or invalid price -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <section class="panel admin-messages">

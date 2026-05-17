@@ -12,7 +12,8 @@ from achievement_service import get_user_achievements
 from leaderboard import get_leaderboard_context
 from stock_data import get_stock_data
 from stock_simulator import load_stock_configs, update_prices_if_due
-from trading_service import build_portfolio, execute_stock_trade_from_payload, get_transaction_history
+from trading_service import build_portfolio, execute_stock_trade_from_payload
+from history_service import get_transaction_history
 from password_reset_service import (
     confirm_password_reset,
     get_reset_code_resend_seconds_remaining,
@@ -35,12 +36,13 @@ from flask_migrate import Migrate
 load_dotenv()
  
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+app.secret_key = os.environ["SECRET_KEY"]
 csrf = CSRFProtect(app)
 init_db(app)
 migrate = Migrate(app, db)
 
 AVATAR_UPLOAD_DIR = Path(app.root_path) / "static" / "uploads" / "avatars"
+# validates base64 data URL format before decoding avatar bytes
 AVATAR_DATA_URL_RE = re.compile(
     r"^data:(image/[a-zA-Z0-9.+-]+)(?:;[a-zA-Z0-9.+-]+=[^;,]+)*;base64,(.+)$",
     re.IGNORECASE,
@@ -58,6 +60,7 @@ with app.app_context():
     load_stock_configs()
 
 
+# decorator: redirects non-admins before the view runs
 def admin_required(view_func):
     @wraps(view_func)
     def wrapped_view(*args, **kwargs):
@@ -73,6 +76,7 @@ def admin_required(view_func):
     return wrapped_view
 
 
+# pre-computes role labels and action labels so the template stays logic-free
 def build_admin_user_rows(users):
     return [
         {
@@ -396,10 +400,10 @@ def api_trades():
     return jsonify(portfolio)
  
  
-@app.route("/api/trades")
+@app.route("/api/history")
 @login_required
-def api_trade_history():
-    limit = request.args.get("limit", 50, type=int)
+def api_history():
+    limit = request.args.get("limit", 200, type=int)
     return jsonify({"transactions": get_transaction_history(current_user.id, limit=limit)})
 
 # PROFILE

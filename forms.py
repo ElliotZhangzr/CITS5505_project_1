@@ -17,6 +17,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Register")
 
+    # WTForms calls validate_<fieldname> automatically during form validation
     def validate_password(self, field):
         if len(field.data) < 8:
             raise ValidationError("Password must be at least 8 characters.")

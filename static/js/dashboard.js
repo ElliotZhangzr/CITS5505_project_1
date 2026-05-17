@@ -14,11 +14,13 @@ const tradeMessage = document.getElementById("tradeMessage");
 const tradeSymbol = document.getElementById("tradeSymbol");
 const tradeQty = document.getElementById("tradeQty");
 
+// client-side cache: stocks list + historical price series per symbol
 const stockState = {
     stocks: [],
     marketData: {}
 };
 
+// last-known portfolio snapshot, updated after every trade or poll
 const portfolioState = {
     cash: 0,
     stockValue: 0,
@@ -81,6 +83,7 @@ function setPortfolio(data) {
     portfolioState.holdings = data.holdings;
 }
 
+// updates portfolio values from cached prices without an extra API call
 function recalculatePortfolioFromPrices() {
     let stockValue = 0;
     let unrealizedProfit = 0;
@@ -107,6 +110,7 @@ function recalculatePortfolioFromPrices() {
     portfolioState.totalProfit = portfolioState.realizedProfit + unrealizedProfit;
 }
 
+// sliding window: keeps at most maxPoints per symbol, drops oldest on overflow
 function appendLatestPrices(latestPrices, maxPoints = 400) {
     Object.entries(latestPrices).forEach(([symbol, price]) => {
         if (!stockState.marketData[symbol]) {
@@ -175,6 +179,7 @@ function drawChart(symbol) {
     ctx.fillStyle = "rgba(20, 53, 67, 0.06)";
     ctx.fill();
 
+    // each segment coloured green or red based on price direction
     for (let i = 1; i < points.length; i += 1) {
         ctx.beginPath();
         ctx.moveTo(points[i - 1].x, points[i - 1].y);
@@ -323,6 +328,7 @@ async function initDashboard() {
         renderMarketOverview();
         initTabs();
 
+        // poll every 2s to match the server-side price tick rate
         setInterval(async () => {
             try {
                 const latestData = await StockDataClient.loadLatestPrices();

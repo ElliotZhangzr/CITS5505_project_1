@@ -242,3 +242,64 @@ async function loadPortfolioSummary() {
 }
 
 loadPortfolioSummary();
+
+/* ── Trade History ── */
+let allTrades = [];
+let activeTradeFilter = 'all';
+
+function fmtTradeDate(iso) {
+    return new Date(iso).toLocaleString('en-AU', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function renderTradeHistory(trades) {
+    const body = document.getElementById('historyTableBody');
+    if (!trades.length) {
+        body.innerHTML = '<tr><td colspan="8" class="empty-msg">No transactions yet.</td></tr>';
+        return;
+    }
+    body.innerHTML = trades.map(t => `
+        <tr class="${t.side.toLowerCase()}-row">
+            <td class="trade-side-bar"></td>
+            <td class="trade-date">${fmtTradeDate(t.createdAt)}</td>
+            <td class="trade-symbol">${t.symbol}</td>
+            <td><span class="side-pill ${t.side.toLowerCase()}">${t.side}</span></td>
+            <td>${t.quantity}</td>
+            <td>${formatMoney(t.price)}</td>
+            <td class="trade-amount">${formatMoney(t.grossAmount)}</td>
+            <td>${formatMoney(t.cashBalanceAfter)}</td>
+        </tr>
+    `).join('');
+}
+
+function updateHistoryStats() {
+    document.getElementById('hStatTotal').textContent = allTrades.length;
+    document.getElementById('hStatBuys').textContent = allTrades.filter(t => t.side === 'BUY').length;
+    document.getElementById('hStatSells').textContent = allTrades.filter(t => t.side === 'SELL').length;
+}
+
+document.querySelectorAll('.history-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.history-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTradeFilter = btn.dataset.filter;
+        const filtered = activeTradeFilter === 'all'
+            ? allTrades
+            : allTrades.filter(t => t.side === activeTradeFilter);
+        renderTradeHistory(filtered);
+    });
+});
+
+async function loadTradeHistory() {
+    try {
+        const res = await fetch('/api/history?limit=200');
+        const data = await res.json();
+        allTrades = data.transactions || [];
+        updateHistoryStats();
+        renderTradeHistory(allTrades);
+    } catch {
+        document.getElementById('historyTableBody').innerHTML =
+            '<tr><td colspan="8" class="empty-msg">Unable to load history.</td></tr>';
+    }
+}
+
+loadTradeHistory();

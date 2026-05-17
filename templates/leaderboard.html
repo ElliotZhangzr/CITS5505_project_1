@@ -146,6 +146,7 @@
                     <p class="muted-text">Compare users by cash and total assets</p>
                 </div>
 
+                <!-- each tab is a full server-side reload; active state set by Jinja -->
                 <div class="ranking-tabs">
                     <a href="{{ url_for('leaderboard', type='assets') }}"
                         class="ranking-tab {% if ranking_type == 'assets' %}active{% endif %}">
@@ -183,6 +184,7 @@
                     <tbody>
                         {% if users %}
                             {% for user in users %}
+                            <!-- current-user row highlighted in green via CSS -->
                             <tr class="{% if current_user.is_authenticated and user.username == current_username %}current-user{% endif %}">
                                 <td>
                                     {% if loop.index == 1 %}

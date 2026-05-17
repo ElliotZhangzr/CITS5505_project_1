@@ -21,6 +21,7 @@ Pages are generated as complete HTML by the server-side Jinja2 template engine a
 
 Business logic is split into independent modules by function. The routing layer is only responsible for receiving requests and returning responses, with specific logic handled by each service module:
 - `trading_service.py` — buying and selling stocks, updating holdings, calculating profit/loss
+- `history_service.py` — querying paginated transaction history for a user
 - `stock_simulator.py` — generating simulated stock prices
 - `achievement_service.py` — determining whether achievements are unlocked
 - `leaderboard.py` — calculating user rankings
@@ -69,6 +70,7 @@ Users can perform the following actions on their profile page:
 - The registered email address is masked by default; click **Show** to reveal it
 - Toggle the "Hide Holdings" switch; when enabled, other users cannot view their holdings
 - View unlocked achievements (14 in total, divided into Easy / Medium / Hard tiers)
+- View **Trade History** directly on the profile page: a scrollable table of all past buy and sell transactions, filterable by All / Buy / Sell, with a summary of total trades, buy count, and sell count
 - Submit usage feedback (up to 1,000 characters)
 - Permanently delete their account after password confirmation
 

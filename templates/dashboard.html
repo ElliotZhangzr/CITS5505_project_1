@@ -177,6 +177,7 @@
             {% include "_main_nav.html" %}
         </header>
 
+        <!-- tabs and chart populated by dashboard.js via /api/stocks -->
         <section class="panel chart-area" aria-labelledby="chart-title">
             <div class="section-head">
                 <h2 id="chart-title">Stock Chart Area</h2>
@@ -189,6 +190,7 @@
             </div>
         </section>
 
+        <!-- form submit intercepted by dashboard.js; posts to /api/trades -->
         <section class="panel trade-area" aria-labelledby="trade-title">
             <h2 id="trade-title">Buy/Sell Interaction Area</h2>
             <form id="tradeForm" class="trade-form">
@@ -210,6 +212,7 @@
             <p id="tradeMessage" class="trade-message">Please select a stock and enter quantity.</p>
         </section>
 
+        <!-- tbody and summary filled by dashboard.js via /api/portfolio -->
         <section class="panel holding-area" aria-labelledby="holding-title">
             <h2 id="holding-title">Portfolio Holdings Area</h2>
             <div class="table-wrap">
@@ -236,6 +239,7 @@
             </div>
         </section>
 
+        <!-- list populated by dashboard.js via /api/stocks/latest -->
         <section class="panel market-area" aria-labelledby="market-title">
             <h2 id="market-title">Market Overview Area</h2>
             <ul id="marketList" class="market-list"></ul>

@@ -185,6 +185,7 @@
                 </div>
             </div>
 
+            <!-- GET form; q param passed to server for filtering -->
             <form class="search-form" method="GET" action="{{ url_for('users') }}">
                 <input
                     type="text"
@@ -233,6 +234,7 @@
                 </table>
             </div>
 
+            <!-- server-side pagination via page query param -->
             <div class="pagination-actions">
                 {% if has_prev %}
                     <a href="{{ url_for('users', page=page-1, q=search) }}" class="action-link secondary">Previous</a>

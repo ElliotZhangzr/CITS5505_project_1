@@ -1,4 +1,5 @@
 const StockDataClient = {
+    // guards against file:// protocol where origin is "null"
     apiUrl(path) {
         if (!window.location.origin || window.location.origin === "null") {
             throw new Error("Please open the dashboard through the Flask server.");
@@ -7,6 +8,7 @@ const StockDataClient = {
         return new URL(path, window.location.origin).toString();
     },
 
+    // unified response parser: extracts error message from JSON or falls back to generic
     async parseResponse(response, fallbackMessage) {
         const text = await response.text();
         let data = {};
@@ -42,6 +44,7 @@ const StockDataClient = {
     },
 
     async executeTrade(stockId, side, quantity) {
+        // CSRF token read from <meta> injected by Jinja
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
         const response = await fetch(this.apiUrl("/api/trades"), {
             method: "POST",
