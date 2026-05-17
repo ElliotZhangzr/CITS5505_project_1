@@ -43,7 +43,7 @@ class ProfileLogicTests(unittest.TestCase):
             {"bio": "I like long term investing."},
         )
         data, status_code = self.response_json_and_status(response)
-        updated_user = User.query.get(self.user.id)
+        updated_user = db.session.get(User, self.user.id)
 
         self.assertEqual(status_code, 200)
         self.assertEqual(data, {"ok": True})
@@ -67,7 +67,7 @@ class ProfileLogicTests(unittest.TestCase):
             {"hide_holdings": True},
         )
         data, status_code = self.response_json_and_status(response)
-        updated_user = User.query.get(self.user.id)
+        updated_user = db.session.get(User, self.user.id)
 
         self.assertEqual(status_code, 200)
         self.assertEqual(data, {"ok": True})
@@ -83,7 +83,7 @@ class ProfileLogicTests(unittest.TestCase):
             {"hide_holdings": False},
         )
         data, status_code = self.response_json_and_status(response)
-        updated_user = User.query.get(self.user.id)
+        updated_user = db.session.get(User, self.user.id)
 
         self.assertEqual(status_code, 200)
         self.assertEqual(data, {"ok": True})
@@ -105,7 +105,7 @@ class ProfileLogicTests(unittest.TestCase):
 
             data, status_code = self.response_json_and_status(response)
             avatar_file = upload_dir / f"user_{self.user.id}.png"
-            updated_user = User.query.get(self.user.id)
+            updated_user = db.session.get(User, self.user.id)
 
             self.assertEqual(status_code, 200)
             self.assertTrue(data["ok"])

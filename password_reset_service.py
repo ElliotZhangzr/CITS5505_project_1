@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
 import secrets
 import string
@@ -62,7 +62,7 @@ def get_reset_code_resend_seconds_remaining(email):
         return 0
 
     sent_at = datetime.fromisoformat(reset_data["sent_at"])
-    elapsed = int((datetime.utcnow() - sent_at).total_seconds())
+    elapsed = int((datetime.now(timezone.utc) - sent_at).total_seconds())
     return max(0, RESET_CODE_RESEND_SECONDS - elapsed)
 
 
@@ -80,13 +80,13 @@ def request_password_reset(email):
     if existing_code:
         sent_at = datetime.fromisoformat(existing_code["sent_at"])
 
-        if (datetime.utcnow() - sent_at).total_seconds() < RESET_CODE_RESEND_SECONDS:
+        if (datetime.now(timezone.utc) - sent_at).total_seconds() < RESET_CODE_RESEND_SECONDS:
             return False, "Please wait before requesting another verification code."
 
     if not user:
         save_reset_data(normalized_email, {
             "code_hash": "",
-            "sent_at": datetime.utcnow().isoformat(),
+            "sent_at": datetime.now(timezone.utc).isoformat(),
             "attempts": 0,
             "valid": False,
         })
@@ -95,7 +95,7 @@ def request_password_reset(email):
     code = generate_reset_code()
     reset_data = {
         "code_hash": hash_value(code.upper()),
-        "sent_at": datetime.utcnow().isoformat(),
+        "sent_at": datetime.now(timezone.utc).isoformat(),
         "attempts": 0,
         "valid": True,
     }

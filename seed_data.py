@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from flask import Flask
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash
 
 from models import db, Stock, StockHolding, StockPrice, StockTransaction, User
@@ -49,6 +50,17 @@ USERS = [
         "avatar_url": "",
         "hide_holdings": False,
         "created_at": BASE_TIME + timedelta(minutes=10),
+    },
+    {
+        "username": "testuser1",
+        "email": "testuser1@gmail.com",
+        "password": "Testuser1",
+        "is_admin": False,
+        "cash": Decimal("10000.00"),
+        "bio": "",
+        "avatar_url": "",
+        "hide_holdings": False,
+        "created_at": BASE_TIME + timedelta(minutes=5),
     },
     {"username": "user01", "email": "user01@example.com", "password": "User01pwd", "is_admin": False, "cash": Decimal("99100.00"), "bio": "", "avatar_url": "", "hide_holdings": False, "created_at": BASE_TIME + timedelta(minutes=20)},
     {"username": "user02", "email": "user02@example.com", "password": "User02pwd", "is_admin": False, "cash": Decimal("99370.00"), "bio": "", "avatar_url": "", "hide_holdings": False, "created_at": BASE_TIME + timedelta(minutes=25)},
@@ -211,6 +223,7 @@ def create_seed_app(db_path: Path) -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + str(db_path)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
+    Migrate(app, db)
     return app
 
 
@@ -308,11 +321,9 @@ def seed_transactions(users_by_name: dict[str, User], stocks_by_symbol: dict[str
 
 
 def seed_database(db_path: Path) -> None:
-    db_path.parent.mkdir(parents=True, exist_ok=True)
     app = create_seed_app(db_path)
 
     with app.app_context():
-        db.create_all()
         users_by_name = {data["username"]: upsert_user(data) for data in USERS}
         stocks_by_symbol = {data["symbol"]: upsert_stock(data) for data in STOCKS}
         db.session.flush()

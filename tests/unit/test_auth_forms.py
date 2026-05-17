@@ -2,6 +2,7 @@ import unittest
 from decimal import Decimal
 
 from flask import Flask
+from flask_migrate import Migrate, upgrade
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from forms import LoginForm, RegisterForm, ResetPasswordForm
@@ -18,9 +19,10 @@ def create_auth_test_app():
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
     db.init_app(app)
+    Migrate(app, db)
 
     with app.app_context():
-        db.create_all()
+        upgrade()
 
     return app
 

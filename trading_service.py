@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from sqlalchemy import func
@@ -73,8 +73,8 @@ def execute_stock_trade(user_id, stock_id, side, quantity):
     if not isinstance(quantity, int) or quantity <= 0:
         return None, "Quantity must be an integer greater than 0."
 
-    user = User.query.get(user_id)
-    stock = Stock.query.get(stock_id)
+    user = db.session.get(User, user_id)
+    stock = db.session.get(Stock, stock_id)
 
     if not user:
         return None, "User not found."
@@ -109,7 +109,7 @@ def execute_stock_trade(user_id, stock_id, side, quantity):
         holding.quantity = new_quantity
         holding.total_cost = new_total_cost
         holding.average_cost = money(new_total_cost / new_quantity)
-        holding.updated_at = datetime.utcnow()
+        holding.updated_at = datetime.now(timezone.utc)
     else:
         if holding.quantity < quantity:
             return None, f"Sell failed: insufficient {stock.symbol} holdings."
@@ -126,7 +126,7 @@ def execute_stock_trade(user_id, stock_id, side, quantity):
             holding.quantity = remaining_quantity
             holding.total_cost = remaining_cost
             holding.average_cost = money(remaining_cost / remaining_quantity)
-            holding.updated_at = datetime.utcnow()
+            holding.updated_at = datetime.now(timezone.utc)
 
     transaction = StockTransaction(
         user_id=user_id,
@@ -147,7 +147,7 @@ def execute_stock_trade(user_id, stock_id, side, quantity):
 
 
 def build_portfolio(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     holdings = (
         StockHolding.query
         .filter_by(user_id=user_id)
