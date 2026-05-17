@@ -220,10 +220,10 @@ TRANSACTIONS = [
 
 def create_seed_app(db_path: Path) -> Flask:
     app = Flask(__name__, instance_path=str(db_path.parent))
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + str(db_path)
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path.as_posix()
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
-    Migrate(app, db)
+    Migrate(app, db, directory=str(BASE_DIR / "migrations"))
     return app
 
 
