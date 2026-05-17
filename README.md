@@ -145,6 +145,7 @@ Create a `.env` file in the project root directory:
 ```
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 RESEND_FROM_EMAIL=noreply@yourdomain.com
+SECRET_KEY=12345
 ```
 
 > Both values can be obtained after registering at [Resend](https://resend.com). They are only required for the password reset email feature and do not affect any other functionality.
