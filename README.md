@@ -107,7 +107,7 @@ Admins access `/admin` via the top navigation bar and can access four management
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - Google Chrome (required for running Selenium tests)
 
 ### Setup
@@ -185,6 +185,8 @@ Visit `http://127.0.0.1:5001` in a browser. Devices on the same local network (e
 
 > This information is displayed in the running terminal.
 
+> You can log in immediately using the default admin account: username `root`, password `root`.
+
 ---
 
 ## 4. Test Instructions
@@ -193,7 +195,7 @@ Visit `http://127.0.0.1:5001` in a browser. Devices on the same local network (e
 
 #### Unit Tests
 
-Run all unit tests (from the project root directory):
+Before running unit tests, stop any running Flask server by pressing `Ctrl+C` (Windows / Linux) or `Cmd+C` (macOS) in its terminal. To run all unit tests at once, use the following command from the project root directory:
 
 ```bash
 python -m pytest tests/unit/
@@ -213,20 +215,28 @@ Selenium tests require the Flask server to be started first, then run in a separ
 macOS / Linux:
 
 ```bash
-# Terminal 1 (if using a virtual environment, first run: source .venv/bin/activate)
+# Terminal 1
+cd CITS5505_project_1        # skip if already in the project directory
+source .venv/bin/activate    # skip if virtual environment is already activated
 flask run
 
-# Terminal 2 (new window requires re-activation; first run: source .venv/bin/activate)
+# Terminal 2
+cd CITS5505_project_1        # skip if already in the project directory
+source .venv/bin/activate    # skip if virtual environment is already activated
 python -m pytest tests/selenium/
 ```
 
 Windows:
 
 ```bat
-:: Terminal 1 (if using a virtual environment, first run: .venv\Scripts\activate)
+:: Terminal 1
+cd CITS5505_project_1        :: skip if already in the project directory
+.venv\Scripts\activate       :: skip if virtual environment is already activated
 flask run
 
-:: Terminal 2 (new window requires re-activation; first run: .venv\Scripts\activate)
+:: Terminal 2
+cd CITS5505_project_1        :: skip if already in the project directory
+.venv\Scripts\activate       :: skip if virtual environment is already activated
 python -m pytest tests/selenium/
 ```
 
@@ -268,8 +278,6 @@ python -m pytest tests/selenium/test_admin.py
 - `test_password_reset_service.py` — Tests the password reset flow: a verification code is generated and sent when the email exists, a generic message is returned when it does not, repeated requests within a short time are rejected; the password is updated and the cache cleared when the code is correct, the failure count is incremented when it is wrong, the code is cleared after the maximum number of attempts is reached, and mismatched or too-short passwords are rejected.
 
 - `test_profile_logic.py` — Tests profile updates: saving a bio of up to 200 characters, returning 400 if the length is exceeded; toggling the "Hide Holdings" switch; uploading a PNG avatar and saving it to disk and the database; rejecting empty data, non-PNG formats, and invalid base64-encoded avatars.
-
-- `test_seed_data.py` — Tests the database initialisation script: correctly creates the root/admin/trader users and their permissions, root password is stored as a hash, creates AAPL/TSLA/NVDA stocks and their price history, trader's holdings and buy transactions are correct, and running twice does not produce duplicate data.
 
 - `test_stock_data_and_simulator.py` — Tests stock data queries (returns a list of stocks and price history, supports limit to fetch the latest N records); tests the price simulator (minimum floor of 1.00 for negative values, single-step increase capped at 15%, not below min_price, buy and sell operations correctly apply market pressure).
 
